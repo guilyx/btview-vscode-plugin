@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replace Husky + lint-staged with [pre-commit](https://pre-commit.com) (`.pre-commit-config.yaml`)
+- CI runs `pre-commit run --all-files` on every PR; push triggers limited to `main` only
+
 ### Fixed
 
 - CI runs on pull requests targeting any branch (stacked `feat/*` PRs included)

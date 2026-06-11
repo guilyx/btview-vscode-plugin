@@ -1,6 +1,6 @@
 # BTView — Behavior Tree Editor
 
-[![CI](https://github.com/guilyx/btview-vscode-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/guilyx/btview-vscode-plugin/actions/workflows/ci.yml)
+[![CI](https://github.com/your-org/btview-vscode-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/btview-vscode-plugin/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-%3E%3D1.85-brightgreen)
 
@@ -39,7 +39,9 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 
 ```bash
 npm ci
-npm run watch    # dev mode
+pip install pre-commit   # or: uv tool install pre-commit
+pre-commit install -t pre-commit -t commit-msg
+npm run watch            # dev mode
 # Press F5 to launch Extension Development Host
 ```
 

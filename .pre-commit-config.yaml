@@ -1,0 +1,30 @@
+# Git hooks via https://pre-commit.com (replaces Husky + lint-staged).
+# Setup: pip install pre-commit && pre-commit install -t pre-commit -t commit-msg
+# CI:    pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: npx prettier --write
+        language: system
+        files: \.(ts|tsx|mjs|js|json|md)$
+
+      - id: eslint
+        name: eslint
+        entry: npx eslint --fix
+        language: system
+        files: \.(ts|tsx)$
+
+      - id: commitlint
+        name: commitlint
+        entry: npx --no -- commitlint --edit
+        language: system
+        stages: [commit-msg]

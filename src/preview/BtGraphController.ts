@@ -111,7 +111,11 @@ export class BtGraphController {
   async resolveCustomTextEditor(
     document: vscode.TextDocument,
     webviewPanel: vscode.WebviewPanel,
+    token: vscode.CancellationToken,
   ): Promise<void> {
+    if (token.isCancellationRequested) {
+      return;
+    }
     const uri = document.uri;
     webviewPanel.webview.options = getWebviewOptions(this.extensionUri);
 

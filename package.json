@@ -85,7 +85,7 @@
     "@types/vscode": "^1.85.0",
     "@vitejs/plugin-react": "^4.4.0",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
+    "@vscode/test-electron": "^3.0.0",
     "@vscode/vsce": "^3.3.0",
     "@xyflow/react": "^12.6.0",
     "esbuild": "^0.28.0",

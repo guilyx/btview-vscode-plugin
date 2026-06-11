@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run check-types
+      - run: npm run lint
+      - run: npm run compile
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Integration tests (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: xvfb-run -a npm run test:integration
+      - name: Integration tests (non-Linux)
+        if: matrix.os != 'ubuntu-latest'
+        run: npm run test:integration
+
+  release:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run package
+      - run: npm run vsix
+      - uses: actions/upload-artifact@v4
+        with:
+          name: btview-vsix
+          path: '*.vsix'

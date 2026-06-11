@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm: watch",
+      "type": "shell",
+      "command": "bash scripts/with-node.sh npm run watch:inner",
+      "problemMatcher": "$tsc-watch",
+      "isBackground": true,
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "never" }
+    },
+    {
+      "label": "npm: compile",
+      "type": "shell",
+      "command": "bash scripts/with-node.sh npm run compile:inner",
+      "group": "build",
+      "problemMatcher": ["$esbuild", "$tsc"]
+    },
+    {
+      "label": "npm: pretest:integration",
+      "type": "shell",
+      "command": "bash scripts/with-node.sh npm run pretest:integration:inner",
+      "group": "build"
+    }
+  ]
+}

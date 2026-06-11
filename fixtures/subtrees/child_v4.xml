@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="ChildTree">
+    <Sequence>
+      <Action ID="OpenGripper"/>
+      <Action ID="CloseGripper"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

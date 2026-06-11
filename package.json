@@ -47,7 +47,18 @@
     "menus": {},
     "configuration": {
       "title": "BTView",
-      "properties": {}
+      "properties": {
+        "btview.defaultFormatVersion": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "3",
+            "4"
+          ],
+          "default": "auto",
+          "description": "Default BTCpp format when BTCPP_format is absent."
+        }
+      }
     }
   },
   "scripts": {

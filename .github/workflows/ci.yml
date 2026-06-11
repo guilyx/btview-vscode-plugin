@@ -16,7 +16,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      - run: bash scripts/ci-install.sh
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -35,7 +35,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      - run: bash scripts/ci-install.sh
       - run: npm run check-types
       - run: npm run compile
       - name: Unit tests
@@ -56,7 +56,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      - run: bash scripts/ci-install.sh
       - run: npm run package
       - run: npm run vsix
       - uses: actions/upload-artifact@v4

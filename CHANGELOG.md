@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- macOS/Windows CI: install Rollup native bindings after `npm ci` (npm optional-deps bug)
+
 ### Removed
 
 - `examples/` directory from the repository (kept local-only via `.gitignore`)

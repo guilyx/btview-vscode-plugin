@@ -39,8 +39,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "btview.ping",
-        "title": "BTView Ping",
+        "command": "btview.openPreviewSide",
+        "title": "Open BT Graph to the Side",
+        "category": "BTView",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "btview.convertToV4",
+        "title": "Convert to BTCpp v4",
         "category": "BTView"
       }
     ],
@@ -48,6 +54,21 @@
     "configuration": {
       "title": "BTView",
       "properties": {
+        "btview.rosDistro": {
+          "type": "string",
+          "default": "",
+          "description": "ROS distro for package resolution."
+        },
+        "btview.rosWorkspaceSetup": {
+          "type": "string",
+          "default": "",
+          "description": "Path to setup.bash/setup.zsh."
+        },
+        "btview.rosPackageShareOverrides": {
+          "type": "object",
+          "default": {},
+          "description": "ROS package share overrides."
+        },
         "btview.defaultFormatVersion": {
           "type": "string",
           "enum": [
@@ -56,7 +77,16 @@
             "4"
           ],
           "default": "auto",
-          "description": "Default BTCpp format when BTCPP_format is absent."
+          "description": "Default BTCpp format."
+        },
+        "btview.serializeNewFilesAs": {
+          "type": "string",
+          "enum": [
+            "3",
+            "4"
+          ],
+          "default": "4",
+          "description": "Format for new files."
         }
       }
     }

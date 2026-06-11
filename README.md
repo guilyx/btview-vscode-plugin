@@ -39,7 +39,9 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 
 ```bash
 npm ci
-npm run watch    # dev mode
+pip install pre-commit   # or: uv tool install pre-commit
+pre-commit install -t pre-commit -t commit-msg
+npm run watch            # dev mode
 # Press F5 to launch Extension Development Host
 ```
 

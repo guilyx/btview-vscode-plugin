@@ -62,7 +62,6 @@
     }
   },
   "scripts": {
-    "prepare": "husky",
     "compile": "bash scripts/with-node.sh npm run compile:inner",
     "compile:inner": "npm run check-types && node esbuild.js",
     "check-types": "tsc --noEmit",
@@ -76,23 +75,16 @@
     "package": "bash scripts/with-node.sh npm run package:inner",
     "package:inner": "npm run check-types && node esbuild.js --production && npm run build:webview",
     "lint": "eslint src",
-    "lint:fix": "eslint src webview/src --fix",
+    "lint:fix": "eslint src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "precommit": "pre-commit run --all-files",
     "test": "npm run test:unit",
     "test:unit": "vitest run",
     "test:integration": "echo \"skip\"",
     "pretest:integration": "echo \"integration tests added in PR6\"",
     "pretest:integration:inner": "npm run compile:inner && tsc -p tsconfig.test.json",
     "vsix": "vsce package --no-dependencies"
-  },
-  "lint-staged": {
-    "*.{ts,tsx,mjs,js,json,md}": [
-      "prettier --write"
-    ],
-    "*.{ts,tsx}": [
-      "eslint --fix"
-    ]
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
@@ -112,8 +104,6 @@
     "eslint-config-prettier": "^10.1.0",
     "fast-xml-parser": "^5.0.9",
     "globals": "^16.0.0",
-    "husky": "^9.1.0",
-    "lint-staged": "^15.5.0",
     "mocha": "^11.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.5.0",

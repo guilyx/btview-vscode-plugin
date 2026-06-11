@@ -1,0 +1,29 @@
+import { Handle, Position, type NodeProps } from '@xyflow/react';
+import type { FlowNodeData } from '../graph/layout';
+
+const kindColors: Record<string, string> = {
+  control: '#4a9eff',
+  decorator: '#a78bfa',
+  action: '#4ade80',
+  condition: '#facc15',
+  subtree: '#fb923c',
+  script: '#f472b6',
+  unknown: '#94a3b8',
+};
+
+export function BtFlowNode({ data, selected }: NodeProps) {
+  const d = data as FlowNodeData;
+  const color = kindColors[d.kind] ?? kindColors.unknown;
+
+  return (
+    <div className={`bt-node ${selected ? 'selected' : ''}`} style={{ borderColor: color }}>
+      <Handle type="target" position={Position.Top} />
+      <div className="bt-node-kind" style={{ color }}>
+        {d.kind}
+      </div>
+      <div className="bt-node-label">{d.label}</div>
+      <div className="bt-node-id">{d.registeredId}</div>
+      <Handle type="source" position={Position.Bottom} />
+    </div>
+  );
+}

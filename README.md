@@ -1,6 +1,6 @@
 # BTView — Behavior Tree Editor
 
-[![CI](https://github.com/your-org/btview-vscode-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/btview-vscode-plugin/actions/workflows/ci.yml)
+[![CI](https://github.com/guilyx/btview-vscode-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/guilyx/btview-vscode-plugin/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)
 ![VS Code](https://img.shields.io/badge/VS%20Code-%3E%3D1.85-brightgreen)
 

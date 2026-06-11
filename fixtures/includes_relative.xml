@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <include path="./subtrees/child_v4.xml"/>
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <Action ID="SaySomething" message="Hello"/>
+      <SubTree ID="ChildTree"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

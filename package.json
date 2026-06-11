@@ -8,10 +8,10 @@
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/btview-vscode-plugin"
+    "url": "https://github.com/guilyx/btview-vscode-plugin"
   },
   "bugs": {
-    "url": "https://github.com/your-org/btview-vscode-plugin/issues"
+    "url": "https://github.com/guilyx/btview-vscode-plugin/issues"
   },
   "engines": {
     "vscode": "^1.85.0",
@@ -33,26 +33,149 @@
     "theme": "dark"
   },
   "activationEvents": [
-    "onLanguage:xml"
+    "onLanguage:xml",
+    "onCustomEditor:btview.graph"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "customEditors": [
+      {
+        "viewType": "btview.graph",
+        "displayName": "BT Graph",
+        "selector": [
+          {
+            "filenamePattern": "*.xml"
+          },
+          {
+            "filenamePattern": "*.bt.xml"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
     "commands": [
       {
-        "command": "btview.ping",
-        "title": "BTView Ping",
+        "command": "btview.openPreview",
+        "title": "Open BT Graph",
+        "category": "BTView",
+        "icon": {
+          "light": "media/icons/graph-light.svg",
+          "dark": "media/icons/graph-dark.svg"
+        }
+      },
+      {
+        "command": "btview.openPreviewSide",
+        "title": "Open BT Graph to the Side",
+        "category": "BTView",
+        "icon": {
+          "light": "media/icons/graph-light.svg",
+          "dark": "media/icons/graph-dark.svg"
+        }
+      },
+      {
+        "command": "btview.openSource",
+        "title": "Open XML Source",
+        "category": "BTView",
+        "icon": {
+          "light": "media/icons/xml-light.svg",
+          "dark": "media/icons/xml-dark.svg"
+        }
+      },
+      {
+        "command": "btview.convertToV4",
+        "title": "Convert to BTCpp v4",
         "category": "BTView"
       }
     ],
-    "menus": {},
+    "menus": {
+      "editor/title": [
+        {
+          "command": "btview.openPreview",
+          "alt": "btview.openPreviewSide",
+          "when": "(resourceLangId == xml || resourceExtname == .xml) && activeCustomEditorId != 'btview.graph'",
+          "group": "navigation@1"
+        },
+        {
+          "command": "btview.openSource",
+          "when": "activeCustomEditorId == 'btview.graph'",
+          "group": "navigation@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "btview.openPreview",
+          "when": "resourceExtname == .xml",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "btview.openPreview",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "resourceLangId == xml && editorTextFocus"
+      },
+      {
+        "command": "btview.openPreviewSide",
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "resourceLangId == xml && editorTextFocus"
+      }
+    ],
     "configuration": {
       "title": "BTView",
-      "properties": {}
+      "properties": {
+        "btview.rosDistro": {
+          "type": "string",
+          "default": "",
+          "description": "ROS distro for package resolution (auto-detect if empty)."
+        },
+        "btview.rosWorkspaceSetup": {
+          "type": "string",
+          "default": "",
+          "description": "Path to setup.bash/setup.zsh to source before ros2 pkg prefix."
+        },
+        "btview.rosPackageShareOverrides": {
+          "type": "object",
+          "default": {},
+          "description": "Map package name to share directory override."
+        },
+        "btview.defaultFormatVersion": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "3",
+            "4"
+          ],
+          "default": "auto",
+          "description": "Default BTCpp format when BTCPP_format is absent (auto = v3.8)."
+        },
+        "btview.serializeNewFilesAs": {
+          "type": "string",
+          "enum": [
+            "3",
+            "4"
+          ],
+          "default": "4",
+          "description": "Format version for newly created BT XML files."
+        },
+        "btview.defaultOpenMode": {
+          "type": "string",
+          "enum": [
+            "text",
+            "graph",
+            "side"
+          ],
+          "default": "text",
+          "description": "When opening a BTCpp XML file: text editor only, BT Graph custom editor, or XML + side graph preview."
+        }
+      }
     }
   },
   "scripts": {
     "compile": "bash scripts/with-node.sh npm run compile:inner",
-    "compile:inner": "npm run check-types && node esbuild.js",
+    "compile:inner": "npm run check-types && node esbuild.js && npm run build:webview",
     "check-types": "tsc --noEmit",
     "watch": "bash scripts/with-node.sh npm run watch:inner",
     "watch:inner": "npm-run-all -p watch:*",
@@ -63,15 +186,15 @@
     "vscode:prepublish": "npm run package",
     "package": "bash scripts/with-node.sh npm run package:inner",
     "package:inner": "npm run check-types && node esbuild.js --production && npm run build:webview",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
+    "lint": "eslint src webview/src",
+    "lint:fix": "eslint src webview/src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "precommit": "pre-commit run --all-files",
-    "test": "npm run test:unit",
+    "test": "npm run test:unit && npm run test:integration",
     "test:unit": "vitest run",
-    "test:integration": "echo \"skip\"",
-    "pretest:integration": "echo \"integration tests added in PR6\"",
+    "test:integration": "vscode-test",
+    "pretest:integration": "bash scripts/with-node.sh npm run pretest:integration:inner",
     "pretest:integration:inner": "npm run compile:inner && tsc -p tsconfig.test.json",
     "vsix": "vsce package --no-dependencies"
   },

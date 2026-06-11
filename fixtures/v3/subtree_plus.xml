@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+      <Action ID="SaySomething" message="Hello World"/>
+      <SubTreePlus ID="GraspObject" __autoremap="true"/>
+    </Sequence>
+  </BehaviorTree>
+  <BehaviorTree ID="GraspObject">
+    <Sequence>
+      <Action ID="OpenGripper"/>
+      <Action ID="CloseGripper"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

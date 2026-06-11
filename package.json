@@ -108,6 +108,7 @@
     "lint:fix": "eslint src webview/src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "precommit": "pre-commit run --all-files",
     "test": "npm run test:unit",
     "test:unit": "vitest run",
     "test:integration": "echo \"skip\"",

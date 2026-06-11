@@ -7,7 +7,6 @@ out-test/**
 node_modules/**
 .git/**
 .github/**
-.husky/**
 fixtures/**
 **/*.ts
 **/*.map

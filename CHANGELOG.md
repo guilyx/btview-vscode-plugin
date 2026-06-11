@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Land full feature stack on `main` (stacked PRs #2–#6: parser, webview, host, custom editor, docs)
+- Bump `elkjs` to 0.11.1, `react`/`react-dom` to 19.x
 - Replace Husky + lint-staged with [pre-commit](https://pre-commit.com) (`.pre-commit-config.yaml`)
 - CI runs `pre-commit run --all-files` on every PR; push triggers limited to `main` only
 

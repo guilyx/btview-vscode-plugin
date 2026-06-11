@@ -8,3 +8,4 @@ webview/dist/
 .vscode-test/
 *.log
 coverage/
+examples/

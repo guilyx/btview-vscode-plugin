@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `examples/` directory from the repository (kept local-only via `.gitignore`)
+
 ### Changed
 
 - Land full feature stack on `main` (stacked PRs #2–#6: parser, webview, host, custom editor, docs)

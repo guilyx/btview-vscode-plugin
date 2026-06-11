@@ -76,7 +76,7 @@
     "vsix": "vsce package --no-dependencies"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
+    "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^19.8.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.17.0",

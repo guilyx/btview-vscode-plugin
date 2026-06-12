@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Regenerate `media/icon.png` from `media/icon.svg` (behavior tree logo; was solid blue placeholder)
 - Title bar toggle uses `editorLangId == xml` (same pattern as built-in Markdown preview) so graph/XML icons appear on the XML editor tab
 - Title bar menu `when` clauses; add `webview/title` buttons for side preview panel
 

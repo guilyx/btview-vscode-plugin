@@ -39,11 +39,27 @@ export function addNode(
 ): BtDocument {
   const updated = cloneDocument(doc);
   const tree = updated.trees.find((t) => t.id === treeId);
-  if (!tree?.root) {
+  if (!tree) {
     return doc;
   }
 
-  const parent = parentPath === 'root' ? tree.root : findNodeByPath(tree.root, parentPath);
+  if (!tree.root) {
+    if (parentPath !== '0') {
+      return doc;
+    }
+    tree.root = {
+      path: '0',
+      kind,
+      registeredId,
+      attributes: {},
+      children: [],
+      rawTag: rawTagForNewNode(kind, registeredId),
+    };
+    return updated;
+  }
+
+  const parent =
+    parentPath === '0' || parentPath === 'root' ? tree.root : findNodeByPath(tree.root, parentPath);
   if (!parent) {
     return doc;
   }

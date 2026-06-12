@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import type { SerializedDocument } from './types';
 import { BtGraph } from './graph/BtGraph';
 import { Inspector } from './panels/Inspector';
-import { Toolbar } from './panels/Toolbar';
-import { NodePicker } from './panels/NodePicker';
+import { NodePaletteSidebar } from './panels/NodePaletteSidebar';
+import { EmptyCanvas } from './panels/EmptyCanvas';
 import { WarningsPanel } from './panels/WarningsPanel';
 import { ViewSwitcher } from './panels/ViewSwitcher';
 import type { FlowNodeData } from './graph/layout';
@@ -62,7 +62,8 @@ export function App() {
   }
 
   const activeTree = doc.trees.find((t) => t.id === doc.activeTreeId) ?? doc.trees[0];
-  const parentPath = selectedNode?.path ?? '0';
+  const parentPath = selectedNode?.path ?? (activeTree?.root ? '0' : '0');
+  const hasRoot = Boolean(activeTree?.root);
 
   return (
     <div className="app">
@@ -105,40 +106,47 @@ export function App() {
         </div>
       </header>
 
-      <WarningsPanel doc={doc} onSelectPath={() => undefined} />
+      <div className="workspace">
+        <NodePaletteSidebar doc={doc} parentPath={parentPath} />
+        <div className="workspace-main">
+          <WarningsPanel doc={doc} onSelectPath={() => undefined} />
 
-      {doc.includes.length > 0 && (
-        <div className="includes">
-          {doc.includes.map((inc, i) => (
-            <button
-              key={i}
-              type="button"
-              className={inc.error ? 'include-error' : 'include-ok'}
-              disabled={!inc.resolvedUri}
-              onClick={() => postMessage({ type: 'openInclude', resolvedUri: inc.resolvedUri })}
-              title={inc.error ?? inc.resolvedUri}
-            >
-              {inc.rosPkg ? `${inc.rosPkg}:` : ''}
-              {inc.path}
-            </button>
-          ))}
+          {doc.includes.length > 0 && (
+            <div className="includes">
+              {doc.includes.map((inc, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={inc.error ? 'include-error' : 'include-ok'}
+                  disabled={!inc.resolvedUri}
+                  onClick={() => postMessage({ type: 'openInclude', resolvedUri: inc.resolvedUri })}
+                  title={inc.error ?? inc.resolvedUri}
+                >
+                  {inc.rosPkg ? `${inc.rosPkg}:` : ''}
+                  {inc.path}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="main">
+            {hasRoot ? (
+              <BtGraph
+                root={activeTree?.root ?? null}
+                treeId={doc.activeTreeId}
+                parentPath={parentPath}
+                onNodeSelect={onNodeSelect}
+              />
+            ) : (
+              <EmptyCanvas doc={doc} />
+            )}
+            <Inspector
+              node={selectedNode}
+              treeId={doc.activeTreeId}
+              formatVersion={doc.formatVersion}
+            />
+          </div>
         </div>
-      )}
-
-      <Toolbar doc={doc} selectedPath={parentPath} />
-      <NodePicker doc={doc} parentPath={parentPath} />
-
-      <div className="main">
-        <BtGraph
-          root={activeTree?.root ?? null}
-          treeId={doc.activeTreeId}
-          onNodeSelect={onNodeSelect}
-        />
-        <Inspector
-          node={selectedNode}
-          treeId={doc.activeTreeId}
-          formatVersion={doc.formatVersion}
-        />
       </div>
     </div>
   );

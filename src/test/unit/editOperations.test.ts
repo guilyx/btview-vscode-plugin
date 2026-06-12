@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { parseDocument } from '../../btcpp/parser';
-import { reparentNode, editNodeAttribute } from '../../btcpp/editOperations';
+import { reparentNode, editNodeAttribute, addNode } from '../../btcpp/editOperations';
 
 const fixture = (name: string) =>
   readFileSync(path.join(__dirname, '../../../fixtures/v4', name), 'utf8');
@@ -22,5 +22,19 @@ describe('editOperations', () => {
     const result = reparentNode(doc, treeId, '0', '0-0');
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
+  });
+
+  it('addNode creates root on empty tree', () => {
+    const xml = `<?xml version="1.0"?>
+<root BTCPP_format="4" main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree"/>
+</root>`;
+    const doc = parseDocument(xml);
+    const treeId = doc.trees[0]!.id;
+    expect(doc.trees[0]?.root).toBeNull();
+
+    const updated = addNode(doc, treeId, '0', 'Sequence', 'control');
+    expect(updated.trees[0]?.root?.registeredId).toBe('Sequence');
+    expect(updated.trees[0]?.root?.path).toBe('0');
   });
 });

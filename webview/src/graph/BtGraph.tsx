@@ -14,7 +14,7 @@ import '@xyflow/react/dist/style.css';
 import { buildFlowGraph, type FlowNodeData } from './layout';
 import { BtFlowNode } from '../nodes/BtNode';
 import type { BtNodeData } from '../types';
-import { postMessage } from '../vscodeApi';
+import { BTVIEW_NODE_DRAG, type PaletteDragPayload } from '../panels/NodePaletteSidebar';
 import { getState, setState } from '../vscodeApi';
 
 const nodeTypes = { btNode: BtFlowNode };
@@ -22,6 +22,7 @@ const nodeTypes = { btNode: BtFlowNode };
 interface BtGraphProps {
   root: BtNodeData | null;
   treeId: string;
+  parentPath: string;
   onNodeSelect: (node: FlowNodeData | null) => void;
 }
 
@@ -39,7 +40,7 @@ function FitViewOnFirstLoad({ treeId }: { treeId: string }) {
   return null;
 }
 
-function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
+function BtGraphInner({ root, treeId, parentPath, onNodeSelect }: BtGraphProps) {
   const initial = useMemo(() => buildFlowGraph(root), [root]);
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
@@ -107,6 +108,36 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
     setState({ viewport });
   }, []);
 
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    if (e.dataTransfer.types.includes(BTVIEW_NODE_DRAG)) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  }, []);
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      const raw = e.dataTransfer.getData(BTVIEW_NODE_DRAG);
+      if (!raw) {
+        return;
+      }
+      e.preventDefault();
+      try {
+        const payload = JSON.parse(raw) as PaletteDragPayload;
+        postMessage({
+          type: 'addNode',
+          treeId,
+          parentPath,
+          registeredId: payload.id,
+          kind: payload.kind,
+        });
+      } catch {
+        // ignore malformed drag payload
+      }
+    },
+    [treeId, parentPath],
+  );
+
   const styledNodes = useMemo(
     () =>
       nodes.map((n) => ({
@@ -118,7 +149,13 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
   );
 
   return (
-    <div className="graph-container" role="application" aria-label="Behavior tree graph">
+    <div
+      className="graph-container"
+      role="application"
+      aria-label="Behavior tree graph"
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
       <ReactFlow
         nodes={styledNodes}
         edges={edges}

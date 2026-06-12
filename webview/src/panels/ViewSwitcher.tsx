@@ -4,7 +4,11 @@ import { postMessage } from '../vscodeApi';
 export function ViewSwitcher() {
   return (
     <div className="view-switcher" role="toolbar" aria-label="Editor view">
-      <button type="button" className="view-switcher-btn" onClick={() => postMessage({ type: 'openSource' })}>
+      <button
+        type="button"
+        className="view-switcher-btn"
+        onClick={() => postMessage({ type: 'openSource' })}
+      >
         XML Source
       </button>
       <button

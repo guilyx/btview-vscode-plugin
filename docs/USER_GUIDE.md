@@ -22,12 +22,12 @@ The SVG files in `media/icons/` are **not unused** — they are the icons for th
 }
 ```
 
-| Icon | Shows when | Action |
-|------|------------|--------|
-| Graph (nodes) | XML **text** editor is active | Click → BT Graph tab; Alt+click → graph beside |
-| XML (code) | **BT Graph** custom editor is active | Click → back to XML source |
+| Icon          | Shows when                           | Action                                         |
+| ------------- | ------------------------------------ | ---------------------------------------------- |
+| Graph (nodes) | XML **text** editor is active        | Click → BT Graph tab; Alt+click → graph beside |
+| XML (code)    | **BT Graph** custom editor is active | Click → back to XML source                     |
 
-This is **supported by the VS Code extension API** — plugins cannot draw buttons *inside* the text editor surface, only on the **tab chrome** (`editor/title`), which is what Markdown uses.
+This is **supported by the VS Code extension API** — plugins cannot draw buttons _inside_ the text editor surface, only on the **tab chrome** (`editor/title`), which is what Markdown uses.
 
 **Cursor** may hide third-party `editor/title` icons even when configured correctly. Use the in-graph **XML Source** / **Graph beside** header buttons, or Command Palette / shortcuts.
 

@@ -10,6 +10,27 @@
 
 ## Opening a behavior tree
 
+### Title bar icons (VS Code — like Markdown preview)
+
+The SVG files in `media/icons/` are **not unused** — they are the icons for the **editor tab title bar** (top-right of the XML tab), wired exactly like Markdown’s preview button:
+
+```json
+"menus": {
+  "editor/title": [
+    { "command": "btview.openPreview", "when": "editorLangId == xml", "group": "navigation" }
+  ]
+}
+```
+
+| Icon | Shows when | Action |
+|------|------------|--------|
+| Graph (nodes) | XML **text** editor is active | Click → BT Graph tab; Alt+click → graph beside |
+| XML (code) | **BT Graph** custom editor is active | Click → back to XML source |
+
+This is **supported by the VS Code extension API** — plugins cannot draw buttons *inside* the text editor surface, only on the **tab chrome** (`editor/title`), which is what Markdown uses.
+
+**Cursor** may hide third-party `editor/title` icons even when configured correctly. Use the in-graph **XML Source** / **Graph beside** header buttons, or Command Palette / shortcuts.
+
 ### From the XML text editor
 
 1. Open any `.xml` file with a BTCpp `<root>` and `<BehaviorTree>` elements

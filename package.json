@@ -102,13 +102,13 @@
         {
           "command": "btview.openPreview",
           "alt": "btview.openPreviewSide",
-          "when": "(resourceLangId == xml || resourceExtname =~ /\\.xml$/i) && activeCustomEditorId != 'btview.graph'",
-          "group": "navigation@1"
+          "when": "editorLangId == xml && activeCustomEditorId != 'btview.graph'",
+          "group": "navigation"
         },
         {
           "command": "btview.openSource",
           "when": "activeCustomEditorId == 'btview.graph'",
-          "group": "navigation@1"
+          "group": "navigation"
         }
       ],
       "webview/title": [
@@ -136,13 +136,13 @@
         "command": "btview.openPreview",
         "key": "ctrl+shift+v",
         "mac": "cmd+shift+v",
-        "when": "resourceLangId == xml && editorTextFocus"
+        "when": "editorLangId == xml && editorTextFocus"
       },
       {
         "command": "btview.openPreviewSide",
         "key": "ctrl+k v",
         "mac": "cmd+k v",
-        "when": "resourceLangId == xml && editorTextFocus"
+        "when": "editorLangId == xml && editorTextFocus"
       }
     ],
     "configuration": {

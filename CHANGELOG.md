@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Title bar menu `when` clauses match any `.xml` extension; add `webview/title` buttons for side preview panel
+- Title bar toggle uses `editorLangId == xml` (same pattern as built-in Markdown preview) so graph/XML icons appear on the XML editor tab
+- Title bar menu `when` clauses; add `webview/title` buttons for side preview panel
 
 ## [0.2.1] - 2026-06-12
 

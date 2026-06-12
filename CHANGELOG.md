@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - CI release job also triggers on `v*.*.*` tag push (not only published GitHub Release)
+- Pre-commit hooks use `scripts/with-node.sh` + `--check` mode; add `scripts/verify.sh` and CI gate rules for agents
+
+### Fixed
+
+- Pre-commit prettier/eslint failed on system Node 12 outside `with-node.sh`
+- Release CI job now `needs: [pre-commit, build]` (no publish on red checks)
 
 ## [0.1.0] - 2026-06-12
 

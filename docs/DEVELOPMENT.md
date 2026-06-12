@@ -65,7 +65,23 @@ Open a fixture file, e.g. `fixtures/v4/simple_sequence.xml`, then run **BTView: 
 
 ## Pre-commit hooks
 
-[pre-commit](https://pre-commit.com) runs on commit (ESLint, Prettier, commitlint). Install with `pre-commit install -t pre-commit -t commit-msg`. Commits must follow [Conventional Commits](https://www.conventionalcommits.org/).
+[pre-commit](https://pre-commit.com) runs on commit (ESLint, Prettier, commitlint). Hooks use `scripts/with-node.sh` so Node 20+ is required. Install with `pre-commit install -t pre-commit -t commit-msg`.
+
+Before every push:
+
+```bash
+bash scripts/verify.sh
+```
+
+If prettier/eslint fail, fix locally:
+
+```bash
+bash scripts/with-node.sh npm run format
+bash scripts/with-node.sh npm run lint:fix
+pre-commit run --all-files
+```
+
+Commits must follow [Conventional Commits](https://www.conventionalcommits.org/). **Do not merge PRs until all CI jobs are green.**
 
 ## Adding tests
 

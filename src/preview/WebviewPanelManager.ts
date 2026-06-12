@@ -14,11 +14,7 @@ export class WebviewPanelManager {
 
   constructor(private readonly extensionUri: vscode.Uri) {}
 
-  bindWebview(
-    uri: vscode.Uri,
-    webview: vscode.Webview,
-    disposables: vscode.Disposable[],
-  ): void {
+  bindWebview(uri: vscode.Uri, webview: vscode.Webview, disposables: vscode.Disposable[]): void {
     const key = uri.toString();
     if (!this.bindings.has(key)) {
       this.bindings.set(key, new Set());

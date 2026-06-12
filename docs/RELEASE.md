@@ -2,12 +2,12 @@
 
 ## Versioning
 
-| Artifact | Format | Example |
-|----------|--------|---------|
-| `package.json` | `X.Y.Z` | `0.1.0` |
-| Git tag | `vX.Y.Z` | `v0.1.0` |
-| CHANGELOG | `## [X.Y.Z]` | `## [0.1.0]` |
-| VSIX | `btview-X.Y.Z.vsix` | `btview-0.1.0.vsix` |
+| Artifact       | Format              | Example             |
+| -------------- | ------------------- | ------------------- |
+| `package.json` | `X.Y.Z`             | `0.1.0`             |
+| Git tag        | `vX.Y.Z`            | `v0.1.0`            |
+| CHANGELOG      | `## [X.Y.Z]`        | `## [0.1.0]`        |
+| VSIX           | `btview-X.Y.Z.vsix` | `btview-0.1.0.vsix` |
 
 SemVer pre-1.0: bump **minor** for features, **patch** for fixes.
 

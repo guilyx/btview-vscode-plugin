@@ -89,7 +89,11 @@ export function App() {
             </span>
           )}
         </div>
-        {saving && <span className="saving-indicator" aria-live="polite">Saving…</span>}
+        {saving && (
+          <span className="saving-indicator" aria-live="polite">
+            Saving…
+          </span>
+        )}
         {validationError && (
           <span className="validation-error" role="alert">
             {validationError}
@@ -117,11 +121,19 @@ export function App() {
         </div>
       )}
 
-      <Toolbar treeId={doc.activeTreeId} formatVersion={doc.formatVersion} selectedPath={parentPath} />
+      <Toolbar
+        treeId={doc.activeTreeId}
+        formatVersion={doc.formatVersion}
+        selectedPath={parentPath}
+      />
       <NodePicker doc={doc} parentPath={parentPath} />
 
       <div className="main">
-        <BtGraph root={activeTree?.root ?? null} treeId={doc.activeTreeId} onNodeSelect={onNodeSelect} />
+        <BtGraph
+          root={activeTree?.root ?? null}
+          treeId={doc.activeTreeId}
+          onNodeSelect={onNodeSelect}
+        />
         <Inspector
           node={selectedNode}
           treeId={doc.activeTreeId}

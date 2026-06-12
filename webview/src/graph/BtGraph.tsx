@@ -132,7 +132,9 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
         nodesDraggable
         nodesConnectable={false}
         proOptions={{ hideAttribution: true }}
-        defaultViewport={getState<{ viewport?: { x: number; y: number; zoom: number } }>()?.viewport}
+        defaultViewport={
+          getState<{ viewport?: { x: number; y: number; zoom: number } }>()?.viewport
+        }
       >
         <FitViewOnFirstLoad treeId={treeId} />
         <Background gap={16} />

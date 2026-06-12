@@ -15,13 +15,13 @@ Node **20+** required. Use `scripts/with-node.sh` for all npm scripts locally.
 
 ## Architecture
 
-| Path | Role |
-|------|------|
-| `src/btcpp/` | Parse, serialize, validate, edit (VS Code–agnostic) |
-| `src/sync/DocumentSyncService.ts` | Bridge domain ↔ workspace XML |
-| `src/preview/` | Custom editor, webview host, message routing |
-| `webview/` | React Flow UI (no direct `vscode` API — use `vscodeApi.ts`) |
-| `src/shared/protocol.ts` | Host ↔ webview message types |
+| Path                              | Role                                                        |
+| --------------------------------- | ----------------------------------------------------------- |
+| `src/btcpp/`                      | Parse, serialize, validate, edit (VS Code–agnostic)         |
+| `src/sync/DocumentSyncService.ts` | Bridge domain ↔ workspace XML                               |
+| `src/preview/`                    | Custom editor, webview host, message routing                |
+| `webview/`                        | React Flow UI (no direct `vscode` API — use `vscodeApi.ts`) |
+| `src/shared/protocol.ts`          | Host ↔ webview message types                                |
 
 ## PR workflow
 

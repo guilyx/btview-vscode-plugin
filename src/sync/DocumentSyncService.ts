@@ -98,7 +98,10 @@ export class DocumentSyncService {
     };
   }
 
-  async applyEdit(uri: vscode.Uri, edit: Exclude<WebviewToHostMessage, { type: 'ready' | 'openInclude' | 'selectTree' }>): Promise<ApplyEditResult> {
+  async applyEdit(
+    uri: vscode.Uri,
+    edit: Exclude<WebviewToHostMessage, { type: 'ready' | 'openInclude' | 'selectTree' }>,
+  ): Promise<ApplyEditResult> {
     let doc = this.documents.get(uri.toString());
     if (!doc) {
       return { success: false, error: { path: '', message: 'Document not loaded.' } };
@@ -121,13 +124,7 @@ export class DocumentSyncService {
         doc = deleteNode(doc, edit.treeId, edit.path);
         break;
       case 'reparentNode': {
-        const result = reparentNode(
-          doc,
-          edit.treeId,
-          edit.sourcePath,
-          edit.targetPath,
-          edit.index,
-        );
+        const result = reparentNode(doc, edit.treeId, edit.sourcePath, edit.targetPath, edit.index);
         if (!result.success) {
           return { success: false, error: result.error };
         }

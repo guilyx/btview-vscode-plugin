@@ -16,7 +16,11 @@ export interface SerializedDocument {
   mainTreeToExecute?: string;
   activeTreeId: string;
   trees: { id: string; root: BtNodePayload | null }[];
-  models: { id: string; kind: string; ports: { name: string; direction: string; type?: string }[] }[];
+  models: {
+    id: string;
+    kind: string;
+    ports: { name: string; direction: string; type?: string }[];
+  }[];
   includes: { path: string; rosPkg?: string; resolvedUri?: string; error?: string }[];
   warnings: string[];
   validationErrors?: { path: string; message: string }[];

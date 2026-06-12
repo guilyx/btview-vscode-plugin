@@ -88,14 +88,22 @@ export function reparentNode(
   const updated = cloneDocument(doc);
   const tree = updated.trees.find((t) => t.id === treeId);
   if (!tree?.root) {
-    return { success: false, document: doc, error: { path: sourcePath, message: 'Tree not found.' } };
+    return {
+      success: false,
+      document: doc,
+      error: { path: sourcePath, message: 'Tree not found.' },
+    };
   }
 
   const source = findNodeByPath(tree.root, sourcePath);
   const targetParent =
     targetParentPath === '0' ? tree.root : findNodeByPath(tree.root, targetParentPath);
   if (!source || !targetParent) {
-    return { success: false, document: doc, error: { path: sourcePath, message: 'Node not found.' } };
+    return {
+      success: false,
+      document: doc,
+      error: { path: sourcePath, message: 'Node not found.' },
+    };
   }
 
   const err = validateReparent(targetParent, source);
@@ -105,7 +113,11 @@ export function reparentNode(
 
   const sourceParent = findParentOfPath(tree.root, sourcePath);
   if (!sourceParent) {
-    return { success: false, document: doc, error: { path: sourcePath, message: 'Source parent not found.' } };
+    return {
+      success: false,
+      document: doc,
+      error: { path: sourcePath, message: 'Source parent not found.' },
+    };
   }
 
   sourceParent.children = sourceParent.children.filter((c) => c.path !== sourcePath);

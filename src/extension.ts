@@ -16,7 +16,11 @@ export function activate(context: vscode.ExtensionContext): void {
     BtCustomEditorProvider.register(context, controller),
 
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration('btview.rosDistro') || e.affectsConfiguration('btview.rosWorkspaceSetup') || e.affectsConfiguration('btview.rosPackageShareOverrides')) {
+      if (
+        e.affectsConfiguration('btview.rosDistro') ||
+        e.affectsConfiguration('btview.rosWorkspaceSetup') ||
+        e.affectsConfiguration('btview.rosPackageShareOverrides')
+      ) {
         clearRosCache();
       }
     }),

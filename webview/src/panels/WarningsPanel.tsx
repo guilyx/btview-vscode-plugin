@@ -26,7 +26,11 @@ export function WarningsPanel({ doc, onSelectPath }: WarningsPanelProps) {
         {items.map((item) => (
           <li key={item.key}>
             {item.path && onSelectPath ? (
-              <button type="button" className="warning-link" onClick={() => onSelectPath(item.path!)}>
+              <button
+                type="button"
+                className="warning-link"
+                onClick={() => onSelectPath(item.path!)}
+              >
                 [{item.path}] {item.text}
               </button>
             ) : (

@@ -69,7 +69,8 @@ Workflow:
 See [docs/RELEASE.md](docs/RELEASE.md). Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 - Merge **`devel` → `main`** only for releases / release candidates
-- **Ask first:** version bumps, git tags, Marketplace publish
+- **Ask first:** version bumps, git tags, Marketplace / Open VSX publish
+- **Secrets:** `PAT_AZURE_MARKETPLACE` (VS Code), `OVSX_PAT` (Cursor via Open VSX)
 - **Never:** commit secrets, skip hooks, force-push `main` or `devel`, merge without green CI
 
 ## Boundaries

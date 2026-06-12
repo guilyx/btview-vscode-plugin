@@ -7,6 +7,8 @@ alwaysApply: true
 
 Read [AGENTS.md](../../AGENTS.md) for build, test, PR, and release rules.
 
+- **CI gate:** [.cursor/rules/ci-gate.mdc](ci-gate.mdc) — never merge without green CI
 - Release: [docs/RELEASE.md](../../docs/RELEASE.md)
 - Roadmap: [docs/ROADMAP.md](../../docs/ROADMAP.md)
 - Publisher: `rangonomics` / `rangonomics.btview`
+- Before push: `bash scripts/verify.sh`

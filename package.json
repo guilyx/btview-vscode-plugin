@@ -201,6 +201,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "precommit": "pre-commit run --all-files",
+    "verify": "bash scripts/verify.sh",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "vitest run",
     "test:unit:coverage": "vitest run --coverage",

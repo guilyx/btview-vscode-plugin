@@ -6,13 +6,13 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
 ## Milestones
 
-| Version   | Focus                                                                   | Status      |
-| --------- | ----------------------------------------------------------------------- | ----------- |
+| Version   | Focus                                                                   | Status   |
+| --------- | ----------------------------------------------------------------------- | -------- |
 | **0.1.0** | Distribution: publisher, icon, VSIX CI, Marketplace publish, agent docs | Released |
-| **0.2.0** | Architecture: protocol, controller split, validation, diagnostics       | Planned     |
-| **0.3.0** | Performance: edit debounce, skip self-refresh, async includes           | Planned     |
-| **0.4.0** | UX: node picker, reparent/reorder, warnings panel, a11y                 | Planned     |
-| **1.0.0** | Professional-grade criteria met                                         | Planned     |
+| **0.2.0** | Architecture: protocol, controller split, validation, diagnostics       | Planned  |
+| **0.3.0** | Performance: edit debounce, skip self-refresh, async includes           | Planned  |
+| **0.4.0** | UX: node picker, reparent/reorder, warnings panel, a11y                 | Planned  |
+| **1.0.0** | Professional-grade criteria met                                         | Planned  |
 
 ## Phase details
 

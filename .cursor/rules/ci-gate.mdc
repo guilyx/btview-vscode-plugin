@@ -1,0 +1,36 @@
+---
+description: Never merge or push without green CI and local verify
+alwaysApply: true
+---
+
+# CI gate (mandatory)
+
+**Never push to `main`, merge a PR, or tag a release unless CI is fully green.**
+
+## Before every push
+
+```bash
+bash scripts/verify.sh
+```
+
+Minimum before push: `pre-commit run --all-files` (must exit 0).
+
+## Before every merge
+
+1. Open a PR (no direct pushes of feature work to `main` except release/chore with CI pending).
+2. Wait for **all** required checks on the PR:
+   - `pre-commit`
+   - `build (ubuntu-latest)`
+   - `build (macos-latest)`
+   - `build (windows-latest)`
+3. Confirm via `gh pr checks <n>` or GitHub PR checks UI — **all success**.
+4. If pre-commit fails (prettier/eslint), fix on the branch, push, re-wait for green. **Do not merge on red.**
+
+## Never
+
+- Merge while any CI job is `queued`, `in_progress`, or `failure`
+- Skip pre-commit with `--no-verify`
+- Assume local compile is enough without `pre-commit run --all-files`
+- Force-push `main`
+
+See [AGENTS.md](../../AGENTS.md) and [CONTRIBUTING.md](../../CONTRIBUTING.md).

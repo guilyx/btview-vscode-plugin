@@ -13,14 +13,16 @@ repos:
     hooks:
       - id: prettier
         name: prettier
-        entry: npx prettier --write
+        entry: bash scripts/pre-commit-prettier.sh
         language: system
-        files: \.(ts|tsx|mjs|js|json|md)$
+        pass_filenames: true
+        files: \.(ts|tsx|mjs|js|json|md|yaml|yml)$
 
       - id: eslint
         name: eslint
-        entry: npx eslint --fix
+        entry: bash scripts/pre-commit-eslint.sh
         language: system
+        pass_filenames: true
         files: \.(ts|tsx)$
 
       - id: commitlint

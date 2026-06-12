@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- CI release job also triggers on `v*.*.*` tag push (not only published GitHub Release)
+
 ## [0.1.0] - 2026-06-12
 
 ### Added

@@ -19,8 +19,8 @@ SemVer pre-1.0: bump **minor** for features, **patch** for fixes.
    - Set `version` in `package.json`
 3. Merge release PR to `main`
 4. Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`
-5. Create **GitHub Release** (published) from the tag
-6. CI `release` job runs:
+5. Push tag `vX.Y.Z` — CI `release` job runs automatically (also runs on published GitHub Release)
+6. CI `release` job:
    - `scripts/verify-release.sh` — version ↔ tag ↔ CHANGELOG
    - `npm run vsix`
    - Attach VSIX to GitHub Release

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import type { FlowNodeData } from '../graph/layout';
 import { postMessage } from '../vscodeApi';
 
@@ -8,11 +9,21 @@ interface InspectorProps {
 }
 
 export function Inspector({ node, treeId, formatVersion }: InspectorProps) {
-  if (!node) {
-    return <div className="inspector empty">Select a node to inspect</div>;
-  }
+  const [draftName, setDraftName] = useState('');
+  const [draftAttrs, setDraftAttrs] = useState<Record<string, string>>({});
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const onAttrChange = (attr: string, value: string) => {
+  useEffect(() => {
+    if (node) {
+      setDraftName(node.instanceName ?? '');
+      setDraftAttrs({ ...node.attributes });
+    }
+  }, [node?.path, node?.instanceName, node?.attributes]);
+
+  const commitEdit = (attr: string, value: string) => {
+    if (!node) {
+      return;
+    }
     postMessage({
       type: 'editNode',
       treeId,
@@ -22,31 +33,65 @@ export function Inspector({ node, treeId, formatVersion }: InspectorProps) {
     });
   };
 
+  const scheduleEdit = (attr: string, value: string) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => commitEdit(attr, value), 300);
+  };
+
+  if (!node) {
+    return (
+      <div className="inspector empty" role="complementary" aria-label="Node inspector">
+        Select a node to inspect
+      </div>
+    );
+  }
+
   return (
-    <div className="inspector">
+    <div className="inspector" role="complementary" aria-label="Node inspector">
       <h3>{node.registeredId}</h3>
       <p className="meta">
         {node.kind} · BTCpp v{formatVersion}
       </p>
 
-      <label>
+      <label htmlFor="btview-node-name">
         name
         <input
-          value={node.instanceName ?? ''}
-          onChange={(e) => onAttrChange('name', e.target.value)}
+          id="btview-node-name"
+          value={draftName}
+          onChange={(e) => {
+            setDraftName(e.target.value);
+            scheduleEdit('name', e.target.value);
+          }}
+          onBlur={(e) => commitEdit('name', e.target.value)}
         />
       </label>
 
-      {Object.entries(node.attributes).map(([key, value]) => (
-        <label key={key}>
+      {Object.keys(draftAttrs).map((key) => (
+        <label key={key} htmlFor={`btview-attr-${key}`}>
           {key}
-          <input value={value} onChange={(e) => onAttrChange(key, e.target.value)} />
+          <input
+            id={`btview-attr-${key}`}
+            value={draftAttrs[key] ?? ''}
+            onChange={(e) => {
+              setDraftAttrs((prev) => ({ ...prev, [key]: e.target.value }));
+              scheduleEdit(key, e.target.value);
+            }}
+            onBlur={(e) => commitEdit(key, e.target.value)}
+          />
         </label>
       ))}
 
       <button
+        type="button"
         className="danger"
-        onClick={() => postMessage({ type: 'deleteNode', treeId, path: node.path })}
+        onClick={() => {
+          if ((node.childCount ?? 0) > 0 && !window.confirm('Delete this node and its subtree?')) {
+            return;
+          }
+          postMessage({ type: 'deleteNode', treeId, path: node.path });
+        }}
       >
         Delete node
       </button>

@@ -1,0 +1,27 @@
+name: Bug Report
+description: Report a problem with BTView
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting. Include BTCpp XML version (v3/v4) if relevant.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Steps to reproduce and expected vs actual behavior.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: BTView version
+      placeholder: e.g. 0.1.0
+  - type: dropdown
+    id: editor
+    attributes:
+      label: Editor
+      options:
+        - VS Code
+        - Cursor
+        - Other

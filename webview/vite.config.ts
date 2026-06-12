@@ -5,6 +5,11 @@ import path from 'path';
 export default defineConfig({
   root: __dirname,
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@shared': path.resolve(__dirname, '../src/shared'),
+    },
+  },
   build: {
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,

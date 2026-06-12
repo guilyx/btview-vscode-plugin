@@ -1,5 +1,17 @@
 # BTView Distribution Guide
 
+**Primary channel:** [VS Code Marketplace](https://marketplace.visualstudio.com/) — publisher **rangonomics** (`rangonomics.btview`).
+
+**Companion:** [GitHub Releases](https://github.com/guilyx/btview-vscode-plugin/releases) with VSIX download.
+
+See also: [RELEASE.md](RELEASE.md) for the full release runbook.
+
+## Install from Marketplace
+
+**VS Code:** Extensions view → search **BTView** → Install.
+
+Or: `ext install rangonomics.btview`
+
 ## Build a VSIX locally
 
 ```bash
@@ -11,51 +23,33 @@ npm run vsix
 
 ## Install VSIX manually
 
-**VS Code / Cursor**: Command Palette → **Extensions: Install from VSIX...** → select the file → reload window.
+Command Palette → **Extensions: Install from VSIX...** → select the file → reload window.
 
-## Publish to VS Code Marketplace
+Useful for Cursor or offline installs.
 
-1. Create a [Marketplace publisher](https://marketplace.visualstudio.com/manage)
-2. Update `publisher` in `package.json` (replace `your-publisher`)
-3. Create Azure DevOps PAT with **Marketplace → Manage** scope
-4. Login: `npx vsce login <publisher-id>`
-5. Update `CHANGELOG.md` and bump `version` in `package.json`
-6. Publish: `npx vsce publish`
+## Automated publish (maintainers)
 
-## Publish to Open VSX (Cursor, VSCodium)
+On GitHub Release (tag `vX.Y.Z`), CI:
 
-1. Create account at [open-vsx.org](https://open-vsx.org)
-2. Generate access token
-3. `npx ovsx publish -p <OVSX_PAT>`
+1. Verifies `package.json` version ↔ tag ↔ CHANGELOG
+2. Builds VSIX and attaches to the GitHub Release
+3. Runs `vsce publish` using `PAT_AZURE_MARKETPLACE` (repo secret)
 
-Cursor uses Open VSX by default — publish here for in-IDE search.
+Local publish (one-off):
 
-## GitHub Releases
+```bash
+npx vsce login rangonomics
+npx vsce publish
+```
 
-CI uploads a `.vsix` artifact on `release` events. Recommended flow:
+## Open VSX (optional)
 
-1. Move `[Unreleased]` entries to `[X.Y.Z]` in `CHANGELOG.md`
-2. Commit and tag: `git tag v0.1.0 && git push origin v0.1.0`
-3. Create GitHub Release from the tag
-4. Attach CI-built `.vsix` or run `npm run vsix` locally
-
-## Versioning
-
-Follow [Semantic Versioning](https://semver.org/). Update [CHANGELOG.md](../CHANGELOG.md) for every release.
-
-## Cursor compatibility
-
-- Standard VS Code Extension API only
-- No Microsoft-proprietary dependencies
-- Distribute via **Open VSX** or **VSIX** for Cursor users
-- Marketplace publish optional for VS Code users
+Not required for v0.1.0. Cursor users can install from VSIX or Marketplace if configured.
 
 ## Pre-publish checklist
 
-- [ ] `publisher` set in `package.json`
-- [ ] `repository` URL correct
-- [ ] `CHANGELOG.md` updated
-- [ ] `media/icon.png` present
+- [x] `publisher` = `rangonomics` in `package.json`
+- [ ] `CHANGELOG.md` section for release version
+- [x] `media/icon.png` present (128×128)
 - [ ] `npm test` passes
 - [ ] `npm run vsix` succeeds
-- [ ] README screenshots in `docs/images/` (optional)

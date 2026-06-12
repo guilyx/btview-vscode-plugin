@@ -65,7 +65,7 @@ Open a fixture file, e.g. `fixtures/v4/simple_sequence.xml`, then run **BTView: 
 
 ## Pre-commit hooks
 
-Husky runs lint-staged on commit (ESLint + Prettier). Commits must follow [Conventional Commits](https://www.conventionalcommits.org/).
+[pre-commit](https://pre-commit.com) runs on commit (ESLint, Prettier, commitlint). Install with `pre-commit install -t pre-commit -t commit-msg`. Commits must follow [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## Adding tests
 

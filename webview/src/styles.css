@@ -210,3 +210,54 @@ select {
   color: var(--vscode-input-foreground, #ccc);
   border-radius: 3px;
 }
+
+.warnings-panel {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--vscode-panel-border, #444);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.warnings-panel h4 {
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+
+.warnings-panel ul {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+}
+
+.warning-link {
+  background: none;
+  border: none;
+  color: var(--vscode-textLink-foreground, #3794ff);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.node-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--vscode-panel-border, #444);
+}
+
+.main-tree-badge,
+.saving-indicator {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.validation-error {
+  color: var(--vscode-editorError-foreground, #f14c4c);
+  font-size: 12px;
+}
+
+.bt-node.drop-target,
+.react-flow__node.drop-target .bt-node {
+  box-shadow: 0 0 0 2px var(--vscode-charts-green, #4ade80);
+}

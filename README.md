@@ -17,9 +17,15 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 
 ## Requirements
 
-- VS Code ≥ 1.85 or Cursor (via Open VSX / VSIX)
+- VS Code ≥ 1.85 or Cursor (Marketplace / VSIX from [GitHub Releases](https://github.com/guilyx/btview-vscode-plugin/releases))
 - Node.js 20+ (development only)
 - ROS 2 workspace (optional, for `ros_pkg` includes)
+
+## Install
+
+**VS Code Marketplace:** search **BTView** or `ext install rangonomics.btview`
+
+**Manual:** download `.vsix` from [GitHub Releases](https://github.com/guilyx/btview-vscode-plugin/releases) → **Extensions: Install from VSIX...**
 
 ## Quick start
 
@@ -33,7 +39,9 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 - [User Guide](docs/USER_GUIDE.md) — installation, commands, editing workflow
 - [Configuration](docs/CONFIGURATION.md) — settings and ROS include setup
 - [Development](docs/DEVELOPMENT.md) — build, test, debug
-- [Distribution](docs/DISTRIBUTION.md) — package VSIX, publish to Marketplace / Open VSX
+- [Distribution](docs/DISTRIBUTION.md) — Marketplace, VSIX, release process
+- [Release](docs/RELEASE.md) — versioning and publish runbook
+- [Roadmap](docs/ROADMAP.md) — planned milestones
 
 ## Development
 

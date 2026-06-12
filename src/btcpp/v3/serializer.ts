@@ -1,4 +1,4 @@
-import type { BtDocument, BtNode } from '../types';
+import type { BtDocument, BtNode, NodeKind } from '../types';
 import { serializeNodeId } from '../nodeAliases';
 import { EXPLICIT_WRAPPER_TAGS } from '../types';
 
@@ -50,6 +50,21 @@ function serializeNode(node: BtNode, indent: string): string {
   return `${indent}<${tagName}${attrStr}>\n${childXml}\n${indent}</${tagName}>`;
 }
 
+function modelWrapperTag(kind: NodeKind): string {
+  switch (kind) {
+    case 'condition':
+      return 'Condition';
+    case 'control':
+      return 'Control';
+    case 'decorator':
+      return 'Decorator';
+    case 'subtree':
+      return 'SubTree';
+    default:
+      return 'Action';
+  }
+}
+
 function serializeModels(doc: BtDocument, indent: string): string {
   if (doc.models.size === 0) {
     return '';
@@ -71,11 +86,12 @@ function serializeModels(doc: BtDocument, indent: string): string {
         return `${indent}    <${tag} ${attrs.join(' ')}/>`;
       })
       .join('\n');
-    lines.push(`${indent}  <Action ID="${escapeXml(model.id)}">`);
+    const wrapperTag = modelWrapperTag(model.kind);
+    lines.push(`${indent}  <${wrapperTag} ID="${escapeXml(model.id)}">`);
     if (ports) {
       lines.push(ports);
     }
-    lines.push(`${indent}  </Action>`);
+    lines.push(`${indent}  </${wrapperTag}>`);
   }
   lines.push(`${indent}</TreeNodesModel>`);
   return lines.join('\n');

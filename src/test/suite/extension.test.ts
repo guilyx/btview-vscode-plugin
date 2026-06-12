@@ -6,11 +6,10 @@ suite('BTView Extension', () => {
   vscode.window.showInformationMessage('Start BTView integration tests.');
 
   test('extension activates', async () => {
-    const ext = vscode.extensions.getExtension('your-publisher.btview');
-    if (ext) {
-      await ext.activate();
-      assert.ok(ext.isActive);
-    }
+    const ext = vscode.extensions.getExtension('rangonomics.btview');
+    assert.ok(ext, 'rangonomics.btview extension must be installed');
+    await ext.activate();
+    assert.ok(ext.isActive);
   });
 
   test('commands are registered', async () => {

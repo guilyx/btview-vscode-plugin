@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { DocumentSyncService } from '../sync/DocumentSyncService';
 import { parseWebviewMessage, type HostToWebviewMessage } from '../shared/protocol';
@@ -7,6 +9,16 @@ import { WebviewPanelManager } from './WebviewPanelManager';
 import { DocumentRefreshScheduler } from './DocumentRefreshScheduler';
 
 export const CUSTOM_EDITOR_VIEW_TYPE = 'btview.graph';
+
+function readExtensionVersion(extensionUri: vscode.Uri): string {
+  try {
+    const pkgPath = path.join(extensionUri.fsPath, 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as { version?: string };
+    return pkg.version ?? '0';
+  } catch {
+    return '0';
+  }
+}
 
 export function looksLikeBtCpp(text: string): boolean {
   return /<root\b/i.test(text) && /<BehaviorTree\b/i.test(text);
@@ -31,7 +43,8 @@ export class BtGraphController {
   }
 
   private constructor(extensionUri: vscode.Uri) {
-    this.panels = new WebviewPanelManager(extensionUri);
+    const version = readExtensionVersion(extensionUri);
+    this.panels = new WebviewPanelManager(extensionUri, version);
   }
 
   registerWorkspaceListeners(): void {
@@ -156,8 +169,8 @@ export class BtGraphController {
     for (const uri of this.panels.getOpenUris()) {
       this.syncService.clear(uri);
       this.initialLoadDone.delete(uri.toString());
-      await this.refreshUri(uri, true);
     }
+    this.panels.reloadAllWebviews();
   }
 
   async refreshUri(uri: vscode.Uri, isInitial: boolean): Promise<void> {
@@ -177,11 +190,11 @@ export class BtGraphController {
       this.diagnostics.setValidationErrors(uri, validationErrors);
 
       const key = uri.toString();
-      const firstLoad = !this.initialLoadDone.has(key);
-      const msgType = isInitial || firstLoad ? 'loadDocument' : 'documentChanged';
-      if (firstLoad) {
-        this.initialLoadDone.set(key, true);
+      if (!this.initialLoadDone.has(key)) {
+        return;
       }
+
+      const msgType = isInitial ? 'loadDocument' : 'documentChanged';
 
       const message: HostToWebviewMessage = { type: msgType, document: payload };
       for (const webview of webviews) {
@@ -247,9 +260,12 @@ export class BtGraphController {
         case 'openGraphSide':
           await this.showSidePreview(uri);
           break;
-        case 'ready':
+        case 'ready': {
+          const key = uri.toString();
+          this.initialLoadDone.set(key, true);
           await this.refreshUri(uri, true);
           break;
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

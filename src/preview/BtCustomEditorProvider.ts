@@ -1,18 +1,19 @@
 import * as vscode from 'vscode';
 import { BtGraphController, CUSTOM_EDITOR_VIEW_TYPE } from './BtGraphController';
+import { getWebviewOptions } from './webviewHtml';
 
 export class BtCustomEditorProvider implements vscode.CustomTextEditorProvider {
-  constructor(private readonly controller: BtGraphController) {}
+  constructor(
+    private readonly controller: BtGraphController,
+    private readonly extensionUri: vscode.Uri,
+  ) {}
 
   async resolveCustomTextEditor(
     document: vscode.TextDocument,
     webviewPanel: vscode.WebviewPanel,
     token: vscode.CancellationToken,
   ): Promise<void> {
-    webviewPanel.webview.options = {
-      ...webviewPanel.webview.options,
-      enableScripts: true,
-    };
+    webviewPanel.webview.options = getWebviewOptions(this.extensionUri);
 
     if (token.isCancellationRequested) {
       return;
@@ -22,10 +23,10 @@ export class BtCustomEditorProvider implements vscode.CustomTextEditorProvider {
   }
 
   static register(
-    _context: vscode.ExtensionContext,
+    context: vscode.ExtensionContext,
     controller: BtGraphController,
   ): vscode.Disposable {
-    const provider = new BtCustomEditorProvider(controller);
+    const provider = new BtCustomEditorProvider(controller, context.extensionUri);
     return vscode.window.registerCustomEditorProvider(CUSTOM_EDITOR_VIEW_TYPE, provider, {
       webviewOptions: { retainContextWhenHidden: true },
       supportsMultipleEditorsPerDocument: true,

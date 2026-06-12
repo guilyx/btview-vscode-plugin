@@ -41,7 +41,20 @@ const V3_ONLY = new Set([
 
 const V4_ONLY = new Set(['Script', 'AsyncSequence', 'AsyncFallback']);
 
-export function inferNodeKind(registeredId: string, explicitWrapper?: string): NodeKind {
+export interface PaletteEntry {
+  id: string;
+  kind: NodeKind;
+}
+
+export function inferNodeKind(
+  registeredId: string,
+  explicitWrapper?: string,
+  nodeTypeMap?: Record<string, NodeKind>,
+): NodeKind {
+  const mapped = nodeTypeMap?.[registeredId];
+  if (mapped) {
+    return mapped;
+  }
   if (
     explicitWrapper === 'SubTree' ||
     registeredId === 'SubTree' ||
@@ -54,6 +67,12 @@ export function inferNodeKind(registeredId: string, explicitWrapper?: string): N
   }
   if (explicitWrapper === 'Action' || explicitWrapper === 'Condition') {
     return explicitWrapper === 'Action' ? 'action' : 'condition';
+  }
+  if (explicitWrapper === 'Control') {
+    return 'control';
+  }
+  if (explicitWrapper === 'Decorator') {
+    return 'decorator';
   }
   if (BUILTIN_CONTROLS_V3.includes(registeredId) || BUILTIN_CONTROLS_V4.includes(registeredId)) {
     return 'control';
@@ -81,6 +100,50 @@ export function getBuiltinControls(formatVersion: 3 | 4): string[] {
 
 export function getBuiltinDecorators(): string[] {
   return BUILTIN_DECORATORS;
+}
+
+export function buildNodePalette(
+  formatVersion: 3 | 4,
+  nodeTypeMap: Record<string, NodeKind> = {},
+): PaletteEntry[] {
+  const seen = new Set<string>();
+  const entries: PaletteEntry[] = [];
+
+  const add = (id: string, kind: NodeKind) => {
+    if (seen.has(id)) {
+      return;
+    }
+    seen.add(id);
+    entries.push({ id, kind });
+  };
+
+  for (const id of getBuiltinControls(formatVersion)) {
+    add(id, 'control');
+  }
+  for (const id of getBuiltinDecorators()) {
+    add(id, 'decorator');
+  }
+  if (formatVersion === 4) {
+    add('Script', 'script');
+  }
+  for (const [id, kind] of Object.entries(nodeTypeMap)) {
+    add(id, kind);
+  }
+
+  return entries;
+}
+
+export function rawTagForNewNode(kind: NodeKind, registeredId: string): string {
+  switch (kind) {
+    case 'action':
+      return 'Action';
+    case 'condition':
+      return 'Condition';
+    case 'subtree':
+      return registeredId === 'SubTreePlus' ? 'SubTreePlus' : 'SubTree';
+    default:
+      return registeredId;
+  }
 }
 
 export function parsePortElement(el: Record<string, unknown>): PortModel | null {

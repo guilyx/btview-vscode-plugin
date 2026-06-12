@@ -9,10 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`btview.nodeTypeMap`** — map custom node IDs to kinds for parsing and the add-node palette
+- **`btview.newTree`** command — create a new BTCpp XML file with an empty `Sequence` root
 - In-graph **XML Source** / **Graph beside** buttons (header toolbar) when editor title bar icons are unavailable
+
+### Fixed
+
+- TreeNodesModel kind inference for explicit `<Action>`, `<Control>`, and `<Decorator>` wrapper tags
 
 ### Changed
 
+- Add-node toolbar uses grouped palette (builtins + configured nodes) instead of hardcoded placeholders
 - Regenerate `media/icon.png` from `media/icon.svg` (behavior tree logo; was solid blue placeholder)
 - Title bar toggle uses `editorLangId == xml` (same pattern as built-in Markdown preview) so graph/XML icons appear on the XML editor tab
 - Title bar menu `when` clauses; add `webview/title` buttons for side preview panel

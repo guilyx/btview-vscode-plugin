@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import { existsSync } from 'fs';
 import * as path from 'path';
-import type { BtDocument, IncludeRef } from './types';
+import type { BtDocument, IncludeRef, NodeKind } from './types';
 import { parseDocument } from './parser';
 import { mergeModels } from './nodeRegistry';
 import { resolveRosPackageShare, type RosResolverConfig } from '../ros/packageResolver';
@@ -49,6 +49,7 @@ export async function loadDocumentWithIncludes(
     defaultFormatVersion?: 'auto' | '3' | '4';
     rosConfig?: RosResolverConfig;
     maxDepth?: number;
+    nodeTypeMap?: Record<string, NodeKind>;
   } = {},
 ): Promise<BtDocument> {
   const maxDepth = options.maxDepth ?? 10;
@@ -58,6 +59,7 @@ export async function loadDocumentWithIncludes(
     const doc = parseDocument(text, {
       defaultFormatVersion: options.defaultFormatVersion,
       sourceUri: filePath,
+      nodeTypeMap: options.nodeTypeMap,
     });
 
     if (depth >= maxDepth) {

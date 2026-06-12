@@ -1,53 +1,61 @@
+import type { SerializedDocument } from '../types';
 import { postMessage } from '../vscodeApi';
 
 interface ToolbarProps {
-  treeId: string;
-  formatVersion: 3 | 4;
-  selectedPath: string | null;
+  doc: SerializedDocument;
+  selectedPath: string;
 }
 
-const CONTROLS_V3 = ['Sequence', 'Fallback', 'Parallel', 'ReactiveSequence', 'SequenceStar'];
-const CONTROLS_V4 = [
-  'Sequence',
-  'Fallback',
-  'Parallel',
-  'ReactiveSequence',
-  'SequenceWithMemory',
-  'AsyncSequence',
-  'AsyncFallback',
-];
-const DECORATORS = ['Inverter', 'Retry', 'Repeat', 'Timeout'];
+const KIND_LABELS: Record<string, string> = {
+  control: 'Controls',
+  decorator: 'Decorators',
+  action: 'Actions',
+  condition: 'Conditions',
+  subtree: 'Subtrees',
+  script: 'Scripts',
+};
 
-export function Toolbar({ treeId, formatVersion, selectedPath }: ToolbarProps) {
-  const controls = formatVersion === 3 ? CONTROLS_V3 : CONTROLS_V4;
+export function Toolbar({ doc, selectedPath }: ToolbarProps) {
   const parentPath = selectedPath ?? '0';
 
   const addNode = (registeredId: string, kind: string) => {
     postMessage({
       type: 'addNode',
-      treeId,
+      treeId: doc.activeTreeId,
       parentPath,
       registeredId,
       kind,
     });
   };
 
+  const byKind = new Map<string, { id: string; kind: string }[]>();
+  for (const entry of doc.nodePalette) {
+    const list = byKind.get(entry.kind) ?? [];
+    list.push(entry);
+    byKind.set(entry.kind, list);
+  }
+
+  const kindOrder = ['control', 'decorator', 'action', 'condition', 'subtree', 'script'];
+
   return (
     <div className="toolbar">
       <span className="toolbar-label">Add to {parentPath}:</span>
-      {controls.map((id) => (
-        <button key={id} onClick={() => addNode(id, 'control')}>
-          {id}
-        </button>
-      ))}
-      {DECORATORS.map((id) => (
-        <button key={id} onClick={() => addNode(id, 'decorator')}>
-          {id}
-        </button>
-      ))}
-      <button onClick={() => addNode('MyAction', 'action')}>Action</button>
-      <button onClick={() => addNode('MyCondition', 'condition')}>Condition</button>
-      {formatVersion === 4 && <button onClick={() => addNode('Script', 'script')}>Script</button>}
+      {kindOrder.map((kind) => {
+        const entries = byKind.get(kind);
+        if (!entries?.length) {
+          return null;
+        }
+        return (
+          <span key={kind} className="toolbar-group">
+            <span className="toolbar-group-label">{KIND_LABELS[kind] ?? kind}:</span>
+            {entries.map((entry) => (
+              <button key={entry.id} onClick={() => addNode(entry.id, entry.kind)}>
+                {entry.id}
+              </button>
+            ))}
+          </span>
+        );
+      })}
     </div>
   );
 }

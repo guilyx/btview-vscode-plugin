@@ -33,7 +33,7 @@ export function parseV3Document(xmlText: string, options: ParseOptions = {}): Bt
     }
   }
 
-  const models = parseTreeNodesModel(root);
+  const models = parseTreeNodesModel(root, options);
   const trees: BtTree[] = [];
 
   for (const btEl of findChildElements(root, 'BehaviorTree')) {
@@ -47,7 +47,7 @@ export function parseV3Document(xmlText: string, options: ParseOptions = {}): Bt
     const childNodes = getChildren(btEl).filter((c) => getTagName(c) !== '#comment');
     let rootNode = null;
     if (childNodes.length > 0) {
-      rootNode = parseNodeElement(childNodes[0], '0');
+      rootNode = parseNodeElement(childNodes[0], '0', options);
       if (rootNode) {
         assignPaths(rootNode, '0');
       }

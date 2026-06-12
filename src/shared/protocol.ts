@@ -21,6 +21,8 @@ export interface SerializedDocument {
     kind: string;
     ports: { name: string; direction: string; type?: string }[];
   }[];
+  /** Built-in + user-configured nodes available in the add-node palette. */
+  nodePalette: { id: string; kind: string }[];
   includes: { path: string; rosPkg?: string; resolvedUri?: string; error?: string }[];
   warnings: string[];
   validationErrors?: { path: string; message: string }[];

@@ -1,9 +1,25 @@
-import type { NodeModel, PortModel } from './types';
+import type { NodeModel, PortModel, ParseOptions, NodeKind } from './types';
 import type { XmlElement } from './xmlUtils';
 import { getAttrs, getChildren, getTagName, findChildElements } from './xmlUtils';
 import { inferNodeKind } from './nodeRegistry';
 
-function parseModelElement(el: XmlElement): NodeModel | null {
+function modelExplicitWrapper(tag: string): string | undefined {
+  if (
+    tag === 'SubTree' ||
+    tag === 'Action' ||
+    tag === 'Condition' ||
+    tag === 'Control' ||
+    tag === 'Decorator'
+  ) {
+    return tag;
+  }
+  return undefined;
+}
+
+function parseModelElement(
+  el: XmlElement,
+  nodeTypeMap?: Record<string, NodeKind>,
+): NodeModel | null {
   const tag = getTagName(el);
   const attrs = getAttrs(el);
   const id = attrs.ID ?? tag;
@@ -31,12 +47,15 @@ function parseModelElement(el: XmlElement): NodeModel | null {
 
   return {
     id,
-    kind: inferNodeKind(id, tag === 'SubTree' ? 'SubTree' : undefined),
+    kind: inferNodeKind(id, modelExplicitWrapper(tag), nodeTypeMap),
     ports,
   };
 }
 
-export function parseTreeNodesModel(root: XmlElement): Map<string, NodeModel> {
+export function parseTreeNodesModel(
+  root: XmlElement,
+  options: Pick<ParseOptions, 'nodeTypeMap'> = {},
+): Map<string, NodeModel> {
   const models = new Map<string, NodeModel>();
   const modelRoots = findChildElements(root, 'TreeNodesModel');
 
@@ -46,7 +65,7 @@ export function parseTreeNodesModel(root: XmlElement): Map<string, NodeModel> {
       if (!tag || tag === '#comment') {
         continue;
       }
-      const model = parseModelElement(child);
+      const model = parseModelElement(child, options.nodeTypeMap);
       if (model) {
         models.set(model.id, model);
       }

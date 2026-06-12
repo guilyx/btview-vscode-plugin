@@ -1,5 +1,6 @@
 import type { BtDocument, BtNode, NodeKind } from './types';
 import { assignPaths, cloneNode, findNodeByPath, findParentOfPath } from './xmlUtils';
+import { rawTagForNewNode } from './nodeRegistry';
 import { validateReparent, type ValidationError } from './validation';
 
 export interface EditResult {
@@ -53,7 +54,7 @@ export function addNode(
     registeredId,
     attributes: {},
     children: [],
-    rawTag: kind === 'action' ? 'Action' : kind === 'condition' ? 'Condition' : registeredId,
+    rawTag: rawTagForNewNode(kind, registeredId),
   };
 
   parent.children.push(newNode);

@@ -1,5 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
-import type { BtNode, NodeKind } from './types';
+import type { BtNode, NodeKind, ParseOptions } from './types';
 import { EXPLICIT_WRAPPER_TAGS } from './types';
 import { inferNodeKind } from './nodeRegistry';
 
@@ -60,7 +60,11 @@ export function findChildElements(root: XmlElement, tagName: string): XmlElement
   return getChildren(root).filter((c) => getTagName(c) === tagName);
 }
 
-export function parseNodeElement(el: XmlElement, path: string): BtNode | null {
+export function parseNodeElement(
+  el: XmlElement,
+  path: string,
+  options: Pick<ParseOptions, 'nodeTypeMap'> = {},
+): BtNode | null {
   const tag = getTagName(el);
   if (!tag || tag === 'root' || tag === 'BehaviorTree' || tag === 'TreeNodesModel') {
     return null;
@@ -73,7 +77,7 @@ export function parseNodeElement(el: XmlElement, path: string): BtNode | null {
 
   if (EXPLICIT_WRAPPER_TAGS.has(tag)) {
     registeredId = attrs.ID ?? tag;
-    kind = inferNodeKind(registeredId, tag);
+    kind = inferNodeKind(registeredId, tag, options.nodeTypeMap);
     if (tag === 'SubTree') {
       legacyTag = undefined;
     }
@@ -82,7 +86,7 @@ export function parseNodeElement(el: XmlElement, path: string): BtNode | null {
     legacyTag = 'SubTreePlus';
     kind = 'subtree';
   } else {
-    kind = inferNodeKind(registeredId);
+    kind = inferNodeKind(registeredId, undefined, options.nodeTypeMap);
   }
 
   const instanceName = attrs.name;
@@ -98,7 +102,7 @@ export function parseNodeElement(el: XmlElement, path: string): BtNode | null {
   const children: BtNode[] = [];
   childEls.forEach((childEl, index) => {
     const childPath = `${path}-${index}`;
-    const child = parseNodeElement(childEl, childPath);
+    const child = parseNodeElement(childEl, childPath, options);
     if (child) {
       children.push(child);
     }

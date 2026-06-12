@@ -3,6 +3,7 @@ import { BtGraphController } from './preview/BtGraphController';
 import { BtCustomEditorProvider } from './preview/BtCustomEditorProvider';
 import { resolveTargetUri } from './commands/targetUri';
 import { convertToV4 } from './commands/convertToV4';
+import { newTree } from './commands/newTree';
 import { getOutputChannel, disposeOutputChannel } from './logging/outputChannel';
 import { clearRosCache } from './ros/packageResolver';
 
@@ -22,6 +23,12 @@ export function activate(context: vscode.ExtensionContext): void {
         e.affectsConfiguration('btview.rosPackageShareOverrides')
       ) {
         clearRosCache();
+      }
+      if (
+        e.affectsConfiguration('btview.nodeTypeMap') ||
+        e.affectsConfiguration('btview.defaultFormatVersion')
+      ) {
+        void controller.reloadOpenDocuments();
       }
     }),
 
@@ -57,6 +64,10 @@ export function activate(context: vscode.ExtensionContext): void {
       } else {
         void vscode.window.showWarningMessage('Open a BTCpp XML file first.');
       }
+    }),
+
+    vscode.commands.registerCommand('btview.newTree', () => {
+      void newTree();
     }),
   );
 }

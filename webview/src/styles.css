@@ -117,6 +117,19 @@ html,
   margin-right: 4px;
 }
 
+.toolbar-group {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.toolbar-group-label {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-right: 2px;
+}
+
 .toolbar button {
   font-size: 11px;
   padding: 2px 8px;

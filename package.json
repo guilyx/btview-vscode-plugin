@@ -95,6 +95,11 @@
         "command": "btview.convertToV4",
         "title": "Convert to BTCpp v4",
         "category": "BTView"
+      },
+      {
+        "command": "btview.newTree",
+        "title": "New Behavior Tree",
+        "category": "BTView"
       }
     ],
     "menus": {
@@ -191,6 +196,22 @@
           ],
           "default": "text",
           "description": "When opening a BTCpp XML file: text editor only, BT Graph custom editor, or XML + side graph preview."
+        },
+        "btview.nodeTypeMap": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "Map custom node registered IDs to kinds. Keys are node IDs (e.g. `NavigateToGoal`); values are one of `action`, `condition`, `control`, `decorator`, `subtree`, or `script`. Used when parsing XML and populating the add-node palette.",
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "action",
+              "condition",
+              "control",
+              "decorator",
+              "subtree",
+              "script"
+            ]
+          }
         }
       }
     }

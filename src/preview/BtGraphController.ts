@@ -152,6 +152,14 @@ export class BtGraphController {
     await this.refreshUri(uri, true);
   }
 
+  async reloadOpenDocuments(): Promise<void> {
+    for (const uri of this.panels.getOpenUris()) {
+      this.syncService.clear(uri);
+      this.initialLoadDone.delete(uri.toString());
+      await this.refreshUri(uri, true);
+    }
+  }
+
   async refreshUri(uri: vscode.Uri, isInitial: boolean): Promise<void> {
     const webviews = this.panels.getWebviews(uri);
     if (webviews.length === 0) {

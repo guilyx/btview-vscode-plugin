@@ -10,7 +10,8 @@ import {
   reorderChildren,
 } from '../btcpp/editOperations';
 import { validateDocument, type ValidationError } from '../btcpp/validation';
-import { getRosConfig, getDefaultFormatVersion } from '../config/settings';
+import { buildNodePalette } from '../btcpp/nodeRegistry';
+import { getRosConfig, getDefaultFormatVersion, getNodeTypeMap } from '../config/settings';
 import type { SerializedDocument, WebviewToHostMessage } from '../shared/protocol';
 import { logInfo } from '../logging/outputChannel';
 
@@ -35,6 +36,7 @@ export class DocumentSyncService {
     const doc = await loadDocumentWithIncludes(xmlText, uri.fsPath, {
       defaultFormatVersion: getDefaultFormatVersion(),
       rosConfig,
+      nodeTypeMap: getNodeTypeMap(),
     });
 
     const errors = validateDocument(doc);
@@ -77,6 +79,8 @@ export class DocumentSyncService {
 
     const errors = this.validationErrors.get(uri.toString()) ?? [];
 
+    const nodeTypeMap = getNodeTypeMap();
+
     return {
       formatVersion: doc.formatVersion,
       mainTreeToExecute: doc.mainTreeToExecute,
@@ -86,6 +90,10 @@ export class DocumentSyncService {
         id: m.id,
         kind: m.kind,
         ports: m.ports,
+      })),
+      nodePalette: buildNodePalette(doc.formatVersion, nodeTypeMap).map((e) => ({
+        id: e.id,
+        kind: e.kind,
       })),
       includes: doc.includes.map((i) => ({
         path: i.path,
@@ -114,15 +122,13 @@ export class DocumentSyncService {
       case 'editNode':
         doc = editNodeAttribute(doc, edit.treeId, edit.path, edit.attr, edit.value);
         break;
-      case 'addNode':
-        doc = addNode(
-          doc,
-          edit.treeId,
-          edit.parentPath,
-          edit.registeredId,
-          edit.kind as import('../btcpp/types').NodeKind,
-        );
+      case 'addNode': {
+        const nodeTypeMap = getNodeTypeMap();
+        const kind =
+          nodeTypeMap[edit.registeredId] ?? (edit.kind as import('../btcpp/types').NodeKind);
+        doc = addNode(doc, edit.treeId, edit.parentPath, edit.registeredId, kind);
         break;
+      }
       case 'deleteNode':
         doc = deleteNode(doc, edit.treeId, edit.path);
         break;

@@ -59,6 +59,8 @@ export interface BtDocument {
 export interface ParseOptions {
   defaultFormatVersion?: 'auto' | '3' | '4';
   sourceUri?: string;
+  /** User-defined map of node registered IDs to kinds (from `btview.nodeTypeMap`). */
+  nodeTypeMap?: Record<string, NodeKind>;
 }
 
 export const SCRIPT_DIRECTIVES = [

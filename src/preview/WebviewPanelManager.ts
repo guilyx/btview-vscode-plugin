@@ -53,6 +53,10 @@ export class WebviewPanelManager {
     return [...set].map((b) => b.webview);
   }
 
+  getOpenUris(): vscode.Uri[] {
+    return [...this.bindings.keys()].map((key) => vscode.Uri.parse(key));
+  }
+
   getSidePanel(uri: vscode.Uri): vscode.WebviewPanel | undefined {
     return this.sidePanels.get(uri.toString());
   }

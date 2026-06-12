@@ -125,11 +125,7 @@ export function App() {
         </div>
       )}
 
-      <Toolbar
-        treeId={doc.activeTreeId}
-        formatVersion={doc.formatVersion}
-        selectedPath={parentPath}
-      />
+      <Toolbar doc={doc} selectedPath={parentPath} />
       <NodePicker doc={doc} parentPath={parentPath} />
 
       <div className="main">

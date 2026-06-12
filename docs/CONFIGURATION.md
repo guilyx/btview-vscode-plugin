@@ -68,6 +68,24 @@ Right-click a file tab → **Reopen Editor With…** → **Text Editor** or **BT
 
 Format for newly created trees from the palette: `"3"` or `"4"` (default).
 
+### `btview.nodeTypeMap`
+
+Map custom node registered IDs to behavior-tree kinds. Used when parsing compact XML tags (e.g. `<NavigateToGoal/>`) and when building the add-node palette in the graph view.
+
+Keys are node IDs; values must be one of: `action`, `condition`, `control`, `decorator`, `subtree`, `script`.
+
+```json
+{
+  "btview.nodeTypeMap": {
+    "NavigateToGoal": "action",
+    "IsBatteryLow": "condition",
+    "MyAsyncControl": "control"
+  }
+}
+```
+
+Nodes declared in `<TreeNodesModel>` with explicit wrappers (`<Action ID="…">`) are classified from the wrapper tag; the map applies to compact tags and palette entries not present in the model.
+
 ## ROS include resolution
 
 For XML like:

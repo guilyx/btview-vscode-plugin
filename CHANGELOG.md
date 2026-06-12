@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Staged (dangling) nodes** — palette drag or click places nodes on the canvas without auto-connecting to a parent
+- **Edge connect** — connect parent → child via React Flow handles to commit `addNode` or `reparentNode`
+- **Set as tree root** — inspector action for staged control nodes on an empty tree
+
+### Changed
+
+- Graph canvas always shown (including empty trees); palette no longer targets a guessed `parentPath`
+- Roadmap: **0.4.0** authoring UX, **0.5.0** simulation monitor milestone
+
 ## [0.3.1] - 2026-06-12
 
 ### Fixed

@@ -1,0 +1,58 @@
+# Manual publish to VS Code Marketplace + Open VSX (e.g. first Open VSX upload for an existing tag).
+name: Publish to registries
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without v prefix (must match an existing git tag)
+        required: true
+        default: '0.1.0'
+      skip_marketplace:
+        description: Skip VS Code Marketplace (already published)
+        type: boolean
+        default: false
+      skip_openvsx:
+        description: Skip Open VSX
+        type: boolean
+        default: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ inputs.version }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: bash scripts/ci-install.sh
+
+      - name: Verify version matches tag
+        run: bash scripts/verify-release.sh "v${{ inputs.version }}"
+
+      - run: npm run package
+      - run: npm run vsix
+
+      - name: Ensure Open VSX namespace exists
+        if: ${{ !inputs.skip_openvsx }}
+        continue-on-error: true
+        run: npx ovsx create-namespace rangonomics -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
+      - name: Publish to VS Code Marketplace
+        if: ${{ !inputs.skip_marketplace }}
+        run: npx vsce publish --pat ${{ secrets.PAT_AZURE_MARKETPLACE }}
+        env:
+          VSCE_PAT: ${{ secrets.PAT_AZURE_MARKETPLACE }}
+
+      - name: Publish to Open VSX Registry (Cursor)
+        if: ${{ !inputs.skip_openvsx }}
+        run: npx ovsx publish "btview-${{ inputs.version }}.vsix" -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}

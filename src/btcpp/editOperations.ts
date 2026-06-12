@@ -1,6 +1,12 @@
 import type { BtDocument, BtNode, NodeKind } from './types';
 import { assignPaths, cloneNode, findNodeByPath, findParentOfPath } from './xmlUtils';
-import { validateReparent } from './validation';
+import { validateReparent, type ValidationError } from './validation';
+
+export interface EditResult {
+  success: boolean;
+  document: BtDocument;
+  error?: ValidationError;
+}
 
 export function editNodeAttribute(
   doc: BtDocument,
@@ -78,28 +84,40 @@ export function reparentNode(
   sourcePath: string,
   targetParentPath: string,
   index?: number,
-): BtDocument {
+): EditResult {
   const updated = cloneDocument(doc);
   const tree = updated.trees.find((t) => t.id === treeId);
   if (!tree?.root) {
-    return doc;
+    return {
+      success: false,
+      document: doc,
+      error: { path: sourcePath, message: 'Tree not found.' },
+    };
   }
 
   const source = findNodeByPath(tree.root, sourcePath);
   const targetParent =
     targetParentPath === '0' ? tree.root : findNodeByPath(tree.root, targetParentPath);
   if (!source || !targetParent) {
-    return doc;
+    return {
+      success: false,
+      document: doc,
+      error: { path: sourcePath, message: 'Node not found.' },
+    };
   }
 
   const err = validateReparent(targetParent, source);
   if (err) {
-    return doc;
+    return { success: false, document: doc, error: err };
   }
 
   const sourceParent = findParentOfPath(tree.root, sourcePath);
   if (!sourceParent) {
-    return doc;
+    return {
+      success: false,
+      document: doc,
+      error: { path: sourcePath, message: 'Source parent not found.' },
+    };
   }
 
   sourceParent.children = sourceParent.children.filter((c) => c.path !== sourcePath);
@@ -107,7 +125,7 @@ export function reparentNode(
   const insertAt = index ?? targetParent.children.length;
   targetParent.children.splice(insertAt, 0, detached);
   assignPaths(tree.root, '0');
-  return updated;
+  return { success: true, document: updated };
 }
 
 export function reorderChildren(

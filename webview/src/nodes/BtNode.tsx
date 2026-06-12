@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { FlowNodeData } from '../graph/layout';
 
@@ -11,12 +12,17 @@ const kindColors: Record<string, string> = {
   unknown: '#94a3b8',
 };
 
-export function BtFlowNode({ data, selected }: NodeProps) {
+function BtFlowNodeInner({ data, selected }: NodeProps) {
   const d = data as FlowNodeData;
   const color = kindColors[d.kind] ?? kindColors.unknown;
 
   return (
-    <div className={`bt-node ${selected ? 'selected' : ''}`} style={{ borderColor: color }}>
+    <div
+      className={`bt-node ${selected ? 'selected' : ''}`}
+      style={{ borderColor: color }}
+      aria-selected={selected}
+      tabIndex={0}
+    >
       <Handle type="target" position={Position.Top} />
       <div className="bt-node-kind" style={{ color }}>
         {d.kind}
@@ -27,3 +33,5 @@ export function BtFlowNode({ data, selected }: NodeProps) {
     </div>
   );
 }
+
+export const BtFlowNode = memo(BtFlowNodeInner);

@@ -8,6 +8,7 @@ export interface FlowNodeData extends Record<string, unknown> {
   registeredId: string;
   instanceName?: string;
   attributes: Record<string, string>;
+  childCount: number;
 }
 
 const NODE_WIDTH = 180;
@@ -74,6 +75,7 @@ export function buildFlowGraph(root: BtNodeData | null): {
         registeredId: node.registeredId,
         instanceName: node.instanceName,
         attributes: node.attributes,
+        childCount: node.children.length,
       },
     });
 

@@ -1,13 +1,29 @@
 import * as vscode from 'vscode';
 import { BtGraphController } from './preview/BtGraphController';
 import { BtCustomEditorProvider } from './preview/BtCustomEditorProvider';
-import { convertToV4, resolveTargetUri } from './preview/BtPreviewManager';
+import { resolveTargetUri } from './commands/targetUri';
+import { convertToV4 } from './commands/convertToV4';
+import { getOutputChannel, disposeOutputChannel } from './logging/outputChannel';
+import { clearRosCache } from './ros/packageResolver';
 
 export function activate(context: vscode.ExtensionContext): void {
   const controller = BtGraphController.getInstance(context.extensionUri);
+  controller.registerWorkspaceListeners();
+  context.subscriptions.push({ dispose: () => controller.dispose() });
 
   context.subscriptions.push(
+    getOutputChannel(),
     BtCustomEditorProvider.register(context, controller),
+
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (
+        e.affectsConfiguration('btview.rosDistro') ||
+        e.affectsConfiguration('btview.rosWorkspaceSetup') ||
+        e.affectsConfiguration('btview.rosPackageShareOverrides')
+      ) {
+        clearRosCache();
+      }
+    }),
 
     vscode.commands.registerCommand('btview.openPreview', (uri?: vscode.Uri) => {
       const target = resolveTargetUri(uri);
@@ -46,5 +62,5 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
-  // no-op
+  disposeOutputChannel();
 }

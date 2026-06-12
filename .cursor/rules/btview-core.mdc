@@ -1,0 +1,12 @@
+---
+description: BTView core agent context — see AGENTS.md
+alwaysApply: true
+---
+
+# BTView
+
+Read [AGENTS.md](../../AGENTS.md) for build, test, PR, and release rules.
+
+- Release: [docs/RELEASE.md](../../docs/RELEASE.md)
+- Roadmap: [docs/ROADMAP.md](../../docs/ROADMAP.md)
+- Publisher: `rangonomics` / `rangonomics.btview`

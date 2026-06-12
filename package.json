@@ -3,9 +3,19 @@
   "displayName": "BTView — Behavior Tree Editor",
   "description": "Visual graph editor for BehaviorTree.CPP v3.8 and v4 XML files",
   "version": "0.1.0",
-  "publisher": "your-publisher",
+  "publisher": "rangonomics",
   "license": "Apache-2.0",
   "icon": "media/icon.png",
+  "homepage": "https://github.com/guilyx/btview-vscode-plugin#readme",
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "BTView reads and writes behavior tree XML files in the workspace."
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/guilyx/btview-vscode-plugin"
@@ -193,6 +203,7 @@
     "precommit": "pre-commit run --all-files",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "vitest run",
+    "test:unit:coverage": "vitest run --coverage",
     "test:integration": "vscode-test",
     "pretest:integration": "bash scripts/with-node.sh npm run pretest:integration:inner",
     "pretest:integration:inner": "npm run compile:inner && tsc -p tsconfig.test.json",

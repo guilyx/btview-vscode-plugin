@@ -1,4 +1,5 @@
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
+import { existsSync } from 'fs';
 import * as path from 'path';
 import type { BtDocument, IncludeRef } from './types';
 import { parseDocument } from './parser';
@@ -34,7 +35,7 @@ export async function resolveIncludePath(
   }
 
   const normalized = path.normalize(filePath);
-  if (!fs.existsSync(normalized)) {
+  if (!existsSync(normalized)) {
     return { resolvedPath: null, error: `Include file not found: ${normalized}` };
   }
 
@@ -82,7 +83,7 @@ export async function loadDocumentWithIncludes(
       }
       visited.add(resolvedPath);
 
-      const includedText = fs.readFileSync(resolvedPath, 'utf8');
+      const includedText = await fs.readFile(resolvedPath, 'utf8');
       const includedDoc = await loadRecursive(includedText, resolvedPath, depth + 1);
 
       const existingIds = new Set(doc.trees.map((t) => t.id));

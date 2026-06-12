@@ -1,4 +1,4 @@
-import type { BtNode, FormatVersion } from './types';
+import type { BtDocument, BtNode, FormatVersion } from './types';
 import { isV4OnlyNode } from './nodeRegistry';
 
 export interface ValidationError {
@@ -61,4 +61,15 @@ export function validateReparent(parent: BtNode, child: BtNode): ValidationError
   }
 
   return null;
+}
+
+export function validateDocument(doc: BtDocument): ValidationError[] {
+  const errors: ValidationError[] = [];
+  for (const tree of doc.trees) {
+    if (tree.root) {
+      errors.push(...validateNodeChildren(tree.root));
+      errors.push(...validateV4OnlyOnV3(tree.root, doc.formatVersion));
+    }
+  }
+  return errors;
 }

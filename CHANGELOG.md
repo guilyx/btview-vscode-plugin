@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Publisher `rangonomics`; extension ID `rangonomics.btview`
+- `AGENTS.md`, `webview/AGENTS.md`, `.cursor/rules/` for AI agent onboarding
+- `docs/RELEASE.md`, `docs/ROADMAP.md`, `docs/ARCHITECTURE.md`, GitHub issue/PR templates
+- `CONTRIBUTING.md`, `SECURITY.md`
+- CI: VSIX packaging on ubuntu builds; release job publishes to Marketplace + GitHub Release
+- `scripts/verify-release.sh` version gate
+- Shared `src/shared/protocol.ts` for typed host ↔ webview messages
+- `WebviewPanelManager`, `DocumentRefreshScheduler`; slim `BtGraphController` facade
+- `OutputChannel('BTView')`, `DiagnosticsService` for validation issues
+- `commands/targetUri.ts`, `commands/convertToV4.ts` (removed deprecated `BtPreviewManager`)
+- Webview: `NodePicker`, `WarningsPanel`, debounced Inspector, drop-target reparent UX
+- Unit tests: validation, editOperations, layout; Vitest coverage config
+
+### Changed
+
+- Distribution: VS Code Marketplace primary; GitHub Releases for VSIX downloads
+- Integration test asserts `rangonomics.btview` activates (no silent pass)
+- `validateDocument` wired on parse; reparent edits return structured errors
+- Skip redundant refresh after self-initiated graph edits
+- `documentChanged` vs `loadDocument` for incremental webview updates
+- v3 `TreeNodesModel` serialization preserves node kind wrapper tags
+- Include resolver uses async `fs.promises.readFile`
+- ROS cache cleared on `btview.*` config change
+- `BtFlowNode` memoized; viewport persisted via `vscode.setState`
+
 ### Fixed
 
 - macOS/Windows CI: install Rollup native bindings after `npm ci` (npm optional-deps bug)

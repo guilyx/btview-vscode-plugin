@@ -16,11 +16,19 @@ node -v        # should be v20+
 
 All npm scripts use `scripts/with-node.sh` to auto-load nvm when available.
 
+## Branches
+
+- **`devel`** — default; branch from here and open PRs here
+- **`main`** — releases only
+
+See [BRANCHING.md](BRANCHING.md).
+
 ## Setup
 
 ```bash
 git clone <repo-url> btview-vscode-plugin
 cd btview-vscode-plugin
+git checkout devel
 npm ci
 ```
 

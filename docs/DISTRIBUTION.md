@@ -82,9 +82,11 @@ Releases publish to **all three channels** automatically when a `vX.Y.Z` tag is 
    npx ovsx create-namespace rangonomics -p "$OVSX_PAT"
    ```
 
-4. Add the token as GitHub repo secret **`OVSX_PAT`**
+4. Add the token as GitHub repo secret **`OVSX_PAT`** ✓
 
 Requirements: `license` field in `package.json` (we use `Apache-2.0`).
+
+CI also runs `ovsx create-namespace rangonomics` before the first publish (idempotent).
 
 ### One-time VS Code Marketplace setup
 
@@ -94,26 +96,38 @@ Requirements: `license` field in `package.json` (we use `Apache-2.0`).
 
 ### Automated publish (CI)
 
-On tag `vX.Y.Z`, the `release` job:
+On tag `vX.Y.Z` pushed to `main`, the `release` job:
 
 1. Verifies version ↔ tag ↔ CHANGELOG
 2. Builds VSIX and attaches to GitHub Release
-3. `vsce publish` → VS Code Marketplace
-4. `ovsx publish` → Open VSX (Cursor)
+3. Ensures Open VSX namespace `rangonomics` exists
+4. `vsce publish` → VS Code Marketplace (`PAT_AZURE_MARKETPLACE`)
+5. `ovsx publish` → Open VSX / Cursor (`OVSX_PAT`)
 
-### Manual publish (one-off)
+### Manual publish via GitHub Actions
 
-After `npm run vsix`:
+For an **existing tag** (e.g. publish v0.1.0 to Open VSX after adding `OVSX_PAT`):
+
+1. GitHub → **Actions** → **Publish to registries** → **Run workflow**
+2. Set `version` to `0.1.0`
+3. If VS Code Marketplace already has that version, enable **skip_marketplace**
+
+Requires both secrets: `PAT_AZURE_MARKETPLACE`, `OVSX_PAT`.
+
+### Manual publish (local)
 
 ```bash
-# VS Code Marketplace
-npx vsce publish --pat "$PAT_AZURE_MARKETPLACE"
-
-# Open VSX (Cursor)
-npx ovsx publish btview-0.1.0.vsix -p "$OVSX_PAT"
+export PAT_AZURE_MARKETPLACE="..."   # VS Code Marketplace
+export OVSX_PAT="..."                # Open VSX / Cursor
+bash scripts/publish-registries.sh
 ```
 
-To publish **0.1.0** to Cursor before the next tagged release, download or build the VSIX and run the `ovsx publish` command above.
+Or after `npm run vsix`:
+
+```bash
+npx vsce publish --pat "$PAT_AZURE_MARKETPLACE"
+npx ovsx publish btview-0.1.0.vsix -p "$OVSX_PAT"
+```
 
 ### Pre-publish checklist
 
@@ -122,5 +136,5 @@ To publish **0.1.0** to Cursor before the next tagged release, download or build
 - [x] `media/icon.png` present (128×128)
 - [ ] `CHANGELOG.md` section for release version
 - [ ] `bash scripts/verify.sh` passes
-- [ ] `OVSX_PAT` and `PAT_AZURE_MARKETPLACE` secrets configured
-- [ ] Open VSX namespace `rangonomics` created
+- [x] `OVSX_PAT` and `PAT_AZURE_MARKETPLACE` GitHub secrets configured
+- [x] Open VSX namespace `rangonomics` (CI creates on first publish)

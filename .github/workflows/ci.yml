@@ -80,6 +80,11 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: '*.vsix'
           generate_release_notes: true
+      - name: Ensure Open VSX namespace exists
+        continue-on-error: true
+        run: npx ovsx create-namespace rangonomics -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
       - name: Publish to VS Code Marketplace
         run: npx vsce publish --pat ${{ secrets.PAT_AZURE_MARKETPLACE }}
         env:

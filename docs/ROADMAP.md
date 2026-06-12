@@ -23,7 +23,8 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 - [x] `@vitest/coverage-v8` + unit coverage in CI
 - [ ] Branch protection on `devel` + `main` (GitHub settings — maintainer)
 - [x] Open VSX publish step in release CI + Cursor install docs
-- [ ] `OVSX_PAT` secret + namespace `rangonomics` on open-vsx.org (maintainer)
+- [x] `OVSX_PAT` GitHub secret; namespace created by CI on first publish
+- [ ] Run **Publish to registries** workflow for v0.1.0 on Open VSX
 - [ ] Release **0.2.0** to `main` when above is merged and smoke-tested
 
 ## 1.0.0 — Stable

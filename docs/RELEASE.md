@@ -48,6 +48,10 @@ SemVer pre-1.0: bump **minor** for features, **patch** for fixes.
 
 See [DISTRIBUTION.md](DISTRIBUTION.md) for full Cursor / Open VSX setup.
 
+### Publish an existing tag to registries
+
+If a release predates Open VSX CI (e.g. v0.1.0), run **Actions → Publish to registries** with the version number. Skip Marketplace if that version is already live.
+
 ## Local VSIX
 
 ```bash

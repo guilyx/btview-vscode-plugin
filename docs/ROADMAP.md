@@ -1,49 +1,45 @@
 # BTView Roadmap
 
-Current version: **0.1.0** (released 2026-06-12).
+Current release: **0.1.0** on `main` (2026-06-12).
+Integration branch: **`devel`**.
 
 Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
 ## Milestones
 
-| Version   | Focus                                                                   | Status   |
-| --------- | ----------------------------------------------------------------------- | -------- |
-| **0.1.0** | Distribution: publisher, icon, VSIX CI, Marketplace publish, agent docs | Released |
-| **0.2.0** | Architecture: protocol, controller split, validation, diagnostics       | Planned  |
-| **0.3.0** | Performance: edit debounce, skip self-refresh, async includes           | Planned  |
-| **0.4.0** | UX: node picker, reparent/reorder, warnings panel, a11y                 | Planned  |
-| **1.0.0** | Professional-grade criteria met                                         | Planned  |
+| Version   | Focus                                                       | Status       |
+| --------- | ----------------------------------------------------------- | ------------ |
+| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack  | **Released** |
+| **0.2.0** | Integration release from `devel` (CI gate, branching model) | In progress  |
+| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection  | Planned      |
 
-## Phase details
+> Architecture (protocol, controller split), validation, performance, and UX milestones originally scoped as 0.2–0.4 were **delivered in 0.1.0**. See [CHANGELOG.md](../CHANGELOG.md).
 
-### 0.1.0 — Ship
+## 0.2.0 — Integration (from `devel`)
 
-- VS Code Marketplace (primary) + GitHub Releases (VSIX)
-- `AGENTS.md`, release automation, integration test fixes
+- [x] `devel` branch as default integration target
+- [x] Branching docs (`docs/BRANCHING.md`, CONTRIBUTING, AGENTS.md, cursor rules)
+- [x] CI runs on `devel` pushes and PRs
+- [x] `@vitest/coverage-v8` + unit coverage in CI
+- [ ] Branch protection on `devel` + `main` (GitHub settings — maintainer)
+- [ ] Release **0.2.0** to `main` when above is merged and smoke-tested
 
-### 0.2.0 — Foundation
+## 1.0.0 — Stable
 
-- Shared `src/shared/protocol.ts`
-- Split `BtGraphController` (panel manager, refresh scheduler)
-- Output channel, edit error contract
-- Validation wired to parse/edit + Problems panel
+- [ ] `DocumentSyncService` unit or integration tests (currently 0% coverage)
+- [ ] Coverage thresholds enforced in `verify.sh` for `src/btcpp/` (target ≥ 70% lines)
+- [ ] Optional telemetry (opt-in usage, no PII)
+- [ ] Marketplace listing verified end-to-end
 
-### 0.3.0 — Performance
+## Delivered in 0.1.0 (reference)
 
-- Inspector commit-on-blur / debounce
-- Skip redundant re-parse after self-initiated edits
-- Async include I/O, webview viewport persistence
-
-### 0.4.0 — UX
-
-- Node picker from `TreeNodesModel`
-- Drop-target reparent, sibling reorder
-- Warnings panel, keyboard/a11y basics
-
-### 1.0.0 — Stable
-
-- Coverage targets met, governance docs, optional telemetry
+- Shared `src/shared/protocol.ts`, `WebviewPanelManager`, `DocumentRefreshScheduler`
+- Output channel, `DiagnosticsService`, validation on parse/edit
+- Inspector debounce, skip self-refresh, async includes, viewport persistence
+- `NodePicker`, reparent/reorder UX, `WarningsPanel`
+- Unit + integration tests, governance docs, release automation
 
 ## Tracking
 
 GitHub issues and PRs on [guilyx/btview-vscode-plugin](https://github.com/guilyx/btview-vscode-plugin).
+Feature PRs target **`devel`**; release PRs target **`main`**.

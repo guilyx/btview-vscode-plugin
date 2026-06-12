@@ -2,6 +2,10 @@
 
 <!-- 2–3 bullets -->
 
+## Base branch
+
+- [ ] PR targets **`devel`** (features/fixes) or **`main`** (release / RC only)
+
 ## Test plan
 
 - [ ] `bash scripts/verify.sh` (or at minimum `pre-commit run --all-files`)
@@ -14,4 +18,4 @@
 
 ## Phase
 
-<!-- e.g. Phase 0 distribution, Phase 1 protocol -->
+<!-- e.g. 0.2.0 integration, 1.0.0 stable -->

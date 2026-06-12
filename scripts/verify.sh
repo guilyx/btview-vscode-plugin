@@ -13,8 +13,8 @@ bash scripts/with-node.sh npm run check-types
 echo "==> npm run compile"
 bash scripts/with-node.sh npm run compile
 
-echo "==> npm run test:unit"
-bash scripts/with-node.sh npm run test:unit
+echo "==> npm run test:unit:coverage"
+bash scripts/with-node.sh npm run test:unit:coverage
 
 echo "==> npm run vsix"
 bash scripts/with-node.sh npm run vsix

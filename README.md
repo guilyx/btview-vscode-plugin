@@ -45,7 +45,10 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 
 ## Development
 
+Contributors: branch from **`devel`** and open PRs to **`devel`**. See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/BRANCHING.md](docs/BRANCHING.md).
+
 ```bash
+git checkout devel
 npm ci
 pip install pre-commit   # or: uv tool install pre-commit
 pre-commit install -t pre-commit -t commit-msg

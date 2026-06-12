@@ -5,7 +5,14 @@ alwaysApply: true
 
 # CI gate (mandatory)
 
-**Never push to `main`, merge a PR, or tag a release unless CI is fully green.**
+**Never push to `devel` or `main`, merge a PR, or tag a release unless CI is fully green.**
+
+## Branches
+
+- Feature/fix PRs → **`devel`** (default integration branch)
+- Releases / RCs → **`main`** only (from `devel` or `release/vX.Y.Z`)
+
+See [docs/BRANCHING.md](../../docs/BRANCHING.md).
 
 ## Before every push
 
@@ -17,7 +24,7 @@ Minimum before push: `pre-commit run --all-files` (must exit 0).
 
 ## Before every merge
 
-1. Open a PR (no direct pushes of feature work to `main` except release/chore with CI pending).
+1. Open a PR to the correct base (`devel` for features; `main` only for release/RC).
 2. Wait for **all** required checks on the PR:
    - `pre-commit`
    - `build (ubuntu-latest)`
@@ -29,8 +36,9 @@ Minimum before push: `pre-commit run --all-files` (must exit 0).
 ## Never
 
 - Merge while any CI job is `queued`, `in_progress`, or `failure`
+- Open feature PRs against `main`
 - Skip pre-commit with `--no-verify`
 - Assume local compile is enough without `pre-commit run --all-files`
-- Force-push `main`
+- Force-push `main` or `devel`
 
 See [AGENTS.md](../../AGENTS.md) and [CONTRIBUTING.md](../../CONTRIBUTING.md).

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, devel]
     tags:
       - 'v*.*.*'
   pull_request:
@@ -44,6 +44,9 @@ jobs:
       - run: npm run compile
       - name: Unit tests
         run: npm run test:unit
+      - name: Unit test coverage
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run test:unit:coverage
       - name: Integration tests (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: xvfb-run -a npm run test:integration
@@ -77,7 +80,16 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: '*.vsix'
           generate_release_notes: true
+      - name: Ensure Open VSX namespace exists
+        continue-on-error: true
+        run: npx ovsx create-namespace rangonomics -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
       - name: Publish to VS Code Marketplace
         run: npx vsce publish --pat ${{ secrets.PAT_AZURE_MARKETPLACE }}
         env:
           VSCE_PAT: ${{ secrets.PAT_AZURE_MARKETPLACE }}
+      - name: Publish to Open VSX Registry (Cursor)
+        run: npx ovsx publish "btview-${GITHUB_REF_NAME#v}.vsix" -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}

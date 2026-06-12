@@ -38,7 +38,7 @@ function paletteEntries(doc: SerializedDocument): { id: string; kind: string; so
     entries.push({ id, kind, source });
   };
 
-  for (const e of doc.nodePalette) {
+  for (const e of doc.nodePalette ?? []) {
     add(e.id, e.kind, 'builtin');
   }
   for (const m of doc.models) {

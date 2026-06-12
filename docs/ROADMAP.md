@@ -1,6 +1,6 @@
 # BTView Roadmap
 
-Current version: **0.1.0** (pre-release development on `main`).
+Current version: **0.1.0** (released 2026-06-12).
 
 Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
@@ -8,7 +8,7 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
 | Version   | Focus                                                                   | Status      |
 | --------- | ----------------------------------------------------------------------- | ----------- |
-| **0.1.0** | Distribution: publisher, icon, VSIX CI, Marketplace publish, agent docs | In progress |
+| **0.1.0** | Distribution: publisher, icon, VSIX CI, Marketplace publish, agent docs | Released |
 | **0.2.0** | Architecture: protocol, controller split, validation, diagnostics       | Planned     |
 | **0.3.0** | Performance: edit debounce, skip self-refresh, async includes           | Planned     |
 | **0.4.0** | UX: node picker, reparent/reorder, warnings panel, a11y                 | Planned     |

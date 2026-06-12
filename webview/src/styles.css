@@ -39,6 +39,32 @@ html,
   gap: 8px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.view-switcher {
+  display: flex;
+  gap: 4px;
+}
+
+.view-switcher-btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--vscode-button-border, #555);
+  background: var(--vscode-button-secondaryBackground, #333);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+}
+
+.view-switcher-btn:hover {
+  background: var(--vscode-button-secondaryHoverBackground, #444);
+}
+
 .format-badge {
   background: var(--vscode-badge-background, #4d4d4d);
   color: var(--vscode-badge-foreground, #fff);

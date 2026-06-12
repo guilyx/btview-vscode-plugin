@@ -102,13 +102,25 @@
         {
           "command": "btview.openPreview",
           "alt": "btview.openPreviewSide",
-          "when": "(resourceLangId == xml || resourceExtname == .xml) && activeCustomEditorId != 'btview.graph'",
+          "when": "(resourceLangId == xml || resourceExtname =~ /\\.xml$/i) && activeCustomEditorId != 'btview.graph'",
           "group": "navigation@1"
         },
         {
           "command": "btview.openSource",
           "when": "activeCustomEditorId == 'btview.graph'",
           "group": "navigation@1"
+        }
+      ],
+      "webview/title": [
+        {
+          "command": "btview.openSource",
+          "when": "activeWebviewPanelId == 'btview.preview'",
+          "group": "navigation@1"
+        },
+        {
+          "command": "btview.openPreview",
+          "when": "activeWebviewPanelId == 'btview.preview'",
+          "group": "navigation@2"
         }
       ],
       "explorer/context": [

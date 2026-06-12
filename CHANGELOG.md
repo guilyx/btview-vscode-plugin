@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- In-graph **XML Source** / **Graph beside** buttons (header toolbar) when editor title bar icons are unavailable
+
+### Changed
+
+- Title bar menu `when` clauses match any `.xml` extension; add `webview/title` buttons for side preview panel
+
 ## [0.2.1] - 2026-06-12
 
 ### Fixed

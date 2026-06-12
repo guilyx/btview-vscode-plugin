@@ -100,7 +100,10 @@ export class DocumentSyncService {
 
   async applyEdit(
     uri: vscode.Uri,
-    edit: Exclude<WebviewToHostMessage, { type: 'ready' | 'openInclude' | 'selectTree' }>,
+    edit: Exclude<
+      WebviewToHostMessage,
+      { type: 'ready' | 'openInclude' | 'selectTree' | 'openSource' | 'openGraphSide' }
+    >,
   ): Promise<ApplyEditResult> {
     let doc = this.documents.get(uri.toString());
     if (!doc) {

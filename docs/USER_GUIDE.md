@@ -13,11 +13,12 @@
 ### From the XML text editor
 
 1. Open any `.xml` file with a BTCpp `<root>` and `<BehaviorTree>` elements
-2. Use the title bar icon in the **top-right** (same area as Markdown preview):
+2. Use the title bar icon in the **top-right** of the editor tab (VS Code; may not appear in Cursor):
    - **Click** the graph icon → BT Graph as editor tab (`Ctrl+Shift+V`)
    - **Alt+click** the graph icon → graph beside XML (`Ctrl+K V`)
-   - When in graph mode, click the **XML icon** → back to source
-3. Or Command Palette → **BTView: Open BT Graph** / **Open BT Graph to the Side**
+   - When in graph mode, click the **XML icon** in the title bar → back to source
+3. **In the graph view**, use **XML Source** / **Graph beside** in the header toolbar (always visible)
+4. Or Command Palette → **BTView: Open BT Graph** / **Open BT Graph to the Side**
 
 ### From the graph editor
 

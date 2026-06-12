@@ -5,6 +5,7 @@ import { Inspector } from './panels/Inspector';
 import { Toolbar } from './panels/Toolbar';
 import { NodePicker } from './panels/NodePicker';
 import { WarningsPanel } from './panels/WarningsPanel';
+import { ViewSwitcher } from './panels/ViewSwitcher';
 import type { FlowNodeData } from './graph/layout';
 import { postMessage } from './vscodeApi';
 
@@ -89,16 +90,19 @@ export function App() {
             </span>
           )}
         </div>
-        {saving && (
-          <span className="saving-indicator" aria-live="polite">
-            Saving…
-          </span>
-        )}
-        {validationError && (
-          <span className="validation-error" role="alert">
-            {validationError}
-          </span>
-        )}
+        <div className="header-right">
+          <ViewSwitcher />
+          {saving && (
+            <span className="saving-indicator" aria-live="polite">
+              Saving…
+            </span>
+          )}
+          {validationError && (
+            <span className="validation-error" role="alert">
+              {validationError}
+            </span>
+          )}
+        </div>
       </header>
 
       <WarningsPanel doc={doc} onSelectPath={() => undefined} />

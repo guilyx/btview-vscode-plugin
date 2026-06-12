@@ -233,6 +233,12 @@ export class BtGraphController {
           }
           break;
         }
+        case 'openSource':
+          await this.openSource(uri);
+          break;
+        case 'openGraphSide':
+          await this.showSidePreview(uri);
+          break;
         case 'ready':
           await this.refreshUri(uri, true);
           break;

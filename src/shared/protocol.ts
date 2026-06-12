@@ -57,7 +57,9 @@ export type WebviewToHostMessage =
       parentPath: string;
       order: string[];
     }
-  | { type: 'openInclude'; resolvedUri?: string };
+  | { type: 'openInclude'; resolvedUri?: string }
+  | { type: 'openSource' }
+  | { type: 'openGraphSide' };
 
 export type HostToWebviewMessage =
   | { type: 'loadDocument'; document: SerializedDocument }
@@ -145,6 +147,10 @@ export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null 
         type: 'openInclude',
         resolvedUri: typeof msg.resolvedUri === 'string' ? msg.resolvedUri : undefined,
       };
+    case 'openSource':
+      return { type: 'openSource' };
+    case 'openGraphSide':
+      return { type: 'openGraphSide' };
     default:
       return null;
   }

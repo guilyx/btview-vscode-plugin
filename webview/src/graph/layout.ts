@@ -9,6 +9,8 @@ export interface FlowNodeData extends Record<string, unknown> {
   instanceName?: string;
   attributes: Record<string, string>;
   childCount: number;
+  /** Uncommitted palette node — not yet in XML until connected. */
+  staged?: boolean;
 }
 
 const NODE_WIDTH = 180;

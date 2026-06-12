@@ -2,7 +2,11 @@
 .vscode-test/**
 coverage/**
 src/**
-webview/**
+# Webview source only — bundled assets in webview/dist/ must ship in the VSIX
+webview/src/**
+webview/index.html
+webview/AGENTS.md
+webview/vite.config.ts
 out/**
 out-test/**
 node_modules/**

@@ -1,17 +1,17 @@
 # BTView Roadmap
 
-Current release: **0.1.0** on `main` (2026-06-12).
+Current release: **0.2.0** on `main` (2026-06-12).
 Integration branch: **`devel`**.
 
 Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
 ## Milestones
 
-| Version   | Focus                                                       | Status       |
-| --------- | ----------------------------------------------------------- | ------------ |
-| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack  | **Released** |
-| **0.2.0** | Integration release from `devel` (CI gate, branching model) | In progress  |
-| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection  | Planned      |
+| Version   | Focus                                                      | Status       |
+| --------- | ---------------------------------------------------------- | ------------ |
+| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack | **Released** |
+| **0.2.0** | Integration: devel branch, CI gate, Open VSX, dual publish | **Released** |
+| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection | Planned      |
 
 > Architecture (protocol, controller split), validation, performance, and UX milestones originally scoped as 0.2–0.4 were **delivered in 0.1.0**. See [CHANGELOG.md](../CHANGELOG.md).
 
@@ -25,7 +25,7 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 - [x] Open VSX publish step in release CI + Cursor install docs
 - [x] `OVSX_PAT` GitHub secret; namespace created by CI on first publish
 - [ ] Run **Publish to registries** workflow for v0.1.0 on Open VSX
-- [ ] Release **0.2.0** to `main` when above is merged and smoke-tested
+- [x] Release **0.2.0** to `main` (tag `v0.2.0` → Marketplace + Open VSX)
 
 ## 1.0.0 — Stable
 

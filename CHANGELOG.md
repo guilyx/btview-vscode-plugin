@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-12
+
 ### Added
 
 - Open VSX (Cursor) publishing in release CI via `ovsx publish`; `publish-registries` workflow_dispatch for existing tags
@@ -21,11 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI release job also triggers on `v*.*.*` tag push (not only published GitHub Release)
 - Pre-commit hooks use `scripts/with-node.sh` + `--check` mode; add `scripts/verify.sh` and CI gate rules for agents
 - `AGENTS.md`, `CONTRIBUTING.md`, cursor rules, and `docs/RELEASE.md` document branching model
+- Dual distribution: VS Code Marketplace + Open VSX (Cursor) on every tagged release
 
 ### Fixed
 
 - Pre-commit prettier/eslint failed on system Node 12 outside `with-node.sh`
 - Release CI job now `needs: [pre-commit, build]` (no publish on red checks)
+- Exclude `coverage/` from VSIX package (`.vscodeignore`)
 
 ## [0.1.0] - 2026-06-12
 

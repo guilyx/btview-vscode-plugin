@@ -17,6 +17,7 @@ echo "==> npm run test:unit:coverage"
 bash scripts/with-node.sh npm run test:unit:coverage
 
 echo "==> npm run vsix"
+rm -rf coverage
 bash scripts/with-node.sh npm run vsix
 
 echo "verify: OK"

@@ -7,12 +7,12 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
 ## Milestones
 
-| Version   | Focus                                                                 | Status       |
-| --------- | --------------------------------------------------------------------- | ------------ |
-| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack            | **Released** |
-| **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix  | **Released** |
+| Version   | Focus                                                                 | Status          |
+| --------- | --------------------------------------------------------------------- | --------------- |
+| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack            | **Released**    |
+| **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix  | **Released**    |
 | **0.3.0** | Authoring: node type config, new tree, palette, visual → XML workflow | **In progress** |
-| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection            | Planned      |
+| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection            | Planned         |
 
 > Architecture (protocol, controller split), validation, performance, and UX milestones originally scoped as 0.2–0.4 were **delivered in 0.1.0**. See [CHANGELOG.md](../CHANGELOG.md).
 

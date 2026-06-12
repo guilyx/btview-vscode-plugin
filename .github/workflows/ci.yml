@@ -84,3 +84,7 @@ jobs:
         run: npx vsce publish --pat ${{ secrets.PAT_AZURE_MARKETPLACE }}
         env:
           VSCE_PAT: ${{ secrets.PAT_AZURE_MARKETPLACE }}
+      - name: Publish to Open VSX Registry (Cursor)
+        run: npx ovsx publish "btview-${GITHUB_REF_NAME#v}.vsix" -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}

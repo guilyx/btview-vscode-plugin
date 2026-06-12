@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Open VSX (Cursor) publishing in release CI via `ovsx publish`; distribution docs for Cursor install
 - `devel` integration branch; `docs/BRANCHING.md` for two-branch workflow
 - `@vitest/coverage-v8`; unit coverage in CI and `verify.sh` (thresholds on `src/btcpp/`)
 

@@ -31,9 +31,22 @@ SemVer pre-1.0: bump **minor** for features, **patch** for fixes.
    - `scripts/verify-release.sh` — version ↔ tag ↔ CHANGELOG
    - `npm run vsix`
    - Attach VSIX to GitHub Release
-   - `vsce publish` to VS Code Marketplace (`PAT_AZURE_MARKETPLACE` secret)
+   - `vsce publish` → VS Code Marketplace (`PAT_AZURE_MARKETPLACE`)
+   - `ovsx publish` → Open VSX Registry (`OVSX_PAT`) for **Cursor**
 7. Merge `main` back into `devel` if the release branch diverged (keep `devel` current)
-8. Smoke test: `ext install rangonomics.btview` and download VSIX from GitHub Releases
+8. Smoke test:
+   - VS Code: `ext install rangonomics.btview`
+   - Cursor: Extensions → search **BTView** (Open VSX)
+   - Manual: download VSIX from GitHub Releases
+
+### Registry secrets
+
+| Secret                  | Registry            | Setup                                                                                                              |
+| ----------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `PAT_AZURE_MARKETPLACE` | VS Code Marketplace | [VS Code publishing docs](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)          |
+| `OVSX_PAT`              | Open VSX (Cursor)   | [open-vsx.org tokens](https://open-vsx.org/user-settings/tokens); run `npx ovsx create-namespace rangonomics` once |
+
+See [DISTRIBUTION.md](DISTRIBUTION.md) for full Cursor / Open VSX setup.
 
 ## Local VSIX
 

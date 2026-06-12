@@ -23,9 +23,13 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 
 ## Install
 
-**VS Code Marketplace:** search **BTView** or `ext install rangonomics.btview`
+| IDE         | How                                                                                                                                     |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **VS Code** | Extensions → search **BTView** or `ext install rangonomics.btview`                                                                      |
+| **Cursor**  | Extensions → search **BTView** ([Open VSX](https://open-vsx.org/extension/rangonomics/btview))                                          |
+| **Any**     | Download `.vsix` from [GitHub Releases](https://github.com/guilyx/btview-vscode-plugin/releases) → **Extensions: Install from VSIX...** |
 
-**Manual:** download `.vsix` from [GitHub Releases](https://github.com/guilyx/btview-vscode-plugin/releases) → **Extensions: Install from VSIX...**
+Cursor uses Open VSX, not the Microsoft Marketplace. See [Distribution guide](docs/DISTRIBUTION.md#install-in-cursor).
 
 ## Quick start
 

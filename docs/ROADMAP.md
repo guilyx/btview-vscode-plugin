@@ -22,6 +22,8 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 - [x] CI runs on `devel` pushes and PRs
 - [x] `@vitest/coverage-v8` + unit coverage in CI
 - [ ] Branch protection on `devel` + `main` (GitHub settings — maintainer)
+- [x] Open VSX publish step in release CI + Cursor install docs
+- [ ] `OVSX_PAT` secret + namespace `rangonomics` on open-vsx.org (maintainer)
 - [ ] Release **0.2.0** to `main` when above is merged and smoke-tested
 
 ## 1.0.0 — Stable
@@ -29,7 +31,7 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 - [ ] `DocumentSyncService` unit or integration tests (currently 0% coverage)
 - [ ] Coverage thresholds enforced in `verify.sh` for `src/btcpp/` (target ≥ 70% lines)
 - [ ] Optional telemetry (opt-in usage, no PII)
-- [ ] Marketplace listing verified end-to-end
+- [ ] VS Code Marketplace + Open VSX (Cursor) listings verified end-to-end
 
 ## Delivered in 0.1.0 (reference)
 

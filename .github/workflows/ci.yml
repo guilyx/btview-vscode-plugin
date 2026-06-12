@@ -77,6 +77,8 @@ jobs:
         run: bash scripts/verify-release.sh "${{ github.ref_name }}"
       - run: npm run package
       - run: npm run vsix
+      - name: Assert webview assets in VSIX
+        run: bash scripts/assert-vsix-webview.sh
       - name: Publish GitHub Release assets
         uses: softprops/action-gh-release@v2
         with:
@@ -89,7 +91,7 @@ jobs:
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
       - name: Publish to VS Code Marketplace
-        run: npx vsce publish --pat ${{ secrets.PAT_AZURE_MARKETPLACE }}
+        run: npx vsce publish --packagePath "btview-${GITHUB_REF_NAME#v}.vsix" --pat ${{ secrets.PAT_AZURE_MARKETPLACE }}
         env:
           VSCE_PAT: ${{ secrets.PAT_AZURE_MARKETPLACE }}
       - name: Publish to Open VSX Registry (Cursor)

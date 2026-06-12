@@ -56,6 +56,9 @@ jobs:
       - name: Package VSIX
         if: matrix.os == 'ubuntu-latest'
         run: npm run vsix
+      - name: Assert webview assets in VSIX
+        if: matrix.os == 'ubuntu-latest'
+        run: bash scripts/assert-vsix-webview.sh
 
   release:
     if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')

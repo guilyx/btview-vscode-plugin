@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-12
+
+### Fixed
+
+- **Black screen in BT Graph** when installed from Marketplace/VSIX — `webview/dist` assets were excluded by `.vscodeignore`
+- CI asserts `webview/dist/assets/index.js` and `index.css` are present in every VSIX build
+
 ## [0.2.0] - 2026-06-12
 
 ### Added

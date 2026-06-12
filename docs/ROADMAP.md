@@ -1,18 +1,18 @@
 # BTView Roadmap
 
-Current release: **0.2.1** on `main` (2026-06-12).
-Integration branch: **`devel`** (0.3.0 RC).
+Current release: **0.3.0** on `main` (2026-06-11).
+Integration branch: **`devel`**.
 
 Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
 ## Milestones
 
-| Version   | Focus                                                                 | Status          |
-| --------- | --------------------------------------------------------------------- | --------------- |
-| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack            | **Released**    |
-| **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix  | **Released**    |
-| **0.3.0** | Authoring: node type config, new tree, palette, visual → XML workflow | **In progress** |
-| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection            | Planned         |
+| Version   | Focus                                                                 | Status       |
+| --------- | --------------------------------------------------------------------- | ------------ |
+| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack            | **Released** |
+| **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix  | **Released** |
+| **0.3.0** | Authoring: node type config, new tree, palette, visual → XML workflow | **Released** |
+| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection            | Planned      |
 
 > Architecture (protocol, controller split), validation, performance, and UX milestones originally scoped as 0.2–0.4 were **delivered in 0.1.0**. See [CHANGELOG.md](../CHANGELOG.md).
 
@@ -25,7 +25,7 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 - [x] **Empty canvas authoring** — blank graph materializes root via palette or quick-add controls
 - [x] Visual edits → XML via `DocumentSyncService`
 - [x] In-graph view switcher + title bar icons
-- [ ] Release **0.3.0** to `main` (Marketplace + Open VSX)
+- [x] Release **0.3.0** to `main` (Marketplace + Open VSX)
 
 ## 0.2.x — Integration (shipped)
 

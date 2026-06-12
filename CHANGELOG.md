@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `devel` integration branch; `docs/BRANCHING.md` for two-branch workflow
+- `@vitest/coverage-v8`; unit coverage in CI and `verify.sh` (thresholds on `src/btcpp/`)
+
 ### Changed
 
+- Feature PRs target `devel`; `main` reserved for releases and release candidates
+- CI runs on pushes to `devel` and `main`
 - CI release job also triggers on `v*.*.*` tag push (not only published GitHub Release)
 - Pre-commit hooks use `scripts/with-node.sh` + `--check` mode; add `scripts/verify.sh` and CI gate rules for agents
+- `AGENTS.md`, `CONTRIBUTING.md`, cursor rules, and `docs/RELEASE.md` document branching model
 
 ### Fixed
 

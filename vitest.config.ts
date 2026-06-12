@@ -8,7 +8,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/btcpp/**', 'src/sync/**'],
+      include: ['src/btcpp/**'],
+      thresholds: {
+        lines: 55,
+        branches: 45,
+        functions: 65,
+        statements: 55,
+      },
     },
   },
 });

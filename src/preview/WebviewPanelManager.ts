@@ -82,7 +82,6 @@ export class WebviewPanelManager {
     );
 
     this.sidePanels.set(uri.toString(), panel);
-    panel.webview.html = getWebviewHtml(panel.webview, this.extensionUri, this.extensionVersion);
 
     this.bindWebview(uri, panel.webview, [
       panel.onDidDispose(() => {
@@ -98,6 +97,8 @@ export class WebviewPanelManager {
       panel.webview.onDidReceiveMessage(onMessage),
     ]);
 
+    panel.webview.html = getWebviewHtml(panel.webview, this.extensionUri, this.extensionVersion);
+
     return panel;
   }
 
@@ -109,11 +110,6 @@ export class WebviewPanelManager {
     onVisible: () => void,
   ): void {
     webviewPanel.webview.options = getWebviewOptions(this.extensionUri);
-    webviewPanel.webview.html = getWebviewHtml(
-      webviewPanel.webview,
-      this.extensionUri,
-      this.extensionVersion,
-    );
 
     this.bindWebview(uri, webviewPanel.webview, [
       webviewPanel.onDidDispose(() => {
@@ -127,6 +123,12 @@ export class WebviewPanelManager {
       }),
       webviewPanel.webview.onDidReceiveMessage(onMessage),
     ]);
+
+    webviewPanel.webview.html = getWebviewHtml(
+      webviewPanel.webview,
+      this.extensionUri,
+      this.extensionVersion,
+    );
   }
 
   reloadAllWebviews(): void {

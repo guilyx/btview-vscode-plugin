@@ -171,6 +171,9 @@ export class BtGraphController {
       this.initialLoadDone.delete(uri.toString());
     }
     this.panels.reloadAllWebviews();
+    for (const uri of this.panels.getOpenUris()) {
+      await this.refreshUri(uri, true);
+    }
   }
 
   async refreshUri(uri: vscode.Uri, isInitial: boolean): Promise<void> {
@@ -190,11 +193,11 @@ export class BtGraphController {
       this.diagnostics.setValidationErrors(uri, validationErrors);
 
       const key = uri.toString();
-      if (!this.initialLoadDone.has(key)) {
-        return;
+      const firstLoad = !this.initialLoadDone.has(key);
+      const msgType = isInitial || firstLoad ? 'loadDocument' : 'documentChanged';
+      if (firstLoad) {
+        this.initialLoadDone.set(key, true);
       }
-
-      const msgType = isInitial ? 'loadDocument' : 'documentChanged';
 
       const message: HostToWebviewMessage = { type: msgType, document: payload };
       for (const webview of webviews) {
@@ -260,12 +263,9 @@ export class BtGraphController {
         case 'openGraphSide':
           await this.showSidePreview(uri);
           break;
-        case 'ready': {
-          const key = uri.toString();
-          this.initialLoadDone.set(key, true);
+        case 'ready':
           await this.refreshUri(uri, true);
           break;
-        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

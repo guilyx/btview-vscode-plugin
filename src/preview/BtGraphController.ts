@@ -7,6 +7,7 @@ import { logError } from '../logging/outputChannel';
 import { DiagnosticsService } from '../diagnostics/DiagnosticsService';
 import { WebviewPanelManager } from './WebviewPanelManager';
 import { DocumentRefreshScheduler } from './DocumentRefreshScheduler';
+import { WebviewOutboundGate } from './WebviewOutboundGate';
 
 export const CUSTOM_EDITOR_VIEW_TYPE = 'btview.graph';
 
@@ -28,6 +29,7 @@ export class BtGraphController {
   private static instance: BtGraphController | undefined;
 
   private readonly syncService = new DocumentSyncService();
+  private readonly outboundGate = new WebviewOutboundGate();
   private readonly panels: WebviewPanelManager;
   private readonly scheduler = new DocumentRefreshScheduler();
   private readonly diagnostics = new DiagnosticsService();
@@ -44,7 +46,7 @@ export class BtGraphController {
 
   private constructor(extensionUri: vscode.Uri) {
     const version = readExtensionVersion(extensionUri);
-    this.panels = new WebviewPanelManager(extensionUri, version);
+    this.panels = new WebviewPanelManager(extensionUri, version, this.outboundGate);
   }
 
   registerWorkspaceListeners(): void {
@@ -123,8 +125,8 @@ export class BtGraphController {
           this.initialLoadDone.delete(uri.toString());
         }
       },
-      (msg) => {
-        void this.handleMessage(uri, msg);
+      (msg, webview) => {
+        void this.handleMessage(uri, msg, webview);
       },
       () => {
         void this.refreshUri(uri, false);
@@ -154,8 +156,8 @@ export class BtGraphController {
           this.initialLoadDone.delete(uri.toString());
         }
       },
-      (msg) => {
-        void this.handleMessage(uri, msg);
+      (msg, webview) => {
+        void this.handleMessage(uri, msg, webview);
       },
       () => {
         void this.refreshUri(uri, false);
@@ -166,14 +168,16 @@ export class BtGraphController {
   }
 
   async reloadOpenDocuments(): Promise<void> {
-    for (const uri of this.panels.getOpenUris()) {
+    const openUris = this.panels.getOpenUris();
+    if (openUris.length === 0) {
+      return;
+    }
+
+    for (const uri of openUris) {
       this.syncService.clear(uri);
       this.initialLoadDone.delete(uri.toString());
     }
     this.panels.reloadAllWebviews();
-    for (const uri of this.panels.getOpenUris()) {
-      await this.refreshUri(uri, true);
-    }
   }
 
   async refreshUri(uri: vscode.Uri, isInitial: boolean): Promise<void> {
@@ -201,18 +205,28 @@ export class BtGraphController {
 
       const message: HostToWebviewMessage = { type: msgType, document: payload };
       for (const webview of webviews) {
-        webview.postMessage(message);
+        this.outboundGate.post(webview, message);
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       logError('Failed to load document', err);
       for (const webview of webviews) {
-        webview.postMessage({ type: 'error', message });
+        this.outboundGate.post(webview, { type: 'error', message });
       }
     }
   }
 
-  private async handleMessage(uri: vscode.Uri, raw: unknown): Promise<void> {
+  private postToAllWebviews(uri: vscode.Uri, message: HostToWebviewMessage): void {
+    for (const webview of this.panels.getWebviews(uri)) {
+      this.outboundGate.post(webview, message);
+    }
+  }
+
+  private async handleMessage(
+    uri: vscode.Uri,
+    raw: unknown,
+    sourceWebview: vscode.Webview,
+  ): Promise<void> {
     const msg = parseWebviewMessage(raw);
     if (!msg) {
       return;
@@ -233,9 +247,7 @@ export class BtGraphController {
           const result = await this.syncService.applyEdit(uri, msg);
           if (!result.success) {
             const errMsg = result.error?.message ?? 'Edit failed';
-            for (const webview of this.panels.getWebviews(uri)) {
-              webview.postMessage({ type: 'validationError', message: errMsg });
-            }
+            this.postToAllWebviews(uri, { type: 'validationError', message: errMsg });
             void vscode.window.showErrorMessage(`BTView: ${errMsg}`);
             return;
           }
@@ -264,15 +276,14 @@ export class BtGraphController {
           await this.showSidePreview(uri);
           break;
         case 'ready':
+          this.outboundGate.markReady(sourceWebview);
           await this.refreshUri(uri, true);
           break;
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       logError('Webview message handler failed', err);
-      for (const webview of this.panels.getWebviews(uri)) {
-        webview.postMessage({ type: 'error', message });
-      }
+      this.postToAllWebviews(uri, { type: 'error', message });
       void vscode.window.showErrorMessage(`BTView: ${message}`);
     }
   }

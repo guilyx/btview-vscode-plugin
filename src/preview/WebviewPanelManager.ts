@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { getWebviewHtml, getWebviewOptions } from './webviewHtml';
+import type { WebviewOutboundGate } from './WebviewOutboundGate';
 
 export const SIDE_PREVIEW_VIEW_TYPE = 'btview.preview';
 
@@ -15,6 +16,7 @@ export class WebviewPanelManager {
   constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly extensionVersion: string,
+    private readonly outboundGate: WebviewOutboundGate,
   ) {}
 
   bindWebview(uri: vscode.Uri, webview: vscode.Webview, disposables: vscode.Disposable[]): void {
@@ -34,6 +36,7 @@ export class WebviewPanelManager {
     for (const binding of set) {
       if (binding.webview === webview) {
         binding.dispose.forEach((d) => d.dispose());
+        this.outboundGate.dispose(webview);
         set.delete(binding);
         break;
       }
@@ -64,11 +67,16 @@ export class WebviewPanelManager {
     return this.sidePanels.get(uri.toString());
   }
 
+  private setWebviewHtml(webview: vscode.Webview): void {
+    this.outboundGate.markNotReady(webview);
+    webview.html = getWebviewHtml(webview, this.extensionUri, this.extensionVersion);
+  }
+
   createSidePanel(
     uri: vscode.Uri,
     title: string,
     onDispose: () => void,
-    onMessage: (msg: unknown) => void,
+    onMessage: (msg: unknown, webview: vscode.Webview) => void,
     onVisible: () => void,
   ): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(
@@ -82,7 +90,6 @@ export class WebviewPanelManager {
     );
 
     this.sidePanels.set(uri.toString(), panel);
-    panel.webview.html = getWebviewHtml(panel.webview, this.extensionUri, this.extensionVersion);
 
     this.bindWebview(uri, panel.webview, [
       panel.onDidDispose(() => {
@@ -95,8 +102,10 @@ export class WebviewPanelManager {
           onVisible();
         }
       }),
-      panel.webview.onDidReceiveMessage(onMessage),
+      panel.webview.onDidReceiveMessage((msg) => onMessage(msg, panel.webview)),
     ]);
+
+    this.setWebviewHtml(panel.webview);
 
     return panel;
   }
@@ -105,15 +114,10 @@ export class WebviewPanelManager {
     uri: vscode.Uri,
     webviewPanel: vscode.WebviewPanel,
     onDispose: () => void,
-    onMessage: (msg: unknown) => void,
+    onMessage: (msg: unknown, webview: vscode.Webview) => void,
     onVisible: () => void,
   ): void {
     webviewPanel.webview.options = getWebviewOptions(this.extensionUri);
-    webviewPanel.webview.html = getWebviewHtml(
-      webviewPanel.webview,
-      this.extensionUri,
-      this.extensionVersion,
-    );
 
     this.bindWebview(uri, webviewPanel.webview, [
       webviewPanel.onDidDispose(() => {
@@ -125,14 +129,16 @@ export class WebviewPanelManager {
           onVisible();
         }
       }),
-      webviewPanel.webview.onDidReceiveMessage(onMessage),
+      webviewPanel.webview.onDidReceiveMessage((msg) => onMessage(msg, webviewPanel.webview)),
     ]);
+
+    this.setWebviewHtml(webviewPanel.webview);
   }
 
   reloadAllWebviews(): void {
     for (const uri of this.getOpenUris()) {
       for (const webview of this.getWebviews(uri)) {
-        webview.html = getWebviewHtml(webview, this.extensionUri, this.extensionVersion);
+        this.setWebviewHtml(webview);
       }
     }
   }
@@ -145,6 +151,7 @@ export class WebviewPanelManager {
     for (const set of this.bindings.values()) {
       for (const binding of set) {
         binding.dispose.forEach((d) => d.dispose());
+        this.outboundGate.dispose(binding.webview);
       }
     }
     this.bindings.clear();

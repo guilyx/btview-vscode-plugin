@@ -15,15 +15,17 @@ const kindColors: Record<string, string> = {
 function BtFlowNodeInner({ data, selected }: NodeProps) {
   const d = data as FlowNodeData;
   const color = kindColors[d.kind] ?? kindColors.unknown;
+  const staged = Boolean(d.staged);
 
   return (
     <div
-      className={`bt-node ${selected ? 'selected' : ''}`}
+      className={`bt-node ${selected ? 'selected' : ''} ${staged ? 'staged' : ''}`}
       style={{ borderColor: color }}
       aria-selected={selected}
       tabIndex={0}
     >
       <Handle type="target" position={Position.Top} />
+      {staged && <div className="bt-node-staged-label">staged</div>}
       <div className="bt-node-kind" style={{ color }}>
         {d.kind}
       </div>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { SerializedDocument } from '../types';
-import { postMessage } from '../vscodeApi';
+import { dispatchStageNode } from '../graph/stageNodeEvent';
 
 export const BTVIEW_NODE_DRAG = 'application/btview-node';
 
@@ -11,7 +11,6 @@ export interface PaletteDragPayload {
 
 interface NodePaletteSidebarProps {
   doc: SerializedDocument;
-  parentPath: string;
 }
 
 const KIND_ORDER = ['control', 'decorator', 'action', 'condition', 'subtree', 'script'] as const;
@@ -48,7 +47,7 @@ function paletteEntries(doc: SerializedDocument): { id: string; kind: string; so
   return entries;
 }
 
-export function NodePaletteSidebar({ doc, parentPath }: NodePaletteSidebarProps) {
+export function NodePaletteSidebar({ doc }: NodePaletteSidebarProps) {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -71,14 +70,8 @@ export function NodePaletteSidebar({ doc, parentPath }: NodePaletteSidebarProps)
     return groups;
   }, [filtered]);
 
-  const addNode = (registeredId: string, kind: string) => {
-    postMessage({
-      type: 'addNode',
-      treeId: doc.activeTreeId,
-      parentPath,
-      registeredId,
-      kind,
-    });
+  const stageNode = (registeredId: string, kind: string) => {
+    dispatchStageNode({ id: registeredId, kind });
   };
 
   const onDragStart = (e: React.DragEvent, entry: PaletteDragPayload) => {
@@ -99,7 +92,8 @@ export function NodePaletteSidebar({ doc, parentPath }: NodePaletteSidebarProps)
           aria-label="Search node palette"
         />
         <p className="palette-hint">
-          Click or drag onto canvas · target: <code>{parentPath}</code>
+          Drag onto canvas to place unconnected nodes, then connect with edge handles (parent bottom
+          → child top).
         </p>
       </div>
       <div className="palette-scroll">
@@ -122,8 +116,8 @@ export function NodePaletteSidebar({ doc, parentPath }: NodePaletteSidebarProps)
                       className="palette-node"
                       draggable
                       onDragStart={(e) => onDragStart(e, { id: entry.id, kind: entry.kind })}
-                      onClick={() => addNode(entry.id, entry.kind)}
-                      title={`Add ${entry.id} (${entry.kind})`}
+                      onClick={() => stageNode(entry.id, entry.kind)}
+                      title={`Stage ${entry.id} (${entry.kind}) on canvas`}
                     >
                       <span className="palette-node-id">{entry.id}</span>
                       <span className="palette-node-kind">{entry.kind}</span>

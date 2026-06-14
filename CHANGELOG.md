@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Infinite “Loading behavior tree…”** — host sends `loadDocument` on editor open again; webview `ready` is a backup resync, not a gate
+- **Infinite “Loading behavior tree…”** — `WebviewOutboundGate` queues host messages until webview `ready`; ready-driven flush after HTML reload
 - Register webview message listener before setting HTML (avoids lost `ready` on fast load)
+- Webview retries `ready` after 500ms if no document received
 
-### Added — palette drag or click places nodes on the canvas without auto-connecting to a parent
+### Added
+
+- **Staged (dangling) nodes** — palette drag or click places nodes on the canvas without auto-connecting to a parent
 - **Edge connect** — connect parent → child via React Flow handles to commit `addNode` or `reparentNode`
 - **Set as tree root** — inspector action for staged control nodes on an empty tree
 

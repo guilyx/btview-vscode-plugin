@@ -16,14 +16,18 @@ export function App() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    let documentReceived = false;
+
     const handler = (event: MessageEvent) => {
       const msg = event.data;
       if (msg.type === 'loadDocument') {
+        documentReceived = true;
         setDoc(msg.document);
         setError(null);
         setValidationError(null);
         setSaving(false);
       } else if (msg.type === 'documentChanged') {
+        documentReceived = true;
         setDoc(msg.document);
         setSaving(false);
       } else if (msg.type === 'error') {
@@ -37,7 +41,17 @@ export function App() {
 
     window.addEventListener('message', handler);
     postMessage({ type: 'ready' });
-    return () => window.removeEventListener('message', handler);
+
+    const retryTimer = window.setTimeout(() => {
+      if (!documentReceived) {
+        postMessage({ type: 'ready' });
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener('message', handler);
+      window.clearTimeout(retryTimer);
+    };
   }, []);
 
   const onNodeSelect = useCallback((node: FlowNodeData | null) => {

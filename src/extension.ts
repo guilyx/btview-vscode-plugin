@@ -12,13 +12,6 @@ export function activate(context: vscode.ExtensionContext): void {
   controller.registerWorkspaceListeners();
   context.subscriptions.push({ dispose: () => controller.dispose() });
 
-  const currentVersion = context.extension.packageJSON.version as string;
-  const lastVersion = context.globalState.get<string>('btview.extensionVersion');
-  if (lastVersion !== currentVersion) {
-    void context.globalState.update('btview.extensionVersion', currentVersion);
-    void controller.reloadOpenDocuments();
-  }
-
   context.subscriptions.push(
     getOutputChannel(),
     BtCustomEditorProvider.register(context, controller),
@@ -77,6 +70,13 @@ export function activate(context: vscode.ExtensionContext): void {
       void newTree();
     }),
   );
+
+  const currentVersion = context.extension.packageJSON.version as string;
+  const lastVersion = context.globalState.get<string>('btview.extensionVersion');
+  if (lastVersion !== currentVersion) {
+    void context.globalState.update('btview.extensionVersion', currentVersion);
+    void controller.reloadOpenDocuments();
+  }
 }
 
 export function deactivate(): void {

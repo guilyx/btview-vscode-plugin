@@ -17,6 +17,7 @@ export class WebviewPanelManager {
     private readonly extensionUri: vscode.Uri,
     private readonly extensionVersion: string,
     private readonly outboundGate: WebviewOutboundGate,
+    private readonly onWebviewUnbound?: (webview: vscode.Webview) => void,
   ) {}
 
   bindWebview(uri: vscode.Uri, webview: vscode.Webview, disposables: vscode.Disposable[]): void {
@@ -36,6 +37,7 @@ export class WebviewPanelManager {
     for (const binding of set) {
       if (binding.webview === webview) {
         binding.dispose.forEach((d) => d.dispose());
+        this.onWebviewUnbound?.(webview);
         this.outboundGate.dispose(webview);
         set.delete(binding);
         break;

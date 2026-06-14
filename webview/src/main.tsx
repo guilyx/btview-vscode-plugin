@@ -1,5 +1,5 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import './hostMessages';
 import { App } from './App';
 import { ErrorBoundary } from './ErrorBoundary';
 import { installBootErrorHandlers } from './boot';
@@ -13,9 +13,7 @@ if (!rootEl) {
 }
 
 createRoot(rootEl).render(
-  <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </StrictMode>,
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>,
 );

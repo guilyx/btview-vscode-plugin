@@ -28,8 +28,11 @@ export class DocumentSyncService {
   private validationErrors = new Map<string, ValidationError[]>();
 
   async loadFromFile(uri: vscode.Uri): Promise<BtDocument> {
-    const text = await vscode.workspace.fs.readFile(uri);
-    const xmlText = Buffer.from(text).toString('utf8');
+    const document = await vscode.workspace.openTextDocument(uri);
+    return this.loadFromText(document.getText(), uri);
+  }
+
+  async loadFromText(xmlText: string, uri: vscode.Uri): Promise<BtDocument> {
     const rosConfig = getRosConfig();
     rosConfig.workspaceFolders = (vscode.workspace.workspaceFolders ?? []).map((f) => f.uri.fsPath);
 
@@ -110,7 +113,7 @@ export class DocumentSyncService {
     uri: vscode.Uri,
     edit: Exclude<
       WebviewToHostMessage,
-      { type: 'ready' | 'openInclude' | 'selectTree' | 'openSource' | 'openGraphSide' }
+      { type: 'ready' | 'loaded' | 'openInclude' | 'selectTree' | 'openSource' | 'openGraphSide' }
     >,
   ): Promise<ApplyEditResult> {
     let doc = this.documents.get(uri.toString());

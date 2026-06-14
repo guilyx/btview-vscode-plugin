@@ -6,7 +6,12 @@ import { NodePaletteSidebar } from './panels/NodePaletteSidebar';
 import { WarningsPanel } from './panels/WarningsPanel';
 import { ViewSwitcher } from './panels/ViewSwitcher';
 import type { FlowNodeData } from './graph/layout';
+import { clearHostMessageHandler, setHostMessageHandler } from './hostMessages';
 import { postMessage } from './vscodeApi';
+
+function isHostMessage(data: unknown): data is { type: string } {
+  return Boolean(data && typeof data === 'object' && 'type' in data);
+}
 
 export function App() {
   const [doc, setDoc] = useState<SerializedDocument | null>(null);
@@ -18,28 +23,33 @@ export function App() {
   useEffect(() => {
     let documentReceived = false;
 
-    const handler = (event: MessageEvent) => {
-      const msg = event.data;
+    const applyHostMessage = (raw: unknown) => {
+      if (!isHostMessage(raw)) {
+        return;
+      }
+      const msg = raw;
       if (msg.type === 'loadDocument') {
         documentReceived = true;
-        setDoc(msg.document);
+        setDoc((msg as { document: SerializedDocument }).document);
         setError(null);
         setValidationError(null);
         setSaving(false);
+        postMessage({ type: 'loaded' });
       } else if (msg.type === 'documentChanged') {
         documentReceived = true;
-        setDoc(msg.document);
+        setDoc((msg as { document: SerializedDocument }).document);
         setSaving(false);
+        postMessage({ type: 'loaded' });
       } else if (msg.type === 'error') {
-        setError(msg.message);
+        setError((msg as { message: string }).message);
         setSaving(false);
       } else if (msg.type === 'validationError') {
-        setValidationError(msg.message);
+        setValidationError((msg as { message: string }).message);
         setSaving(false);
       }
     };
 
-    window.addEventListener('message', handler);
+    setHostMessageHandler(applyHostMessage);
     postMessage({ type: 'ready' });
 
     const retryTimer = window.setTimeout(() => {
@@ -48,9 +58,16 @@ export function App() {
       }
     }, 500);
 
+    const retryTimer2 = window.setTimeout(() => {
+      if (!documentReceived) {
+        postMessage({ type: 'ready' });
+      }
+    }, 2000);
+
     return () => {
-      window.removeEventListener('message', handler);
+      clearHostMessageHandler();
       window.clearTimeout(retryTimer);
+      window.clearTimeout(retryTimer2);
     };
   }, []);
 

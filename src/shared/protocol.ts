@@ -30,6 +30,7 @@ export interface SerializedDocument {
 
 export type WebviewToHostMessage =
   | { type: 'ready' }
+  | { type: 'loaded' }
   | { type: 'selectTree'; treeId: string }
   | {
       type: 'editNode';
@@ -77,6 +78,8 @@ export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null 
   switch (msg.type) {
     case 'ready':
       return { type: 'ready' };
+    case 'loaded':
+      return { type: 'loaded' };
     case 'selectTree':
       return typeof msg.treeId === 'string' ? { type: 'selectTree', treeId: msg.treeId } : null;
     case 'editNode':

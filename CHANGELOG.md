@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-11
+
+### Fixed
+
+- **Infinite “Loading behavior tree…”** — early `window.message` buffer before React mounts; host retries `loadDocument` until webview `loaded` ack; `loadFromText` on custom editor open; error surface when parse payload is empty
+
 ## [0.4.0] - 2026-06-14
 
 ### Added

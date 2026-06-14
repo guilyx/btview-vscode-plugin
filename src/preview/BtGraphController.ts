@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { DocumentSyncService } from '../sync/DocumentSyncService';
 import { parseWebviewMessage, type HostToWebviewMessage } from '../shared/protocol';
-import { logError } from '../logging/outputChannel';
+import { logError, logInfo } from '../logging/outputChannel';
 import { DiagnosticsService } from '../diagnostics/DiagnosticsService';
 import { WebviewPanelManager } from './WebviewPanelManager';
 import { DocumentRefreshScheduler } from './DocumentRefreshScheduler';
@@ -34,6 +34,8 @@ export class BtGraphController {
   private readonly scheduler = new DocumentRefreshScheduler();
   private readonly diagnostics = new DiagnosticsService();
   private initialLoadDone = new Map<string, boolean>();
+  private readonly webviewDocumentLoaded = new WeakMap<vscode.Webview, boolean>();
+  private readonly loadRetryTimers = new WeakMap<vscode.Webview, ReturnType<typeof setInterval>>();
 
   private disposables: vscode.Disposable[] = [];
 
@@ -46,7 +48,36 @@ export class BtGraphController {
 
   private constructor(extensionUri: vscode.Uri) {
     const version = readExtensionVersion(extensionUri);
-    this.panels = new WebviewPanelManager(extensionUri, version, this.outboundGate);
+    this.panels = new WebviewPanelManager(extensionUri, version, this.outboundGate, (webview) =>
+      this.onWebviewUnbound(webview),
+    );
+  }
+
+  private onWebviewUnbound(webview: vscode.Webview): void {
+    this.clearLoadRetry(webview);
+    this.webviewDocumentLoaded.delete(webview);
+  }
+
+  private clearLoadRetry(webview: vscode.Webview): void {
+    const timer = this.loadRetryTimers.get(webview);
+    if (timer) {
+      clearInterval(timer);
+      this.loadRetryTimers.delete(webview);
+    }
+  }
+
+  private scheduleLoadRetry(uri: vscode.Uri, webview: vscode.Webview): void {
+    this.clearLoadRetry(webview);
+    let attempts = 0;
+    const timer = setInterval(() => {
+      if (this.webviewDocumentLoaded.get(webview) || attempts >= 20) {
+        this.clearLoadRetry(webview);
+        return;
+      }
+      attempts += 1;
+      void this.refreshUri(uri, true, true);
+    }, 500);
+    this.loadRetryTimers.set(webview, timer);
   }
 
   registerWorkspaceListeners(): void {
@@ -164,7 +195,8 @@ export class BtGraphController {
       },
     );
 
-    await this.refreshUri(uri, true);
+    await this.syncService.loadFromText(document.getText(), uri);
+    await this.refreshUri(uri, true, true);
   }
 
   async reloadOpenDocuments(): Promise<void> {
@@ -180,7 +212,7 @@ export class BtGraphController {
     this.panels.reloadAllWebviews();
   }
 
-  async refreshUri(uri: vscode.Uri, isInitial: boolean): Promise<void> {
+  async refreshUri(uri: vscode.Uri, isInitial: boolean, forceLoadDocument = false): Promise<void> {
     const webviews = this.panels.getWebviews(uri);
     if (webviews.length === 0) {
       return;
@@ -190,6 +222,11 @@ export class BtGraphController {
       await this.syncService.loadFromFile(uri);
       const payload = this.syncService.serializeForWebview(uri);
       if (!payload) {
+        const message = 'Document failed to load (empty parse result).';
+        logError(message);
+        for (const webview of webviews) {
+          this.outboundGate.post(webview, { type: 'error', message });
+        }
         return;
       }
 
@@ -198,12 +235,14 @@ export class BtGraphController {
 
       const key = uri.toString();
       const firstLoad = !this.initialLoadDone.has(key);
-      const msgType = isInitial || firstLoad ? 'loadDocument' : 'documentChanged';
+      const msgType =
+        forceLoadDocument || isInitial || firstLoad ? 'loadDocument' : 'documentChanged';
       if (firstLoad) {
         this.initialLoadDone.set(key, true);
       }
 
       const message: HostToWebviewMessage = { type: msgType, document: payload };
+      logInfo(`BTView: push ${msgType} to ${webviews.length} webview(s) for ${uri.fsPath}`);
       for (const webview of webviews) {
         this.outboundGate.post(webview, message);
       }
@@ -276,8 +315,14 @@ export class BtGraphController {
           await this.showSidePreview(uri);
           break;
         case 'ready':
+          this.webviewDocumentLoaded.set(sourceWebview, false);
           this.outboundGate.markReady(sourceWebview);
-          await this.refreshUri(uri, true);
+          await this.refreshUri(uri, true, true);
+          this.scheduleLoadRetry(uri, sourceWebview);
+          break;
+        case 'loaded':
+          this.webviewDocumentLoaded.set(sourceWebview, true);
+          this.clearLoadRetry(sourceWebview);
           break;
       }
     } catch (err) {

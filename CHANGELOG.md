@@ -7,11 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- **Infinite “Loading behavior tree…”** — `WebviewOutboundGate` queues host messages until webview `ready`; ready-driven flush after HTML reload
-- Register webview message listener before setting HTML (avoids lost `ready` on fast load)
-- Webview retries `ready` after 500ms if no document received
+## [0.4.0] - 2026-06-14
 
 ### Added
 
@@ -19,10 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Edge connect** — connect parent → child via React Flow handles to commit `addNode` or `reparentNode`
 - **Set as tree root** — inspector action for staged control nodes on an empty tree
 
+### Fixed
+
+- **BT Graph load reliability** — `WebviewOutboundGate` queues host messages until webview `ready`; ready-driven flush after HTML reload
+- **Infinite “Loading behavior tree…”** regressions from 0.3.1 ready handshake
+- Register webview message listener before setting HTML; webview retries `ready` after 500ms if no document received
+
 ### Changed
 
 - Graph canvas always shown (including empty trees); palette no longer targets a guessed `parentPath`
-- Roadmap: **0.4.0** authoring UX, **0.5.0** simulation monitor milestone
+- Roadmap: **0.5.0** simulation monitor milestone documented
 
 ## [0.3.1] - 2026-06-12
 

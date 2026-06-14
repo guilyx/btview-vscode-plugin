@@ -1,28 +1,29 @@
 # BTView Roadmap
 
-Current release: **0.3.1** on `main` (2026-06-12).
+Current release: **0.4.0** on `main` (2026-06-14).
 Integration branch: **`devel`**.
 
 Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
 ## Milestones
 
-| Version   | Focus                                                                | Status          |
-| --------- | -------------------------------------------------------------------- | --------------- |
-| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack           | **Released**    |
-| **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix | **Released**    |
-| **0.3.x** | Authoring: palette, empty canvas, nodeTypeMap, webview reliability   | **Released**    |
-| **0.4.0** | Graph authoring UX: staged nodes, edge connect, layout polish        | **In progress** |
-| **0.5.0** | **Simulation monitor** — tick emulation, node status, blackboard     | Planned         |
-| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection           | Planned         |
+| Version   | Focus                                                                | Status       |
+| --------- | -------------------------------------------------------------------- | ------------ |
+| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack           | **Released** |
+| **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix | **Released** |
+| **0.3.x** | Authoring: palette, empty canvas, nodeTypeMap, webview reliability   | **Released** |
+| **0.4.0** | Staged nodes, edge connect, webview load hardening                   | **Released** |
+| **0.5.0** | **Simulation monitor** — tick emulation, node status, blackboard     | Planned      |
+| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection           | Planned      |
 
 > Architecture (protocol, controller split), validation, performance, and UX milestones originally scoped as 0.2–0.4 were **delivered in 0.1.0**. See [CHANGELOG.md](../CHANGELOG.md).
 
-## 0.4.0 — Graph authoring UX (in progress)
+## 0.4.0 — Graph authoring UX (released)
 
-- [x] **Staged (dangling) nodes** — palette drag/click places unconnected nodes on canvas (not auto-attached to a guessed parent)
-- [x] **Edge connect** — drag from parent bottom handle to child top handle to commit `addNode` / `reparentNode`
+- [x] **Staged (dangling) nodes** — palette drag/click places unconnected nodes on canvas
+- [x] **Edge connect** — parent bottom → child top handle commits `addNode` / `reparentNode`
 - [x] **Set as tree root** — inspector action for staged control on empty tree
+- [x] **Webview load hardening** — `WebviewOutboundGate`, ready retry, integration tests
 - [ ] Persist staged node positions across reload (webview state — partial)
 - [ ] Drop target highlight when connecting palette nodes onto specific parents
 - [ ] Undo/redo for structural edits

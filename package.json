@@ -2,7 +2,7 @@
   "name": "btview",
   "displayName": "BTView — Behavior Tree Editor",
   "description": "Visual graph editor for BehaviorTree.CPP v3.8 and v4 XML files",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "publisher": "rangonomics",
   "license": "Apache-2.0",
   "icon": "media/icon.png",

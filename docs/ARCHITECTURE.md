@@ -20,7 +20,11 @@ BtGraphController     Facade: messages, refresh, auto-open
 Types live in `src/shared/protocol.ts`:
 
 - Host → webview: `loadDocument`, `documentChanged`, `error`, `validationError`
-- Webview → host: `ready`, `selectTree`, `editNode`, `addNode`, `deleteNode`, `reparentNode`, `reorderChildren`, `openInclude`
+- Webview → host: `ready`, `loaded`, `selectTree`, `editNode`, `changeNodeType`, `addNode`, `deleteNode`, `reparentNode`, `reorderChildren`, `openInclude`
+
+## Webview boot
+
+See **[WEBVIEW.md](WEBVIEW.md)** for HTML generation, `__BTVIEW_BOOT__`, defer script rules, and the 0.4.x infinite-loading postmortem.
 
 ## Custom editor model
 

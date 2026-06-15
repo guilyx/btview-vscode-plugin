@@ -4,6 +4,7 @@ import { loadDocumentWithIncludes } from '../btcpp/includeResolver';
 import { serializeDocument } from '../btcpp/serializer';
 import {
   addNode,
+  changeNodeDefinition,
   deleteNode,
   editNodeAttribute,
   reparentNode,
@@ -125,6 +126,20 @@ export class DocumentSyncService {
       case 'editNode':
         doc = editNodeAttribute(doc, edit.treeId, edit.path, edit.attr, edit.value);
         break;
+      case 'changeNodeType': {
+        const result = changeNodeDefinition(
+          doc,
+          edit.treeId,
+          edit.path,
+          edit.kind as import('../btcpp/types').NodeKind,
+          edit.registeredId,
+        );
+        if (!result.success) {
+          return { success: false, error: result.error };
+        }
+        doc = result.document;
+        break;
+      }
       case 'addNode': {
         const nodeTypeMap = getNodeTypeMap();
         const kind =

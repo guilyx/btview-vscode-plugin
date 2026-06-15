@@ -40,6 +40,13 @@ export type WebviewToHostMessage =
       value: string;
     }
   | {
+      type: 'changeNodeType';
+      treeId: string;
+      path: string;
+      kind: string;
+      registeredId: string;
+    }
+  | {
       type: 'addNode';
       treeId: string;
       parentPath: string;
@@ -95,6 +102,22 @@ export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null 
           path: msg.path,
           attr: msg.attr,
           value: msg.value,
+        };
+      }
+      return null;
+    case 'changeNodeType':
+      if (
+        typeof msg.treeId === 'string' &&
+        typeof msg.path === 'string' &&
+        typeof msg.kind === 'string' &&
+        typeof msg.registeredId === 'string'
+      ) {
+        return {
+          type: 'changeNodeType',
+          treeId: msg.treeId,
+          path: msg.path,
+          kind: msg.kind,
+          registeredId: msg.registeredId,
         };
       }
       return null;

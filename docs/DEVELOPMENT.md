@@ -42,6 +42,8 @@ Press **F5** → **Run Extension** to open an Extension Development Host.
 
 Open a fixture file, e.g. `fixtures/v4/simple_sequence.xml`, then run **BTView: Open BT Graph**.
 
+Webview pitfalls and load handshake: [WEBVIEW.md](WEBVIEW.md).
+
 ## Scripts
 
 | Script                     | Purpose                                 |

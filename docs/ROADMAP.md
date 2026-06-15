@@ -1,9 +1,11 @@
 # BTView Roadmap
 
-Current release: **0.4.0** on `main` (2026-06-14).
+Current release: **0.4.2** on `main`.
 Integration branch: **`devel`**.
 
 Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
+
+Enhanced editor vision vs Groot2: **[GROOT_PARITY.md](GROOT_PARITY.md)**.
 
 ## Milestones
 
@@ -13,10 +15,26 @@ Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 | **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix | **Released** |
 | **0.3.x** | Authoring: palette, empty canvas, nodeTypeMap, webview reliability   | **Released** |
 | **0.4.0** | Staged nodes, edge connect, webview load hardening                   | **Released** |
+| **0.4.2** | Webview defer/bootstrap fix, branded loader                          | **Released** |
+| **0.4.3** | Node kind/type editing, webview docs, Groot parity plan              | In progress  |
 | **0.5.0** | **Simulation monitor** — tick emulation, node status, blackboard     | Planned      |
 | **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection           | Planned      |
 
 > Architecture (protocol, controller split), validation, performance, and UX milestones originally scoped as 0.2–0.4 were **delivered in 0.1.0**. See [CHANGELOG.md](../CHANGELOG.md).
+
+## 0.4.3 — Inspector & editor parity (in progress)
+
+- [x] **Change node kind + type** — inspector dropdown + registered ID; fixes unknown/mis-typed XML
+- [x] **Webview postmortem** — [WEBVIEW.md](WEBVIEW.md) + Cursor rule `webview-html.mdc`
+- [x] **Groot parity matrix** — [GROOT_PARITY.md](GROOT_PARITY.md)
+- [ ] Undo/redo for structural edits
+- [ ] Copy/paste subtree
+- [ ] Add/remove custom port fields in inspector
+
+## 0.4.2 — Webview boot fix (released)
+
+- [x] `defer` script at end of body; stop regex-patching Vite HTML
+- [x] `__BTVIEW_BOOT__` embedded document; branded loading animation
 
 ## 0.4.0 — Graph authoring UX (released)
 

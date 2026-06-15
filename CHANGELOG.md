@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-06-11
+
+### Added
+
+- **Editable node kind & type** — inspector dropdown (action/control/…) and registered ID field; `changeNodeType` protocol
+- **Groot parity plan** — [docs/GROOT_PARITY.md](docs/GROOT_PARITY.md)
+- **Webview integration guide** — [docs/WEBVIEW.md](docs/WEBVIEW.md) postmortem on infinite loading
+- Cursor rule `.cursor/rules/webview-html.mdc`
+
 ## [0.4.2] - 2026-06-11
 
 ### Added

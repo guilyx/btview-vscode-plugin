@@ -3,12 +3,6 @@ import { assignPaths, cloneNode, findNodeByPath, findParentOfPath } from './xmlU
 import { rawTagForNewNode } from './nodeRegistry';
 import { validateReparent, type ValidationError } from './validation';
 
-export interface EditResult {
-  success: boolean;
-  document: BtDocument;
-  error?: ValidationError;
-}
-
 export function editNodeAttribute(
   doc: BtDocument,
   treeId: string,
@@ -28,6 +22,62 @@ export function editNodeAttribute(
     node.attributes[attr] = value;
   }
   return updated;
+}
+
+export interface EditResult {
+  success: boolean;
+  document: BtDocument;
+  error?: ValidationError;
+}
+
+const LEAF_KINDS = new Set<NodeKind>(['action', 'condition', 'script']);
+
+export function changeNodeDefinition(
+  doc: BtDocument,
+  treeId: string,
+  path: string,
+  kind: NodeKind,
+  registeredId: string,
+): EditResult {
+  const id = registeredId.trim();
+  if (!id) {
+    return {
+      success: false,
+      document: doc,
+      error: { path, message: 'Node type (registered ID) is required.' },
+    };
+  }
+
+  const updated = cloneDocument(doc);
+  const tree = updated.trees.find((t) => t.id === treeId);
+  const node = tree?.root ? findNodeByPath(tree.root, path) : null;
+  if (!node) {
+    return {
+      success: false,
+      document: doc,
+      error: { path, message: 'Node not found.' },
+    };
+  }
+
+  if (LEAF_KINDS.has(kind) && node.children.length > 0) {
+    return {
+      success: false,
+      document: doc,
+      error: {
+        path,
+        message: `${kind} nodes cannot have children. Remove or reparent children first.`,
+      },
+    };
+  }
+
+  node.kind = kind;
+  node.registeredId = id;
+  node.rawTag = rawTagForNewNode(kind, id);
+  if (kind === 'action' || kind === 'condition') {
+    node.legacyTag = undefined;
+  }
+
+  return { success: true, document: updated };
 }
 
 export function addNode(

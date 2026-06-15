@@ -293,6 +293,7 @@ export class BtGraphController {
           await this.refreshUri(uri, false);
           break;
         case 'editNode':
+        case 'changeNodeType':
         case 'addNode':
         case 'deleteNode':
         case 'reparentNode':

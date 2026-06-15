@@ -1,0 +1,27 @@
+---
+description: Webview HTML and load handshake — avoid infinite loading regressions
+globs: src/preview/webviewHtml.ts,src/preview/WebviewOutboundGate.ts,src/preview/BtGraphController.ts,webview/src/**
+alwaysApply: false
+---
+
+# Webview HTML & load handshake
+
+Read [docs/WEBVIEW.md](../../docs/WEBVIEW.md) before changing webview boot or host→webview messaging.
+
+## Never break these
+
+1. **`getWebviewHtml()`** — hand-written template only; script at **end of `<body>` with `defer`**; never sync script in `<head>`.
+2. **Do not regex-replace Vite `index.html`** to inject CSP/scripts (dropping `type="module"` caused 0.4.1 infinite loading).
+3. **`hostMessages.ts`** side-effect import in `main.tsx` **before** `createRoot`; ack `loaded` outside React lifecycle when possible.
+4. **`__BTVIEW_BOOT__`** — embed serialized document when setting HTML so first paint does not depend on postMessage race.
+5. **`WebviewOutboundGate`** — `markNotReady` on every `webview.html` assign; flush on webview `ready`.
+6. **`.vscodeignore`** — must ship `webview/dist/assets/` in the VSIX.
+
+## Verify after webview changes
+
+```bash
+bash scripts/verify.sh
+bash scripts/assert-vsix-webview.sh
+```
+
+Open a fixture in BT Graph; Output → BTView must show `ready=true` and `webview loaded document`.

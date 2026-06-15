@@ -355,6 +355,38 @@ html,
   color: var(--vscode-editorWarning-foreground, #cca700);
 }
 
+.inspector label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+
+.inspector label select,
+.inspector label input {
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--vscode-input-border, #555);
+  background: var(--vscode-input-background, #2d2d2d);
+  color: var(--vscode-input-foreground, #ccc);
+  border-radius: 3px;
+}
+
+.inspector-empty-title {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.inspector-section-label {
+  margin: 12px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .inspector-hint {
   font-size: 12px;
   opacity: 0.85;
@@ -387,23 +419,6 @@ html,
   margin: 0 0 12px;
   font-size: 11px;
   opacity: 0.7;
-}
-
-.inspector label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 11px;
-}
-
-.inspector input {
-  display: block;
-  width: 100%;
-  margin-top: 2px;
-  padding: 4px 6px;
-  border: 1px solid var(--vscode-input-border, #555);
-  background: var(--vscode-input-background, #2d2d2d);
-  color: var(--vscode-input-foreground, #ccc);
-  border-radius: 3px;
 }
 
 .inspector .danger {

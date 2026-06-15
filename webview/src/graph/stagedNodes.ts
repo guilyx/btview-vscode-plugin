@@ -54,6 +54,17 @@ export function removeStagedNode(treeId: string, stagedId: string): void {
   window.dispatchEvent(new CustomEvent(STAGED_CHANGED_EVENT));
 }
 
+export function updateStagedNode(
+  treeId: string,
+  stagedId: string,
+  patch: Partial<Pick<StagedNode, 'kind' | 'registeredId'>>,
+): void {
+  mergeStagedIntoState(treeId, (cur) =>
+    cur.map((s) => (s.id === stagedId ? { ...s, ...patch } : s)),
+  );
+  notifyStagedChanged();
+}
+
 export function notifyStagedChanged(): void {
   window.dispatchEvent(new CustomEvent(STAGED_CHANGED_EVENT));
 }

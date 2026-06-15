@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { SerializedDocument } from './types';
+import type { SerializedDocument, BtNodeData } from './types';
 import { BtGraph } from './graph/BtGraph';
 import { Inspector } from './panels/Inspector';
 import { NodePaletteSidebar } from './panels/NodePaletteSidebar';
@@ -13,6 +13,34 @@ import { postMessage } from './vscodeApi';
 
 function isHostMessage(data: unknown): data is { type: string } {
   return Boolean(data && typeof data === 'object' && 'type' in data);
+}
+
+function findNodeByPath(root: BtNodeData | null, path: string): BtNodeData | null {
+  if (!root) {
+    return null;
+  }
+  if (root.path === path) {
+    return root;
+  }
+  for (const child of root.children) {
+    const found = findNodeByPath(child, path);
+    if (found) {
+      return found;
+    }
+  }
+  return null;
+}
+
+function toFlowNodeData(node: BtNodeData): FlowNodeData {
+  return {
+    label: node.instanceName ?? node.registeredId,
+    kind: node.kind,
+    path: node.path,
+    registeredId: node.registeredId,
+    instanceName: node.instanceName,
+    attributes: node.attributes,
+    childCount: node.children.length,
+  };
 }
 
 export function App() {
@@ -83,6 +111,17 @@ export function App() {
   const onNodeSelect = useCallback((node: FlowNodeData | null) => {
     setSelectedNode(node);
   }, []);
+
+  useEffect(() => {
+    if (!doc || !selectedNode?.path || selectedNode.staged) {
+      return;
+    }
+    const tree = doc.trees.find((t) => t.id === doc.activeTreeId) ?? doc.trees[0];
+    const payload = findNodeByPath(tree?.root ?? null, selectedNode.path);
+    if (payload) {
+      setSelectedNode(toFlowNodeData(payload));
+    }
+  }, [doc, selectedNode?.path, selectedNode?.staged]);
 
   if (error) {
     return (
@@ -176,6 +215,7 @@ export function App() {
               treeId={doc.activeTreeId}
               formatVersion={doc.formatVersion}
               hasRoot={hasRoot}
+              nodePalette={doc.nodePalette}
             />
           </div>
         </div>

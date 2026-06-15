@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-06-11
+
+### Added
+
+- **Branded loading screen** — animated tree logo and progress bar while the graph boots
+
+### Fixed
+
+- **Infinite loading (root cause)** — Vite’s module script in `<head>` was rewritten without `defer`, so the bundle ran before `#root` existed and React never mounted; HTML now uses `defer` at end of `<body>`
+- **First paint reliability** — embed parsed document in webview HTML (`__BTVIEW_BOOT__`) so the graph can render before postMessage handshake
+
 ## [0.4.1] - 2026-06-11
 
 ### Fixed

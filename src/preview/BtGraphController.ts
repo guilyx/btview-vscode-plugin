@@ -48,8 +48,12 @@ export class BtGraphController {
 
   private constructor(extensionUri: vscode.Uri) {
     const version = readExtensionVersion(extensionUri);
-    this.panels = new WebviewPanelManager(extensionUri, version, this.outboundGate, (webview) =>
-      this.onWebviewUnbound(webview),
+    this.panels = new WebviewPanelManager(
+      extensionUri,
+      version,
+      this.outboundGate,
+      (webview) => this.onWebviewUnbound(webview),
+      (uri) => this.syncService.serializeForWebview(uri),
     );
   }
 
@@ -146,6 +150,8 @@ export class BtGraphController {
     }
 
     const document = await vscode.workspace.openTextDocument(uri);
+    await this.syncService.loadFromFile(uri);
+
     this.panels.createSidePanel(
       uri,
       `BT Graph: ${document.fileName.split(/[/\\]/).pop()}`,
@@ -177,6 +183,8 @@ export class BtGraphController {
     }
     const uri = document.uri;
 
+    await this.syncService.loadFromText(document.getText(), uri);
+
     this.panels.setupCustomEditorWebview(
       uri,
       webviewPanel,
@@ -195,7 +203,6 @@ export class BtGraphController {
       },
     );
 
-    await this.syncService.loadFromText(document.getText(), uri);
     await this.refreshUri(uri, true, true);
   }
 
@@ -208,6 +215,11 @@ export class BtGraphController {
     for (const uri of openUris) {
       this.syncService.clear(uri);
       this.initialLoadDone.delete(uri.toString());
+      try {
+        await this.syncService.loadFromFile(uri);
+      } catch (err) {
+        logError(`Failed to reload ${uri.fsPath}`, err);
+      }
     }
     this.panels.reloadAllWebviews();
   }
@@ -242,7 +254,10 @@ export class BtGraphController {
       }
 
       const message: HostToWebviewMessage = { type: msgType, document: payload };
-      logInfo(`BTView: push ${msgType} to ${webviews.length} webview(s) for ${uri.fsPath}`);
+      const readyFlags = webviews.map((w) => this.outboundGate.isReady(w)).join(',');
+      logInfo(
+        `BTView: push ${msgType} to ${webviews.length} webview(s) for ${uri.fsPath} (ready=${readyFlags})`,
+      );
       for (const webview of webviews) {
         this.outboundGate.post(webview, message);
       }
@@ -315,12 +330,14 @@ export class BtGraphController {
           await this.showSidePreview(uri);
           break;
         case 'ready':
+          logInfo(`BTView: webview ready for ${uri.fsPath}`);
           this.webviewDocumentLoaded.set(sourceWebview, false);
           this.outboundGate.markReady(sourceWebview);
           await this.refreshUri(uri, true, true);
           this.scheduleLoadRetry(uri, sourceWebview);
           break;
         case 'loaded':
+          logInfo(`BTView: webview loaded document for ${uri.fsPath}`);
           this.webviewDocumentLoaded.set(sourceWebview, true);
           this.clearLoadRetry(sourceWebview);
           break;

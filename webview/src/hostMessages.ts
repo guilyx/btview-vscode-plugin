@@ -1,27 +1,47 @@
-/** Capture host messages before React mounts (avoids lost loadDocument). */
+/** Host → webview messages: captured before React mounts. */
+
+import { postMessage } from './vscodeApi';
 
 const pending: unknown[] = [];
-let handler: ((data: unknown) => void) | null = null;
+const listeners = new Set<(data: unknown) => void>();
+
+function isRecord(data: unknown): data is Record<string, unknown> {
+  return Boolean(data && typeof data === 'object');
+}
+
+function isDocumentMessage(data: unknown): boolean {
+  if (!isRecord(data)) {
+    return false;
+  }
+  const t = data.type;
+  return t === 'loadDocument' || t === 'documentChanged';
+}
+
+function dispatch(data: unknown): void {
+  for (const listener of listeners) {
+    listener(data);
+  }
+}
 
 function onMessage(event: MessageEvent): void {
   const data = event.data;
-  if (handler) {
-    handler(data);
-  } else {
-    pending.push(data);
+  pending.push(data);
+  if (isDocumentMessage(data)) {
+    postMessage({ type: 'loaded' });
   }
+  dispatch(data);
 }
 
 window.addEventListener('message', onMessage);
 
-export function setHostMessageHandler(onHostMessage: (data: unknown) => void): void {
-  handler = onHostMessage;
+export function subscribeHostMessages(handler: (data: unknown) => void): () => void {
+  listeners.add(handler);
   for (const msg of pending) {
-    onHostMessage(msg);
+    handler(msg);
   }
-  pending.length = 0;
+  return () => listeners.delete(handler);
 }
 
-export function clearHostMessageHandler(): void {
-  handler = null;
+export function signalReady(): void {
+  postMessage({ type: 'ready' });
 }

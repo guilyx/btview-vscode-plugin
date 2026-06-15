@@ -6,7 +6,9 @@ import { NodePaletteSidebar } from './panels/NodePaletteSidebar';
 import { WarningsPanel } from './panels/WarningsPanel';
 import { ViewSwitcher } from './panels/ViewSwitcher';
 import type { FlowNodeData } from './graph/layout';
-import { clearHostMessageHandler, setHostMessageHandler } from './hostMessages';
+import { readBootstrapDocument } from './bootstrap';
+import { LoadingScreen } from './components/LoadingScreen';
+import { signalReady, subscribeHostMessages } from './hostMessages';
 import { postMessage } from './vscodeApi';
 
 function isHostMessage(data: unknown): data is { type: string } {
@@ -14,14 +16,15 @@ function isHostMessage(data: unknown): data is { type: string } {
 }
 
 export function App() {
-  const [doc, setDoc] = useState<SerializedDocument | null>(null);
+  const [doc, setDoc] = useState<SerializedDocument | null>(() => readBootstrapDocument());
   const [selectedNode, setSelectedNode] = useState<FlowNodeData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [waitingForHost, setWaitingForHost] = useState(() => !readBootstrapDocument());
 
   useEffect(() => {
-    let documentReceived = false;
+    let documentReceived = Boolean(readBootstrapDocument());
 
     const applyHostMessage = (raw: unknown) => {
       if (!isHostMessage(raw)) {
@@ -30,17 +33,18 @@ export function App() {
       const msg = raw;
       if (msg.type === 'loadDocument') {
         documentReceived = true;
+        setWaitingForHost(false);
         setDoc((msg as { document: SerializedDocument }).document);
         setError(null);
         setValidationError(null);
         setSaving(false);
-        postMessage({ type: 'loaded' });
       } else if (msg.type === 'documentChanged') {
         documentReceived = true;
+        setWaitingForHost(false);
         setDoc((msg as { document: SerializedDocument }).document);
         setSaving(false);
-        postMessage({ type: 'loaded' });
       } else if (msg.type === 'error') {
+        setWaitingForHost(false);
         setError((msg as { message: string }).message);
         setSaving(false);
       } else if (msg.type === 'validationError') {
@@ -49,23 +53,28 @@ export function App() {
       }
     };
 
-    setHostMessageHandler(applyHostMessage);
-    postMessage({ type: 'ready' });
+    const unsubscribe = subscribeHostMessages(applyHostMessage);
+
+    if (documentReceived) {
+      postMessage({ type: 'loaded' });
+    }
+
+    signalReady();
 
     const retryTimer = window.setTimeout(() => {
       if (!documentReceived) {
-        postMessage({ type: 'ready' });
+        signalReady();
       }
     }, 500);
 
     const retryTimer2 = window.setTimeout(() => {
       if (!documentReceived) {
-        postMessage({ type: 'ready' });
+        signalReady();
       }
     }, 2000);
 
     return () => {
-      clearHostMessageHandler();
+      unsubscribe();
       window.clearTimeout(retryTimer);
       window.clearTimeout(retryTimer2);
     };
@@ -85,9 +94,7 @@ export function App() {
 
   if (!doc) {
     return (
-      <div className="loading" role="status" aria-live="polite">
-        Loading behavior tree…
-      </div>
+      <LoadingScreen subtitle={waitingForHost ? 'Connecting to editor…' : 'Preparing graph…'} />
     );
   }
 

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { getWebviewHtml, getWebviewOptions } from './webviewHtml';
 import type { WebviewOutboundGate } from './WebviewOutboundGate';
+import type { SerializedDocument } from '../shared/protocol';
 
 export const SIDE_PREVIEW_VIEW_TYPE = 'btview.preview';
 
@@ -18,6 +19,7 @@ export class WebviewPanelManager {
     private readonly extensionVersion: string,
     private readonly outboundGate: WebviewOutboundGate,
     private readonly onWebviewUnbound?: (webview: vscode.Webview) => void,
+    private readonly getBootstrap?: (uri: vscode.Uri) => SerializedDocument | null,
   ) {}
 
   bindWebview(uri: vscode.Uri, webview: vscode.Webview, disposables: vscode.Disposable[]): void {
@@ -69,9 +71,10 @@ export class WebviewPanelManager {
     return this.sidePanels.get(uri.toString());
   }
 
-  private setWebviewHtml(webview: vscode.Webview): void {
+  private setWebviewHtml(webview: vscode.Webview, uri: vscode.Uri): void {
     this.outboundGate.markNotReady(webview);
-    webview.html = getWebviewHtml(webview, this.extensionUri, this.extensionVersion);
+    const bootstrap = this.getBootstrap?.(uri) ?? null;
+    webview.html = getWebviewHtml(webview, this.extensionUri, this.extensionVersion, bootstrap);
   }
 
   createSidePanel(
@@ -107,7 +110,7 @@ export class WebviewPanelManager {
       panel.webview.onDidReceiveMessage((msg) => onMessage(msg, panel.webview)),
     ]);
 
-    this.setWebviewHtml(panel.webview);
+    this.setWebviewHtml(panel.webview, uri);
 
     return panel;
   }
@@ -134,13 +137,13 @@ export class WebviewPanelManager {
       webviewPanel.webview.onDidReceiveMessage((msg) => onMessage(msg, webviewPanel.webview)),
     ]);
 
-    this.setWebviewHtml(webviewPanel.webview);
+    this.setWebviewHtml(webviewPanel.webview, uri);
   }
 
   reloadAllWebviews(): void {
     for (const uri of this.getOpenUris()) {
       for (const webview of this.getWebviews(uri)) {
-        this.setWebviewHtml(webview);
+        this.setWebviewHtml(webview, uri);
       }
     }
   }

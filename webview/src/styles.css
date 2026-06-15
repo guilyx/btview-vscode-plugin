@@ -453,6 +453,93 @@ html,
   text-align: center;
 }
 
+.btview-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.btview-loader-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.btview-loader-subtitle {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.btview-loader-bar {
+  width: min(220px, 70vw);
+  height: 4px;
+  border-radius: 999px;
+  background: var(--vscode-progressBar-background, #3c3c3c);
+  overflow: hidden;
+}
+
+.btview-loader-bar-fill {
+  height: 100%;
+  width: 35%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4a9eff, #4ade80, #a78bfa);
+  animation: btview-bar-slide 1.4s ease-in-out infinite;
+}
+
+.btview-loader-node-root {
+  fill: #4a9eff;
+  animation: btview-pulse 1.2s ease-in-out infinite;
+}
+
+.btview-loader-node-left {
+  fill: #4ade80;
+  animation: btview-pulse 1.2s ease-in-out 0.15s infinite;
+}
+
+.btview-loader-node-right {
+  fill: #4ade80;
+  animation: btview-pulse 1.2s ease-in-out 0.3s infinite;
+}
+
+.btview-loader-node-leaf {
+  fill: #a78bfa;
+  animation: btview-pulse 1.2s ease-in-out 0.45s infinite;
+}
+
+.btview-loader-edge {
+  stroke: #6b7280;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+@keyframes btview-bar-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@keyframes btview-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .error-banner {
   color: var(--vscode-editorError-foreground, #f14c4c);
 }

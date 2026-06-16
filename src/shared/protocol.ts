@@ -26,6 +26,9 @@ export interface SerializedDocument {
   includes: { path: string; rosPkg?: string; resolvedUri?: string; error?: string }[];
   warnings: string[];
   validationErrors?: { path: string; message: string }[];
+  /** Saved node positions per tree (from sidecar layout file). */
+  layoutPositions?: Record<string, { x: number; y: number }>;
+  showNodePorts?: boolean;
 }
 
 export type WebviewToHostMessage =
@@ -69,7 +72,30 @@ export type WebviewToHostMessage =
     }
   | { type: 'openInclude'; resolvedUri?: string }
   | { type: 'openSource' }
-  | { type: 'openGraphSide' };
+  | { type: 'openGraphSide' }
+  | { type: 'undo' }
+  | { type: 'redo' }
+  | {
+      type: 'pasteSubtree';
+      treeId: string;
+      parentPath: string;
+      subtree: {
+        kind: string;
+        registeredId: string;
+        instanceName?: string;
+        attributes: Record<string, string>;
+        children?: unknown[];
+      };
+    }
+  | { type: 'goToSource'; path?: string }
+  | { type: 'exportWorkspaceConfig' }
+  | { type: 'removePort'; treeId: string; path: string; attr: string }
+  | {
+      type: 'saveLayout';
+      treeId: string;
+      positions: Record<string, { x: number; y: number }>;
+    }
+  | { type: 'resetLayout'; treeId: string };
 
 export type HostToWebviewMessage =
   | { type: 'loadDocument'; document: SerializedDocument }
@@ -179,6 +205,66 @@ export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null 
       return { type: 'openSource' };
     case 'openGraphSide':
       return { type: 'openGraphSide' };
+    case 'undo':
+      return { type: 'undo' };
+    case 'redo':
+      return { type: 'redo' };
+    case 'exportWorkspaceConfig':
+      return { type: 'exportWorkspaceConfig' };
+    case 'goToSource':
+      return { type: 'goToSource', path: typeof msg.path === 'string' ? msg.path : undefined };
+    case 'removePort':
+      if (
+        typeof msg.treeId === 'string' &&
+        typeof msg.path === 'string' &&
+        typeof msg.attr === 'string'
+      ) {
+        return {
+          type: 'removePort',
+          treeId: msg.treeId,
+          path: msg.path,
+          attr: msg.attr,
+        };
+      }
+      return null;
+    case 'resetLayout':
+      return typeof msg.treeId === 'string' ? { type: 'resetLayout', treeId: msg.treeId } : null;
+    case 'saveLayout':
+      if (typeof msg.treeId === 'string' && msg.positions && typeof msg.positions === 'object') {
+        return {
+          type: 'saveLayout',
+          treeId: msg.treeId,
+          positions: msg.positions as Record<string, { x: number; y: number }>,
+        };
+      }
+      return null;
+    case 'pasteSubtree':
+      if (
+        typeof msg.treeId === 'string' &&
+        typeof msg.parentPath === 'string' &&
+        msg.subtree &&
+        typeof msg.subtree === 'object'
+      ) {
+        const st = msg.subtree as Record<string, unknown>;
+        if (typeof st.kind === 'string' && typeof st.registeredId === 'string') {
+          return {
+            type: 'pasteSubtree',
+            treeId: msg.treeId,
+            parentPath: msg.parentPath,
+            subtree: {
+              kind: st.kind,
+              registeredId: st.registeredId,
+              instanceName: typeof st.instanceName === 'string' ? st.instanceName : undefined,
+              attributes:
+                st.attributes && typeof st.attributes === 'object'
+                  ? (st.attributes as Record<string, string>)
+                  : {},
+              children: Array.isArray(st.children) ? st.children : undefined,
+            },
+          };
+        }
+      }
+      return null;
     default:
       return null;
   }

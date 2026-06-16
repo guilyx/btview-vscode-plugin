@@ -218,6 +218,76 @@ export function reorderChildren(
   return updated;
 }
 
+export interface SubtreePayload {
+  kind: NodeKind;
+  registeredId: string;
+  instanceName?: string;
+  attributes: Record<string, string>;
+  children?: SubtreePayload[];
+}
+
+function payloadToNode(payload: SubtreePayload): BtNode {
+  return {
+    path: '',
+    kind: payload.kind,
+    registeredId: payload.registeredId,
+    instanceName: payload.instanceName,
+    attributes: { ...payload.attributes },
+    children: (payload.children ?? []).map(payloadToNode),
+    rawTag: rawTagForNewNode(payload.kind, payload.registeredId),
+  };
+}
+
+export function pasteSubtree(
+  doc: BtDocument,
+  treeId: string,
+  parentPath: string,
+  payload: SubtreePayload,
+): BtDocument {
+  const node = payloadToNode(payload);
+  const updated = cloneDocument(doc);
+  const tree = updated.trees.find((t) => t.id === treeId);
+  if (!tree) {
+    return doc;
+  }
+
+  if (!tree.root && parentPath === '0') {
+    tree.root = { ...node, path: '0' };
+    assignPaths(tree.root, '0');
+    return updated;
+  }
+
+  if (!tree.root) {
+    return doc;
+  }
+
+  const parent =
+    parentPath === '0' || parentPath === 'root' ? tree.root : findNodeByPath(tree.root, parentPath);
+  if (!parent) {
+    return doc;
+  }
+
+  parent.children.push(node);
+  assignPaths(tree.root, '0');
+  return updated;
+}
+
+export function removeNodeAttribute(
+  doc: BtDocument,
+  treeId: string,
+  path: string,
+  attr: string,
+): BtDocument {
+  const updated = cloneDocument(doc);
+  const tree = updated.trees.find((t) => t.id === treeId);
+  const node = tree?.root ? findNodeByPath(tree.root, path) : null;
+  if (!node) {
+    return doc;
+  }
+  delete node.attributes[attr];
+  return updated;
+}
+
 function cloneDocument(doc: BtDocument): BtDocument {
   return {
     ...doc,

@@ -11,16 +11,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Editor roadmap** — [docs/planning/EDITOR_ROADMAP.md](docs/planning/EDITOR_ROADMAP.md) long-horizon checklist (0.5–1.0); monitor deferred to 1.1+
 - **Command surfaces spec** — [docs/planning/COMMAND_SURFACES.md](docs/planning/COMMAND_SURFACES.md) shortcuts and context menu inventory
-- **Roadmap re-sequence** — 0.5–0.8 editor train; 1.0 Editor Complete; simulation monitor at 1.1+
-- **Dev tagging policy** — documented in [docs/development/BRANCHING.md](docs/development/BRANCHING.md)
+- **Color legend** — node kind swatches in graph (`KindLegend`, `Ctrl+Shift+G`)
+- **Keyboard shortcuts** — Delete, Escape, F2 rename, Ctrl+F search, Ctrl+0 fit view, Ctrl+Z/Y undo/redo, copy/cut/paste/duplicate subtree
+- **Context menus** — canvas, node, and staged-node right-click menus
+- **Node search** — filter/highlight nodes by name, type, or kind
+- **Undo / redo** — host-side edit stack with webview shortcuts
+- **Typed ports** — inspector sections (Inputs/Outputs/InOut/Custom) with direction badges; port chips on nodes (`Ctrl+Alt+P`)
+- **Port validation** — warnings for unknown attributes on model-defined nodes
+- **Model editor panel** — lists `TreeNodesModel` entries with port counts
+- **Export workspace config** — “Save types” merges `btview.nodeTypeMap` and writes `.btview/models.xml`
+- **Copy / paste subtree** — clipboard with full subtree JSON round-trip
+- **Layout persistence** — sidecar `.btview/layouts/*.json`; snap-to-grid on drag
+- **Subtree drill-down** — double-click SubTree or context menu; back navigation
+- **Drop-target highlight** — visual feedback when dragging staged nodes over parents
+- Settings: `btview.showNodePorts`, `btview.customModelsInclude`
+- Commands: `btview.graph.undo`, `btview.graph.redo`, `btview.exportWorkspaceConfig`
 
 ### Changed
 
-- [docs/ROADMAP.md](docs/ROADMAP.md) and [GROOT_PARITY.md](docs/planning/GROOT_PARITY.md) aligned with editor-first milestones
+- [docs/ROADMAP.md](docs/ROADMAP.md) and [GROOT_PARITY.md](docs/planning/GROOT_PARITY.md) aligned with editor-first milestones (0.5–0.8 editor train; 1.1+ monitor)
+- **Dev tagging policy** — documented in [docs/development/BRANCHING.md](docs/development/BRANCHING.md)
 
 ### Previously unreleased (docs reorg)
 
-- **Hierarchical documentation** — [docs/README.md](docs/README.md) index; guides under `getting-started/`, `development/`, `planning/`, `release/`
+- **Hierarchical documentation** — [docs/README.md](docs/README.md) index
 - **AI agent integration roadmap** — [docs/planning/AI_AGENT_INTEGRATION.md](docs/planning/AI_AGENT_INTEGRATION.md)
 
 ## [0.4.3] - 2026-06-11

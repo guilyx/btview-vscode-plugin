@@ -7,6 +7,8 @@ import {
   changeNodeDefinition,
   deleteNode,
   editNodeAttribute,
+  pasteSubtree,
+  removeNodeAttribute,
   reparentNode,
   reorderChildren,
 } from '../btcpp/editOperations';
@@ -15,6 +17,8 @@ import { buildNodePalette } from '../btcpp/nodeRegistry';
 import { getRosConfig, getDefaultFormatVersion, getNodeTypeMap } from '../config/settings';
 import type { SerializedDocument, WebviewToHostMessage } from '../shared/protocol';
 import { logInfo } from '../logging/outputChannel';
+import { EditStack } from './EditStack';
+import { clearLayout, getLayoutForTree, loadLayout, saveLayout } from '../layout/LayoutStore';
 
 export type { SerializedDocument };
 
@@ -27,6 +31,11 @@ export class DocumentSyncService {
   private documents = new Map<string, BtDocument>();
   private activeTreeIds = new Map<string, string>();
   private validationErrors = new Map<string, ValidationError[]>();
+  private readonly editStack = new EditStack();
+
+  private workspaceRoot(): string | undefined {
+    return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  }
 
   async loadFromFile(uri: vscode.Uri): Promise<BtDocument> {
     const document = await vscode.workspace.openTextDocument(uri);
@@ -84,11 +93,14 @@ export class DocumentSyncService {
     const errors = this.validationErrors.get(uri.toString()) ?? [];
 
     const nodeTypeMap = getNodeTypeMap();
+    const activeTreeId = this.getActiveTreeId(uri);
+    const layoutPositions = getLayoutForTree(uri.fsPath, activeTreeId, this.workspaceRoot());
+    const showNodePorts = vscode.workspace.getConfiguration('btview').get<boolean>('showNodePorts');
 
     return {
       formatVersion: doc.formatVersion,
       mainTreeToExecute: doc.mainTreeToExecute,
-      activeTreeId: this.getActiveTreeId(uri),
+      activeTreeId,
       trees: doc.trees.map((t) => ({ id: t.id, root: t.root })),
       models: Array.from(doc.models.values()).map((m) => ({
         id: m.id,
@@ -107,20 +119,104 @@ export class DocumentSyncService {
       })),
       warnings: doc.warnings,
       validationErrors: errors.length > 0 ? errors : undefined,
+      layoutPositions,
+      showNodePorts,
     };
+  }
+
+  async undo(uri: vscode.Uri): Promise<ApplyEditResult> {
+    const doc = this.documents.get(uri.toString());
+    if (!doc) {
+      return { success: false, error: { path: '', message: 'Document not loaded.' } };
+    }
+    const previous = this.editStack.undo(uri, doc);
+    if (!previous) {
+      return { success: false, error: { path: '', message: 'Nothing to undo.' } };
+    }
+    return this.applyDocumentState(uri, previous);
+  }
+
+  async redo(uri: vscode.Uri): Promise<ApplyEditResult> {
+    const doc = this.documents.get(uri.toString());
+    if (!doc) {
+      return { success: false, error: { path: '', message: 'Document not loaded.' } };
+    }
+    const next = this.editStack.redo(uri, doc);
+    if (!next) {
+      return { success: false, error: { path: '', message: 'Nothing to redo.' } };
+    }
+    return this.applyDocumentState(uri, next);
+  }
+
+  private async applyDocumentState(uri: vscode.Uri, doc: BtDocument): Promise<ApplyEditResult> {
+    this.documents.set(uri.toString(), doc);
+    this.validationErrors.set(uri.toString(), validateDocument(doc));
+    const xml = serializeDocument(doc);
+    const editBuilder = new vscode.WorkspaceEdit();
+    const fullRange = await this.getFullRange(uri);
+    editBuilder.replace(uri, fullRange, xml);
+    await vscode.workspace.applyEdit(editBuilder);
+    return { success: true };
+  }
+
+  saveLayoutPositions(
+    uri: vscode.Uri,
+    treeId: string,
+    positions: Record<string, { x: number; y: number }>,
+  ): void {
+    const root = this.workspaceRoot();
+    if (!root) {
+      return;
+    }
+    const existing = loadLayout(uri.fsPath, root) ?? { trees: {} };
+    existing.trees[treeId] = positions;
+    saveLayout(uri.fsPath, root, existing);
+  }
+
+  resetLayout(uri: vscode.Uri, treeId: string): void {
+    const root = this.workspaceRoot();
+    if (!root) {
+      return;
+    }
+    const existing = loadLayout(uri.fsPath, root);
+    if (!existing) {
+      return;
+    }
+    delete existing.trees[treeId];
+    if (Object.keys(existing.trees).length === 0) {
+      clearLayout(uri.fsPath, root);
+    } else {
+      saveLayout(uri.fsPath, root, existing);
+    }
   }
 
   async applyEdit(
     uri: vscode.Uri,
     edit: Exclude<
       WebviewToHostMessage,
-      { type: 'ready' | 'loaded' | 'openInclude' | 'selectTree' | 'openSource' | 'openGraphSide' }
+      {
+        type:
+          | 'ready'
+          | 'loaded'
+          | 'openInclude'
+          | 'selectTree'
+          | 'openSource'
+          | 'openGraphSide'
+          | 'undo'
+          | 'redo'
+          | 'goToSource'
+          | 'exportWorkspaceConfig'
+          | 'saveLayout'
+          | 'resetLayout';
+      }
     >,
   ): Promise<ApplyEditResult> {
     let doc = this.documents.get(uri.toString());
     if (!doc) {
       return { success: false, error: { path: '', message: 'Document not loaded.' } };
     }
+
+    this.editStack.pushBeforeEdit(uri.toString(), doc);
 
     switch (edit.type) {
       case 'editNode':
@@ -135,6 +231,7 @@ export class DocumentSyncService {
           edit.registeredId,
         );
         if (!result.success) {
+          this.editStack.discardLastUndo(uri.toString());
           return { success: false, error: result.error };
         }
         doc = result.document;
@@ -153,6 +250,7 @@ export class DocumentSyncService {
       case 'reparentNode': {
         const result = reparentNode(doc, edit.treeId, edit.sourcePath, edit.targetPath, edit.index);
         if (!result.success) {
+          this.editStack.discardLastUndo(uri.toString());
           return { success: false, error: result.error };
         }
         doc = result.document;
@@ -160,6 +258,20 @@ export class DocumentSyncService {
       }
       case 'reorderChildren':
         doc = reorderChildren(doc, edit.treeId, edit.parentPath, edit.order);
+        break;
+      case 'pasteSubtree':
+        doc = pasteSubtree(doc, edit.treeId, edit.parentPath, {
+          kind: edit.subtree.kind as import('../btcpp/types').NodeKind,
+          registeredId: edit.subtree.registeredId,
+          instanceName: edit.subtree.instanceName,
+          attributes: edit.subtree.attributes,
+          children: edit.subtree.children as
+            | import('../btcpp/editOperations').SubtreePayload[]
+            | undefined,
+        });
+        break;
+      case 'removePort':
+        doc = removeNodeAttribute(doc, edit.treeId, edit.path, edit.attr);
         break;
     }
 
@@ -184,5 +296,6 @@ export class DocumentSyncService {
     this.documents.delete(uri.toString());
     this.activeTreeIds.delete(uri.toString());
     this.validationErrors.delete(uri.toString());
+    this.editStack.clear(uri);
   }
 }

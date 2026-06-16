@@ -8,30 +8,30 @@ Editor feature checklist: [EDITOR_ROADMAP.md](EDITOR_ROADMAP.md)
 
 ## Feature matrix
 
-| Capability                      | Groot2  | BTView today                     | Phase | PR ID        |
-| ------------------------------- | ------- | -------------------------------- | ----- | ------------ |
-| Graph canvas + auto layout      | ✅      | ✅ ELK layout                    | 0.8   | E-31         |
-| Node palette (built-ins)        | ✅      | ✅ sidebar                       | —     | —            |
-| Drag / connect wires            | ✅      | ✅ staged nodes + edge connect   | 0.5   | E-05         |
-| Click node → property editor    | ✅      | ✅ inspector (kind, type)        | —     | —            |
-| Change node type / fix mis-tags | ✅      | ✅ `changeNodeType` (0.4.3)      | —     | —            |
-| Color legend                    | ✅      | ❌                               | 0.5   | E-01         |
-| Keyboard shortcuts              | ✅      | partial (open graph only)        | 0.5   | E-03, E-47   |
-| Context menus                   | ✅      | ❌                               | 0.5   | E-06         |
-| Custom nodes (`TreeNodesModel`) | ✅      | ✅ parse + palette from models   | 0.7   | E-20–E-24    |
-| Port editing                    | ✅      | flat attribute fields            | 0.6   | E-10–E-15    |
-| Multiple trees per file         | ✅      | ✅ tree selector                 | —     | —            |
-| Subtree nodes                   | ✅      | ✅ parse                         | 0.8   | E-33         |
-| Undo / redo                     | ✅      | ❌                               | 0.5   | E-02         |
-| Copy / paste subtree            | ✅      | ❌                               | 0.8   | E-30         |
-| Search / filter nodes           | ✅      | ❌                               | 0.5   | E-04         |
-| Snap to grid                    | ✅      | ❌                               | 0.8   | E-32         |
-| Layout persistence              | ✅      | partial (viewport only)          | 0.8   | E-31         |
-| XML round-trip                  | ✅      | ✅                               | —     | —            |
-| ROS package includes            | partial | ✅ `ros_pkg` includes            | 0.8   | E-34         |
-| Blackboard editor               | ✅      | ❌                               | 1.1+  | (monitor)    |
-| Live tick monitor + node status | ✅      | ❌                               | 1.1+  | (monitor)    |
-| Manual branch pick during tick  | ✅      | ❌                               | 1.1+  | (monitor)    |
+| Capability                      | Groot2  | BTView today                   | Phase | PR ID      |
+| ------------------------------- | ------- | ------------------------------ | ----- | ---------- |
+| Graph canvas + auto layout      | ✅      | ✅ ELK layout                  | 0.8   | E-31       |
+| Node palette (built-ins)        | ✅      | ✅ sidebar                     | —     | —          |
+| Drag / connect wires            | ✅      | ✅ staged nodes + edge connect | 0.5   | E-05       |
+| Click node → property editor    | ✅      | ✅ inspector (kind, type)      | —     | —          |
+| Change node type / fix mis-tags | ✅      | ✅ `changeNodeType` (0.4.3)    | —     | —          |
+| Color legend                    | ✅      | ❌                             | 0.5   | E-01       |
+| Keyboard shortcuts              | ✅      | partial (open graph only)      | 0.5   | E-03, E-47 |
+| Context menus                   | ✅      | ❌                             | 0.5   | E-06       |
+| Custom nodes (`TreeNodesModel`) | ✅      | ✅ parse + palette from models | 0.7   | E-20–E-24  |
+| Port editing                    | ✅      | flat attribute fields          | 0.6   | E-10–E-15  |
+| Multiple trees per file         | ✅      | ✅ tree selector               | —     | —          |
+| Subtree nodes                   | ✅      | ✅ parse                       | 0.8   | E-33       |
+| Undo / redo                     | ✅      | ❌                             | 0.5   | E-02       |
+| Copy / paste subtree            | ✅      | ❌                             | 0.8   | E-30       |
+| Search / filter nodes           | ✅      | ❌                             | 0.5   | E-04       |
+| Snap to grid                    | ✅      | ❌                             | 0.8   | E-32       |
+| Layout persistence              | ✅      | partial (viewport only)        | 0.8   | E-31       |
+| XML round-trip                  | ✅      | ✅                             | —     | —          |
+| ROS package includes            | partial | ✅ `ros_pkg` includes          | 0.8   | E-34       |
+| Blackboard editor               | ✅      | ❌                             | 1.1+  | (monitor)  |
+| Live tick monitor + node status | ✅      | ❌                             | 1.1+  | (monitor)  |
+| Manual branch pick during tick  | ✅      | ❌                             | 1.1+  | (monitor)  |
 
 Legend: ✅ shipped · ❌ planned
 

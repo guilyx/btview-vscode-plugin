@@ -212,6 +212,16 @@
               "script"
             ]
           }
+        },
+        "btview.showNodePorts": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show port value chips on graph nodes when enabled (toggle with Ctrl+Alt+P in graph)."
+        },
+        "btview.customModelsInclude": {
+          "type": "string",
+          "default": ".btview/models.xml",
+          "description": "Relative path for exported TreeNodesModel file when using Save custom types to workspace."
         }
       }
     }

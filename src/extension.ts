@@ -69,6 +69,18 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('btview.newTree', () => {
       void newTree();
     }),
+
+    vscode.commands.registerCommand('btview.graph.undo', () => {
+      void controller.graphUndo();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.redo', () => {
+      void controller.graphRedo();
+    }),
+
+    vscode.commands.registerCommand('btview.exportWorkspaceConfig', () => {
+      void controller.exportWorkspaceConfigForActive();
+    }),
   );
 
   const currentVersion = context.extension.packageJSON.version as string;

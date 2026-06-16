@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FlowNodeData } from '../graph/layout';
 import { removeStagedNode, updateStagedNode } from '../graph/stagedNodes';
 import { postMessage } from '../vscodeApi';
+import { resolveNodePorts, type ResolvedPort } from '../utils/portResolution';
+import { useGraphContext } from '../commands/graphContext';
 
 const NODE_KINDS = [
   'control',
@@ -19,9 +21,74 @@ interface InspectorProps {
   formatVersion: 3 | 4;
   hasRoot: boolean;
   nodePalette: { id: string; kind: string }[];
+  models: {
+    id: string;
+    kind: string;
+    ports: { name: string; direction: string; type?: string; defaultValue?: string }[];
+  }[];
 }
 
-export function Inspector({ node, treeId, formatVersion, hasRoot, nodePalette }: InspectorProps) {
+function portBadge(direction: string): string {
+  if (direction === 'output') {
+    return '→';
+  }
+  if (direction === 'inout') {
+    return '↔';
+  }
+  return '←';
+}
+
+function PortField({
+  port,
+  value,
+  onChange,
+  onRemove,
+}: {
+  port: ResolvedPort;
+  value: string;
+  onChange: (v: string) => void;
+  onRemove?: () => void;
+}) {
+  const hint = port.type ? ` (${port.type})` : '';
+  return (
+    <label htmlFor={`btview-port-${port.name}`} className="port-field">
+      <span className="port-field-label">
+        <span className="port-badge" title={port.direction}>
+          {portBadge(port.direction)}
+        </span>
+        {port.name}
+        {hint}
+      </span>
+      <input
+        id={`btview-port-${port.name}`}
+        value={value}
+        placeholder={port.defaultValue ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {onRemove && (
+        <button
+          type="button"
+          className="port-remove"
+          onClick={onRemove}
+          aria-label={`Remove ${port.name}`}
+        >
+          ×
+        </button>
+      )}
+    </label>
+  );
+}
+
+export function Inspector({
+  node,
+  treeId,
+  formatVersion,
+  hasRoot,
+  nodePalette,
+  models,
+}: InspectorProps) {
+  const { renameRequestPath, requestRename } = useGraphContext();
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const [draftName, setDraftName] = useState('');
   const [draftKind, setDraftKind] = useState<string>('action');
   const [draftTypeId, setDraftTypeId] = useState('');
@@ -45,6 +112,21 @@ export function Inspector({ node, treeId, formatVersion, hasRoot, nodePalette }:
     node?.attributes,
     node?.staged,
   ]);
+
+  useEffect(() => {
+    if (renameRequestPath && node?.path === renameRequestPath && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+      requestRename(null);
+    }
+  }, [renameRequestPath, node?.path, requestRename]);
+
+  const resolvedPorts = useMemo(() => {
+    if (!node || node.staged) {
+      return null;
+    }
+    return resolveNodePorts(node, models);
+  }, [node, models]);
 
   const typeSuggestions = useMemo(() => {
     const filtered = nodePalette.filter((e) => e.kind === draftKind).map((e) => e.id);
@@ -222,6 +304,7 @@ export function Inspector({ node, treeId, formatVersion, hasRoot, nodePalette }:
       <label htmlFor="btview-node-name">
         Instance name
         <input
+          ref={nameInputRef}
           id="btview-node-name"
           value={draftName}
           placeholder="(optional)"
@@ -233,21 +316,115 @@ export function Inspector({ node, treeId, formatVersion, hasRoot, nodePalette }:
         />
       </label>
 
-      {Object.keys(draftAttrs).length > 0 && <p className="inspector-section-label">Ports</p>}
-      {Object.keys(draftAttrs).map((key) => (
-        <label key={key} htmlFor={`btview-attr-${key}`}>
-          {key}
-          <input
-            id={`btview-attr-${key}`}
-            value={draftAttrs[key] ?? ''}
-            onChange={(e) => {
-              setDraftAttrs((prev) => ({ ...prev, [key]: e.target.value }));
-              scheduleEdit(key, e.target.value);
-            }}
-            onBlur={(e) => commitEdit(key, e.target.value)}
-          />
-        </label>
-      ))}
+      {resolvedPorts && (
+        <>
+          {resolvedPorts.inputs.length > 0 && (
+            <>
+              <p className="inspector-section-label">Inputs</p>
+              {resolvedPorts.inputs.map((port) => (
+                <PortField
+                  key={port.name}
+                  port={port}
+                  value={draftAttrs[port.name] ?? ''}
+                  onChange={(v) => {
+                    setDraftAttrs((prev) => ({ ...prev, [port.name]: v }));
+                    scheduleEdit(port.name, v);
+                  }}
+                  onRemove={
+                    port.name in draftAttrs
+                      ? () => {
+                          postMessage({
+                            type: 'removePort',
+                            treeId,
+                            path: node.path,
+                            attr: port.name,
+                          });
+                          setDraftAttrs((prev) => {
+                            const next = { ...prev };
+                            delete next[port.name];
+                            return next;
+                          });
+                        }
+                      : undefined
+                  }
+                />
+              ))}
+            </>
+          )}
+          {resolvedPorts.inouts.length > 0 && (
+            <>
+              <p className="inspector-section-label">In / Out</p>
+              {resolvedPorts.inouts.map((port) => (
+                <PortField
+                  key={port.name}
+                  port={port}
+                  value={draftAttrs[port.name] ?? ''}
+                  onChange={(v) => {
+                    setDraftAttrs((prev) => ({ ...prev, [port.name]: v }));
+                    scheduleEdit(port.name, v);
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {resolvedPorts.outputs.length > 0 && (
+            <>
+              <p className="inspector-section-label">Outputs</p>
+              {resolvedPorts.outputs.map((port) => (
+                <PortField
+                  key={port.name}
+                  port={port}
+                  value={draftAttrs[port.name] ?? ''}
+                  onChange={(v) => {
+                    setDraftAttrs((prev) => ({ ...prev, [port.name]: v }));
+                    scheduleEdit(port.name, v);
+                  }}
+                />
+              ))}
+            </>
+          )}
+          {resolvedPorts.custom.length > 0 && (
+            <>
+              <p className="inspector-section-label">Custom attributes</p>
+              {resolvedPorts.custom.map((port) => (
+                <PortField
+                  key={port.name}
+                  port={port}
+                  value={draftAttrs[port.name] ?? ''}
+                  onChange={(v) => {
+                    setDraftAttrs((prev) => ({ ...prev, [port.name]: v }));
+                    scheduleEdit(port.name, v);
+                  }}
+                  onRemove={() => {
+                    postMessage({ type: 'removePort', treeId, path: node.path, attr: port.name });
+                    setDraftAttrs((prev) => {
+                      const next = { ...prev };
+                      delete next[port.name];
+                      return next;
+                    });
+                  }}
+                />
+              ))}
+            </>
+          )}
+        </>
+      )}
+
+      {!resolvedPorts &&
+        Object.keys(draftAttrs).map((key) => (
+          <label key={key} htmlFor={`btview-attr-${key}`}>
+            {key}
+            <input
+              id={`btview-attr-${key}`}
+              value={draftAttrs[key] ?? ''}
+              onChange={(e) => {
+                setDraftAttrs((prev) => ({ ...prev, [key]: e.target.value }));
+                scheduleEdit(key, e.target.value);
+              }}
+              onBlur={(e) => commitEdit(key, e.target.value)}
+            />
+          </label>
+        ))}
 
       <button
         type="button"

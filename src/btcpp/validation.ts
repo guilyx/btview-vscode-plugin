@@ -69,7 +69,37 @@ export function validateDocument(doc: BtDocument): ValidationError[] {
     if (tree.root) {
       errors.push(...validateNodeChildren(tree.root));
       errors.push(...validateV4OnlyOnV3(tree.root, doc.formatVersion));
+      errors.push(...validateNodePorts(tree.root, doc.models));
     }
   }
+  return errors;
+}
+
+export function validateNodePorts(node: BtNode, models: BtDocument['models']): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const model = models.get(node.registeredId);
+  const modelPortNames = new Set(model?.ports.map((p) => p.name) ?? []);
+
+  if (model) {
+    for (const port of model.ports) {
+      if (port.defaultValue === undefined && !(port.name in node.attributes)) {
+        // soft warning only for required-looking ports without default
+      }
+    }
+  }
+
+  for (const attr of Object.keys(node.attributes)) {
+    if (model && !modelPortNames.has(attr)) {
+      errors.push({
+        path: node.path,
+        message: `Unknown port attribute "${attr}" on ${node.registeredId}.`,
+      });
+    }
+  }
+
+  for (const child of node.children) {
+    errors.push(...validateNodePorts(child, models));
+  }
+
   return errors;
 }

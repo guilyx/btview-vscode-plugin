@@ -1,5 +1,7 @@
 /** Shared host ↔ webview protocol types. */
 
+import type { PortModel } from '../btcpp/types';
+
 export interface BtNodePayload {
   path: string;
   kind: string;
@@ -19,7 +21,7 @@ export interface SerializedDocument {
   models: {
     id: string;
     kind: string;
-    ports: { name: string; direction: string; type?: string }[];
+    ports: { name: string; direction: PortModel['direction']; type?: string }[];
   }[];
   /** Built-in + user-configured nodes available in the add-node palette. */
   nodePalette: { id: string; kind: string }[];

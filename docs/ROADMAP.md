@@ -3,106 +3,97 @@
 |                    |                                                                                                    |
 | ------------------ | -------------------------------------------------------------------------------------------------- |
 | **Latest release** | **0.4.3** on `main` ([GitHub](https://github.com/guilyx/btview-vscode-plugin/releases/tag/v0.4.3)) |
-| **Integration**    | `devel` — all feature PRs merge here                                                               |
+| **Integration**    | `devel` — editor train 0.5.x → 0.8.x in progress                                                   |
 | **Publisher**      | `rangonomics.btview`                                                                               |
 
-Deep dives: [Groot parity](planning/GROOT_PARITY.md) · [AI & agents](planning/AI_AGENT_INTEGRATION.md) · [Changelog](../CHANGELOG.md)
+Deep dives: [Editor roadmap](planning/EDITOR_ROADMAP.md) · [Command surfaces](planning/COMMAND_SURFACES.md) · [Groot parity](planning/GROOT_PARITY.md) · [AI & agents](planning/AI_AGENT_INTEGRATION.md) · [Changelog](../CHANGELOG.md)
 
 ---
 
 ## Where we are (Jun 2026)
 
-BTView is a **shippable graph editor** for BehaviorTree.CPP v3/v4: custom editor, palette, staged nodes, edge connect, inspector with kind/type editing, and a **stable webview boot path** (0.4.2–0.4.3).
+BTView is a **shippable graph editor** for BehaviorTree.CPP v3/v4. **0.4.3** shipped node kind/type editing and webview reliability. The **next major theme is editor excellence** (0.5–0.9), not simulation — monitor moves to **1.1+** after **1.0 Editor Complete**.
 
 ```text
 Shipped ──────────────────────────────────────────────► 0.4.3
-Next major theme ─────────────────────────────────────► 0.5.0 simulation monitor
-Parallel tracks ──► 0.4.x editor polish · 0.6+ agent API · 1.0 stable
+Active train (devel) ─────────────────────────────────► 0.5–0.8 editor features
+Editor Complete ──────────────────────────────────────► 1.0.0 (main + Marketplace)
+Then ─────────────────────────────────────────────────► 1.1+ simulation monitor
 ```
 
 ### Capability snapshot
 
-| Area                                          | Status                    |
-| --------------------------------------------- | ------------------------- |
-| Graph authoring (palette, connect, inspector) | **Shipped** (0.3–0.4)     |
-| Webview reliability (load, bootstrap, loader) | **Shipped** (0.4.2–0.4.3) |
-| Node kind / type editing                      | **Shipped** (0.4.3)       |
-| Undo / redo, copy-paste subtree               | **Backlog** (0.4.x → 0.5) |
-| Simulation monitor + blackboard               | **Planned** (0.5.0)       |
-| Agent-readable API (JSON, Mermaid, snippets)  | **Planned** (0.6.0)       |
-| MCP + graph capture for AI                    | **Planned** (0.7–1.0)     |
+| Area                                          | Status                         |
+| --------------------------------------------- | ------------------------------ |
+| Graph authoring (palette, connect, inspector) | **Shipped** (0.3–0.4)          |
+| Webview reliability                           | **Shipped** (0.4.2–0.4.3)      |
+| Node kind / type editing                      | **Shipped** (0.4.3)            |
+| Legend, shortcuts, context menus, undo        | **In progress** (0.5)          |
+| Typed ports & model authoring                 | **Planned** (0.6–0.7)          |
+| Copy/paste, layout, drill-down                | **Planned** (0.8)              |
+| Simulation monitor + blackboard               | **Deferred** (1.1+)            |
+| Agent API / MCP                               | **Deferred** (1.2+)            |
 
 ---
 
 ## Milestones
 
-| Version   | Theme                                                | Status   |
-| --------- | ---------------------------------------------------- | -------- |
-| **0.1.0** | Initial ship: CI, VSIX, core stack                   | Released |
-| **0.2.x** | `devel` workflow, Open VSX, dual publish             | Released |
-| **0.3.x** | Palette, empty canvas, `nodeTypeMap`, webview CSP    | Released |
-| **0.4.0** | Staged nodes, edge connect, load gate                | Released |
-| **0.4.2** | Webview `defer` + `__BTVIEW_BOOT__`, branded loader  | Released |
-| **0.4.3** | `changeNodeType`, webview docs, Groot/AI planning    | Released |
-| **0.5.0** | **Simulation monitor** — tick emulation, node status | **Next** |
-| **0.6.0** | Agent-readable commands (summary, snippet, Mermaid)  | Planned  |
-| **0.7.0** | Graph capture PNG/SVG for multimodal agents          | Planned  |
-| **0.8.0** | Monitor exports for agent “why did it fail?”         | Planned  |
-| **1.0.0** | MCP server, coverage gate, stable                    | Planned  |
+| Version   | Theme                                                | Status      |
+| --------- | ---------------------------------------------------- | ----------- |
+| **0.4.3** | `changeNodeType`, webview docs, Groot/AI planning    | Released    |
+| **0.5.x** | Editor UX — legend, shortcuts, menus, undo, search     | **Active**  |
+| **0.6.x** | Typed ports — model-aware inspector + canvas chips   | Planned     |
+| **0.7.x** | Model authoring + export workspace config            | Planned     |
+| **0.8.x** | Pro graph ops — copy/paste, layout, drill-down       | Planned     |
+| **0.9.x** | Hobbyist polish, RC hardening                        | Planned     |
+| **1.0.0** | **Editor Complete** — release to `main`              | Planned     |
+| **1.1.x** | Simulation monitor                                   | Deferred    |
+| **1.2.x** | Agent commands / capture                             | Deferred    |
+| **1.3+**  | MCP server                                           | Deferred    |
+
+Full feature checklist: [EDITOR_ROADMAP.md](planning/EDITOR_ROADMAP.md).
 
 ---
 
-## Active backlog
+## Active backlog (editor train)
 
-### 0.5.0 — Simulation monitor (primary next release)
+### 0.5.x — Editor UX
 
-Interactive monitor to explore ticks without a live robot stack. Details unchanged from prior plan:
+- [ ] Color legend (E-01)
+- [ ] Keyboard shortcuts + context menus (E-03, E-06)
+- [ ] Undo / redo (E-02)
+- [ ] Node search / highlight (E-04)
+- [ ] Drop-target highlight (E-05)
 
-- [ ] Monitor panel (split view or dedicated webview)
-- [ ] Tick mode: single step, continuous, rate Hz; initial blackboard
-- [ ] Node status overlay: IDLE / RUNNING / SUCCESS / FAILURE / SKIPPED
-- [ ] Manual branch selection on controls
-- [ ] Tick timeline + optional export
-- [ ] Blackboard inspector per tick
-- [ ] Mock action outcomes (success / failure / delay)
-- [ ] ROS-optional; standalone XML first
+### 0.6.x — Typed ports
 
-Design: monitor state is **session-scoped**; disk XML stays canonical unless user applies edits.
+- [ ] Port resolution against `TreeNodesModel` (E-10)
+- [ ] Inspector typed port sections (E-11–E-12)
+- [ ] Port chips on canvas (E-13)
+- [ ] Add/remove port attrs (E-14)
+- [ ] Port validation (E-15)
 
-### 0.4.x carryover (editor polish — may land before or alongside 0.5)
+### 0.7.x — Model authoring
 
-- [ ] Undo / redo for structural edits
-- [ ] Copy / paste subtree
-- [ ] Add / remove custom port fields in inspector
-- [ ] Persist staged node positions (partial today via webview state)
-- [ ] Drop-target highlight when connecting staged nodes
-- [ ] Snap-to-grid + manual layout save
-- [ ] Subtree drill-down; search / filter nodes
+- [ ] TreeNodesModel editor UI (E-20–E-21)
+- [ ] Export workspace config button (E-24)
 
-See [Groot parity](planning/GROOT_PARITY.md) for priority order.
+### 0.8.x — Pro graph ops
 
-### AI & agents (cross-cutting)
+- [ ] Copy / paste subtree (E-30)
+- [ ] Layout persistence + snap (E-31–E-32)
+- [ ] Subtree drill-down + includes (E-33–E-34)
 
-Tier summary — full spec in [AI_AGENT_INTEGRATION.md](planning/AI_AGENT_INTEGRATION.md):
+See [Groot parity](planning/GROOT_PARITY.md) for matrix vs Groot2.
 
-| Tier | Target | Deliverable                                           |
-| ---- | ------ | ----------------------------------------------------- |
-| 0    | Now    | Cursor skill + rules; agents read XML, open graph     |
-| 1    | 0.6.0  | `getDocumentSummary`, subtree snippet, Mermaid export |
-| 2    | 0.6.x  | `applyOperations`, `selectNode`                       |
-| 3    | 0.7.0  | `captureGraph` for chat screenshots                   |
-| 4    | 1.0.0  | MCP server package                                    |
-| 5    | 0.8.0  | Monitor tick/blackboard export for agents             |
+### 1.1+ — Simulation monitor (deferred)
 
-- [ ] Tier 0: Cursor skill `btview` + optional `btview-authoring.mdc` rule
+- Tick emulation, node status overlays, blackboard inspector
+- Previously planned as 0.5.0; deferred until Editor Complete (1.0)
 
-### 1.0.0 — Stable
+### AI & agents (deferred to 1.2+)
 
-- [ ] `DocumentSyncService` integration tests
-- [ ] Coverage gate ≥ 70% lines on `src/btcpp/` in `verify.sh`
-- [ ] Optional opt-in telemetry (no PII)
-- [ ] Marketplace + Open VSX smoke verified each release
-- [ ] Branch protection on `devel` + `main` (maintainer)
+Full spec: [AI_AGENT_INTEGRATION.md](planning/AI_AGENT_INTEGRATION.md)
 
 ---
 
@@ -125,36 +116,12 @@ Tier summary — full spec in [AI_AGENT_INTEGRATION.md](planning/AI_AGENT_INTEGR
 
 </details>
 
-<details>
-<summary>0.4.0 — Graph authoring (2026-06)</summary>
-
-- [x] Staged nodes, edge connect, set-as-root
-- [x] `WebviewOutboundGate`, ready retry, integration tests
-
-</details>
-
-<details>
-<summary>0.3.x — Visual authoring</summary>
-
-- [x] Palette sidebar, `nodeTypeMap`, `newTree`, empty canvas
-- [x] 0.3.1 black screen / CSP fix
-
-</details>
-
-<details>
-<summary>0.1.0 — Foundation</summary>
-
-- Protocol, `WebviewPanelManager`, `DocumentSyncService`, validation, diagnostics, tests, release CI
-
-</details>
-
 ---
 
 ## Tracking
 
-Issues and PRs: [guilyx/btview-vscode-plugin](https://github.com/guilyx/btview-vscode-plugin).
-
 - Feature/fix PRs → **`devel`**
 - Release PRs → **`main`** → tag `vX.Y.Z` → CI publishes registries
+- Dev tags on `devel` between Marketplace releases: `v0.X.0-dev.N`
 
 Workflow: [Branching](development/BRANCHING.md) · [Release process](release/RELEASE.md)

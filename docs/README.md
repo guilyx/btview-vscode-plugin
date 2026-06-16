@@ -31,6 +31,8 @@ docs/
 │   ├── WEBVIEW.md
 │   └── BRANCHING.md
 ├── planning/                 product vision & future work
+│   ├── EDITOR_ROADMAP.md
+│   ├── COMMAND_SURFACES.md
 │   ├── GROOT_PARITY.md
 │   └── AI_AGENT_INTEGRATION.md
 ├── release/                  publishing & distribution
@@ -42,6 +44,8 @@ docs/
 ## Planning & vision
 
 - **[Roadmap](ROADMAP.md)** — version milestones, active backlog, shipped summary
+- **[Editor roadmap](planning/EDITOR_ROADMAP.md)** — E-01…E-47 checklist, dev tags, 1.0 criteria
+- **[Command surfaces](planning/COMMAND_SURFACES.md)** — shortcuts, context menus, host vs webview
 - **[Groot parity](planning/GROOT_PARITY.md)** — feature matrix vs Groot2; editor UX priorities
 - **[AI & agents](planning/AI_AGENT_INTEGRATION.md)** — Cursor skills, MCP, graph capture path
 

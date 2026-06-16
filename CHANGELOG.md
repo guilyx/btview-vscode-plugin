@@ -9,8 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Editor roadmap** — [docs/planning/EDITOR_ROADMAP.md](docs/planning/EDITOR_ROADMAP.md) long-horizon checklist (0.5–1.0); monitor deferred to 1.1+
+- **Command surfaces spec** — [docs/planning/COMMAND_SURFACES.md](docs/planning/COMMAND_SURFACES.md) shortcuts and context menu inventory
+- **Roadmap re-sequence** — 0.5–0.8 editor train; 1.0 Editor Complete; simulation monitor at 1.1+
+- **Dev tagging policy** — documented in [docs/development/BRANCHING.md](docs/development/BRANCHING.md)
+
+### Changed
+
+- [docs/ROADMAP.md](docs/ROADMAP.md) and [GROOT_PARITY.md](docs/planning/GROOT_PARITY.md) aligned with editor-first milestones
+
+### Previously unreleased (docs reorg)
+
 - **Hierarchical documentation** — [docs/README.md](docs/README.md) index; guides under `getting-started/`, `development/`, `planning/`, `release/`
-- **Roadmap refresh** — current status at 0.4.3; 0.5.0 simulation monitor as next major theme
 - **AI agent integration roadmap** — [docs/planning/AI_AGENT_INTEGRATION.md](docs/planning/AI_AGENT_INTEGRATION.md)
 
 ## [0.4.3] - 2026-06-11

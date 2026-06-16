@@ -26,22 +26,24 @@ We **do not** reuse Vite’s `webview/dist/index.html` as the runtime shell. Vit
 <head>
   <script type="module" crossorigin src="./assets/index.js"></script>
 </head>
-<body><div id="root"></div></body>
+<body>
+  <div id="root"></div>
+</body>
 ```
 
 Early versions regex-replaced that script tag but **dropped `type="module"`** while leaving the script in `<head>`. A classic (non-module) `<head>` script runs **synchronously before `<body>` is parsed**, so `#root` does not exist yet → React throws → the panel stays on the static loading text forever while the host keeps logging `push loadDocument` (messages queued, never consumed).
 
 ### Rules (mandatory)
 
-| Do | Don't |
-| --- | --- |
-| Emit a **single hand-written HTML template** in `getWebviewHtml()` | Regex-patch `webview/dist/index.html` for script placement |
-| Load the bundle with `<script defer …>` **after** `#root` at end of `<body>` | Put the app bundle in `<head>` without `defer` |
-| Embed first document as `window.__BTVIEW_BOOT__` (JSON, escaped) | Rely only on `postMessage` for initial paint |
+| Do                                                                              | Don't                                                         |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Emit a **single hand-written HTML template** in `getWebviewHtml()`              | Regex-patch `webview/dist/index.html` for script placement    |
+| Load the bundle with `<script defer …>` **after** `#root` at end of `<body>`    | Put the app bundle in `<head>` without `defer`                |
+| Embed first document as `window.__BTVIEW_BOOT__` (JSON, escaped)                | Rely only on `postMessage` for initial paint                  |
 | Register `hostMessages` listener via side-effect import **before** `createRoot` | Attach the only `message` listener inside a React `useEffect` |
-| Call `WebviewOutboundGate.markNotReady()` whenever `webview.html` is set | Post `loadDocument` assuming the webview is already listening |
-| Include `webview/dist/assets/*` in the VSIX (see `.vscodeignore`) | Ignore `webview/dist/` in packaging |
-| Bump `extensionVersion` query on script/CSS URIs after webview changes | Cache stale bundles across extension upgrades |
+| Call `WebviewOutboundGate.markNotReady()` whenever `webview.html` is set        | Post `loadDocument` assuming the webview is already listening |
+| Include `webview/dist/assets/*` in the VSIX (see `.vscodeignore`)               | Ignore `webview/dist/` in packaging                           |
+| Bump `extensionVersion` query on script/CSS URIs after webview changes          | Cache stale bundles across extension upgrades                 |
 
 ## Handshake
 

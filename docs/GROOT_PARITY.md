@@ -6,26 +6,26 @@ Reference: [BehaviorTree.CPP Groot2](https://github.com/BehaviorTree/Groot2) (of
 
 ## Feature matrix
 
-| Capability | Groot2 | BTView today | Target |
-| --- | --- | --- | --- |
-| Graph canvas + auto layout | ✅ | ✅ ELK layout | Keep improving manual layout save |
-| Node palette (built-ins) | ✅ | ✅ sidebar | — |
-| Drag / connect wires | ✅ | ✅ staged nodes + edge connect | Drop-target highlight on parent |
-| Click node → property editor | ✅ | ✅ inspector (name, ports) | **Kind + type editable (0.4.3)** |
-| Change node type / fix mis-tags | ✅ | 🔜 0.4.3 | `changeNodeType` |
-| Custom nodes (`TreeNodesModel`) | ✅ | ✅ parse + palette from models | Model editor UI |
-| Port editing | ✅ | ✅ attribute fields | Typed port widgets, defaults |
-| Multiple trees per file | ✅ | ✅ tree selector | — |
-| Subtree nodes | ✅ | ✅ | Drill-down / open included file |
-| Undo / redo | ✅ | ❌ | **0.4.x** — edit stack on host |
-| Copy / paste subtree | ✅ | ❌ | **0.4.x** |
-| Blackboard editor | ✅ | ❌ | **0.5.x** with monitor |
-| Live tick monitor + node status | ✅ | ❌ | **0.5.0** simulation monitor |
-| Manual branch pick during tick | ✅ | ❌ | 0.5.0 |
-| Search / filter nodes | ✅ | ❌ | 0.4.x |
-| Snap to grid | ✅ | ❌ | 0.4.x |
-| XML round-trip | ✅ | ✅ | — |
-| ROS package includes | partial | ✅ `ros_pkg` includes | — |
+| Capability                      | Groot2  | BTView today                   | Target                            |
+| ------------------------------- | ------- | ------------------------------ | --------------------------------- |
+| Graph canvas + auto layout      | ✅      | ✅ ELK layout                  | Keep improving manual layout save |
+| Node palette (built-ins)        | ✅      | ✅ sidebar                     | —                                 |
+| Drag / connect wires            | ✅      | ✅ staged nodes + edge connect | Drop-target highlight on parent   |
+| Click node → property editor    | ✅      | ✅ inspector (name, ports)     | **Kind + type editable (0.4.3)**  |
+| Change node type / fix mis-tags | ✅      | 🔜 0.4.3                       | `changeNodeType`                  |
+| Custom nodes (`TreeNodesModel`) | ✅      | ✅ parse + palette from models | Model editor UI                   |
+| Port editing                    | ✅      | ✅ attribute fields            | Typed port widgets, defaults      |
+| Multiple trees per file         | ✅      | ✅ tree selector               | —                                 |
+| Subtree nodes                   | ✅      | ✅                             | Drill-down / open included file   |
+| Undo / redo                     | ✅      | ❌                             | **0.4.x** — edit stack on host    |
+| Copy / paste subtree            | ✅      | ❌                             | **0.4.x**                         |
+| Blackboard editor               | ✅      | ❌                             | **0.5.x** with monitor            |
+| Live tick monitor + node status | ✅      | ❌                             | **0.5.0** simulation monitor      |
+| Manual branch pick during tick  | ✅      | ❌                             | 0.5.0                             |
+| Search / filter nodes           | ✅      | ❌                             | 0.4.x                             |
+| Snap to grid                    | ✅      | ❌                             | 0.4.x                             |
+| XML round-trip                  | ✅      | ✅                             | —                                 |
+| ROS package includes            | partial | ✅ `ros_pkg` includes          | —                                 |
 
 Legend: ✅ shipped · 🔜 in progress · ❌ planned
 

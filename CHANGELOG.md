@@ -27,9 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings: `btview.showNodePorts`, `btview.customModelsInclude`
 - Commands: `btview.graph.undo`, `btview.graph.redo`, `btview.exportWorkspaceConfig`
 
-### Changed
+### Fixed
 
-- [docs/ROADMAP.md](docs/ROADMAP.md) and [GROOT_PARITY.md](docs/planning/GROOT_PARITY.md) aligned with editor-first milestones (0.5–0.8 editor train; 1.1+ monitor)
+- **Invisible graph nodes** — restore flex height chain for `.graph-pane` / `.graph-container` so React Flow receives a non-zero canvas height after the 0.5 layout wrapper change; regression tests for layout CSS and node enrichment
+- **CI type-check crash** — fix port direction typing in shared protocol so webview/typecheck stays consistent across unit+integration builds
 - **Dev tagging policy** — documented in [docs/development/BRANCHING.md](docs/development/BRANCHING.md)
 
 ### Previously unreleased (docs reorg)

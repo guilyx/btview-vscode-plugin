@@ -28,7 +28,7 @@ import {
 import { STAGE_NODE_EVENT, type StageNodeEventDetail } from './stageNodeEvent';
 import { useGraphContext } from '../commands/graphContext';
 import { ContextMenu, type ContextTarget } from '../components/ContextMenu';
-import { resolveNodePorts } from '../utils/portResolution';
+import { enrichNodeData, findInTree } from './enrichNodeData';
 
 const nodeTypes = { btNode: BtFlowNode };
 
@@ -37,58 +37,6 @@ interface BtGraphProps {
   treeId: string;
   doc: SerializedDocument;
   onNodeSelect: (node: FlowNodeData | null) => void;
-}
-
-function enrichNodeData(
-  node: BtNodeData,
-  doc: SerializedDocument,
-  searchQuery: string,
-  portsVisible: boolean,
-): FlowNodeData {
-  const q = searchQuery.trim().toLowerCase();
-  const label = node.instanceName ?? node.registeredId;
-  const matches =
-    !q ||
-    label.toLowerCase().includes(q) ||
-    node.registeredId.toLowerCase().includes(q) ||
-    node.kind.toLowerCase().includes(q);
-
-  const resolved = resolveNodePorts(node, doc.models);
-  const portSummary = portsVisible
-    ? [...resolved.inputs, ...resolved.inouts, ...resolved.outputs, ...resolved.custom]
-        .filter((p) => p.value)
-        .map((p) => `${p.name}=${p.value}`)
-        .slice(0, 3)
-    : undefined;
-
-  return {
-    label,
-    kind: node.kind,
-    path: node.path,
-    registeredId: node.registeredId,
-    instanceName: node.instanceName,
-    attributes: node.attributes,
-    childCount: node.children.length,
-    portSummary,
-    hasWarning: doc.validationErrors?.some((e) => e.path === node.path),
-    dimmed: Boolean(q) && !matches,
-  };
-}
-
-function findInTree(root: BtNodeData | null, path: string): BtNodeData | null {
-  if (!root) {
-    return null;
-  }
-  if (root.path === path) {
-    return root;
-  }
-  for (const child of root.children) {
-    const found = findInTree(child, path);
-    if (found) {
-      return found;
-    }
-  }
-  return null;
 }
 
 function buildEnrichedFlowGraph(

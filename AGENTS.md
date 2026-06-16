@@ -9,7 +9,7 @@ Visual VS Code extension for BehaviorTree.CPP v3/v4 XML. Publisher: **rangonomic
 | `devel` | **All feature/fix/chore PRs** (default)  |
 | `main`  | **Releases and RCs only** (from `devel`) |
 
-See [docs/BRANCHING.md](docs/BRANCHING.md).
+See [docs/development/BRANCHING.md](docs/development/BRANCHING.md).
 
 ## Build & test
 
@@ -66,7 +66,7 @@ Workflow:
 
 ## Release workflow
 
-See [docs/RELEASE.md](docs/RELEASE.md). Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md).
+See [docs/release/RELEASE.md](docs/release/RELEASE.md). Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md). Planning: [Groot parity](docs/planning/GROOT_PARITY.md) · [AI agents](docs/planning/AI_AGENT_INTEGRATION.md).
 
 - Merge **`devel` → `main`** only for releases / release candidates
 - **Ask first:** version bumps, git tags, Marketplace / Open VSX publish

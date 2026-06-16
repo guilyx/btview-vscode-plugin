@@ -24,7 +24,7 @@ Types live in `src/shared/protocol.ts`:
 
 ## Webview boot
 
-See **[WEBVIEW.md](WEBVIEW.md)** for HTML generation, `__BTVIEW_BOOT__`, defer script rules, and the 0.4.x infinite-loading postmortem.
+See **[Webview guide](WEBVIEW.md)** for HTML generation, `__BTVIEW_BOOT__`, defer script rules, and the 0.4.x infinite-loading postmortem.
 
 ## Custom editor model
 

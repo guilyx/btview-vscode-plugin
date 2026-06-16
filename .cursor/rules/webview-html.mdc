@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Webview HTML & load handshake
 
-Read [docs/WEBVIEW.md](../../docs/WEBVIEW.md) before changing webview boot or host→webview messaging.
+Read [docs/development/WEBVIEW.md](../../docs/development/WEBVIEW.md) before changing webview boot or host→webview messaging.
 
 ## Never break these
 

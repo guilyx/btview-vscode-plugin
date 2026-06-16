@@ -12,7 +12,7 @@ alwaysApply: true
 - Feature/fix PRs → **`devel`** (default integration branch)
 - Releases / RCs → **`main`** only (from `devel` or `release/vX.Y.Z`)
 
-See [docs/BRANCHING.md](../../docs/BRANCHING.md).
+See [docs/development/BRANCHING.md](../../docs/development/BRANCHING.md).
 
 ## Before every push
 

@@ -16,7 +16,7 @@ webview (iframe)
   App.tsx             # React UI
 ```
 
-See also [ARCHITECTURE.md](ARCHITECTURE.md) for the full stack.
+See also [Architecture](ARCHITECTURE.md) for the full stack.
 
 ## HTML generation (`src/preview/webviewHtml.ts`)
 

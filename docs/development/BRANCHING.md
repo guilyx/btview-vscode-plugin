@@ -29,7 +29,7 @@ Only maintainers merge to `main`:
 4. Merge to `main` after CI green
 5. Tag `vX.Y.Z` on `main` — CI publishes VSIX + Marketplace
 
-See [RELEASE.md](RELEASE.md) for the full runbook.
+See [Release process](../release/RELEASE.md) for the full runbook.
 
 ## Branch protection (maintainers)
 

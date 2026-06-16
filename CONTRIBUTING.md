@@ -1,6 +1,6 @@
 # Contributing to BTView
 
-Thank you for contributing. See [AGENTS.md](AGENTS.md) for build/test commands and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for local setup.
+Thank you for contributing. See [AGENTS.md](AGENTS.md) for build/test commands and [docs/development/DEVELOPMENT.md](docs/development/DEVELOPMENT.md) for local setup.
 
 ## Branches
 
@@ -9,7 +9,7 @@ Thank you for contributing. See [AGENTS.md](AGENTS.md) for build/test commands a
 | `devel` | **Default integration branch** — merge here |
 | `main`  | Releases and release candidates only        |
 
-Full model: [docs/BRANCHING.md](docs/BRANCHING.md).
+Full model: [docs/development/BRANCHING.md](docs/development/BRANCHING.md).
 
 ## Workflow
 
@@ -35,4 +35,4 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:
 
 ## Releases
 
-Maintainers follow [docs/RELEASE.md](docs/RELEASE.md). Do not bump version or tag without release review. Releases land on `main` only.
+Maintainers follow [docs/release/RELEASE.md](docs/release/RELEASE.md). Do not bump version or tag without release review. Releases land on `main` only.

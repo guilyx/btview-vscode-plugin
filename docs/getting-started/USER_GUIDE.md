@@ -87,4 +87,4 @@ Set `btview.defaultOpenMode` to `"graph"` or `"side"` to auto-open BTCpp files i
 
 **Edits not syncing** — Check the Problems panel for XML syntax errors; save the file.
 
-**Extension not found in Cursor** — Install from VSIX or Open VSX. See [DISTRIBUTION.md](DISTRIBUTION.md).
+**Extension not found in Cursor** — Install from VSIX or Open VSX. See [Distribution](../release/DISTRIBUTION.md).

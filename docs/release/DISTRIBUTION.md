@@ -10,7 +10,7 @@ BTView is distributed on **three channels**:
 
 Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
 
-See [RELEASE.md](RELEASE.md) for the maintainer release runbook.
+See [Release process](RELEASE.md) for the maintainer release runbook.
 
 ---
 

@@ -7,13 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Hierarchical documentation** — [docs/README.md](docs/README.md) index; guides under `getting-started/`, `development/`, `planning/`, `release/`
+- **Roadmap refresh** — current status at 0.4.3; 0.5.0 simulation monitor as next major theme
+- **AI agent integration roadmap** — [docs/planning/AI_AGENT_INTEGRATION.md](docs/planning/AI_AGENT_INTEGRATION.md)
+
 ## [0.4.3] - 2026-06-11
 
 ### Added
 
 - **Editable node kind & type** — inspector dropdown (action/control/…) and registered ID field; `changeNodeType` protocol
-- **Groot parity plan** — [docs/GROOT_PARITY.md](docs/GROOT_PARITY.md)
-- **Webview integration guide** — [docs/WEBVIEW.md](docs/WEBVIEW.md) postmortem on infinite loading
+- **Groot parity plan** — [docs/planning/GROOT_PARITY.md](docs/planning/GROOT_PARITY.md)
+- **Webview integration guide** — [docs/development/WEBVIEW.md](docs/development/WEBVIEW.md) postmortem on infinite loading
 - Cursor rule `.cursor/rules/webview-html.mdc`
 
 ## [0.4.2] - 2026-06-11

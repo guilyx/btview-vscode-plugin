@@ -25,12 +25,12 @@ Related: [Roadmap](../ROADMAP.md) · [Command surfaces](COMMAND_SURFACES.md) · 
 
 | ID   | Feature                                                       | Branch                    | Status |
 | ---- | ------------------------------------------------------------- | ------------------------- | ------ |
-    |
-    |
-    |
-    |
-    |
-    |
+| E-01 | Color legend (kind swatches + toggle)                         | `feat/legend`             | [x]    |
+| E-02 | Undo / redo (`Ctrl+Z` / `Ctrl+Shift+Z`)                       | `feat/undo-redo`          | [x]    |
+| E-03 | Keyboard shortcut system (`graphActions` + `useGraphHotkeys`) | `feat/keyboard-shortcuts` | [x]    |
+| E-04 | Search / highlight nodes (`Ctrl+F`)                           | `feat/node-search`        | [x]    |
+| E-05 | Drop-target highlight when dragging staged nodes              | `feat/drop-highlight`     | [x]    |
+| E-06 | Context menus (canvas, node, staged)                          | `feat/context-menu`       | [x]    |
 
 **Acceptance:** Hobbyist can understand colors, right-click Delete/Rename, use `Del`/`F2`, undo edits.
 
@@ -40,12 +40,12 @@ Related: [Roadmap](../ROADMAP.md) · [Command surfaces](COMMAND_SURFACES.md) · 
 
 | ID   | Feature                                             | Branch                       | Status |
 | ---- | --------------------------------------------------- | ---------------------------- | ------ |
-    |
-    |
-    |
-    |
-    |
-    |
+| E-10 | Port resolution (`resolveNodePorts`)                | `feat/port-resolution`       | [x]    |
+| E-11 | Inspector typed ports (Inputs/Outputs/InOut/Custom) | `feat/inspector-typed-ports` | [x]    |
+| E-12 | Port direction badges                               | `feat/port-badges`           | [x]    |
+| E-13 | Canvas port chips + `Ctrl+Alt+P` toggle             | `feat/node-port-chips`       | [x]    |
+| E-14 | Add/remove instance port attributes                 | `feat/port-add-remove`       | [x]    |
+| E-15 | Port validation (Problems + node badge)             | `feat/port-validation`       | [x]    |
 
 ---
 
@@ -53,11 +53,11 @@ Related: [Roadmap](../ROADMAP.md) · [Command surfaces](COMMAND_SURFACES.md) · 
 
 | ID   | Feature                                                        | Branch                         | Status |
 | ---- | -------------------------------------------------------------- | ------------------------------ | ------ |
-    |
+| E-20 | TreeNodesModel editor panel                                    | `feat/model-editor-ui`         | [x]    |
 | E-21 | Create / delete custom node models                             | `feat/model-crud`              | [ ]    |
 | E-22 | Palette grouped by kind + port tooltips                        | `feat/palette-models`          | [ ]    |
 | E-23 | Export model snippet to clipboard                              | `feat/export-model-snippet`    | [ ]    |
-    |
+| E-24 | Export workspace config (`nodeTypeMap` + `.btview/models.xml`) | `feat/export-workspace-config` | [x]    |
 
 ---
 
@@ -65,12 +65,12 @@ Related: [Roadmap](../ROADMAP.md) · [Command surfaces](COMMAND_SURFACES.md) · 
 
 | ID   | Feature                           | Branch                    | Status |
 | ---- | --------------------------------- | ------------------------- | ------ |
-    |
-    |
-    |
-    |
-    |
-    |
+| E-30 | Copy / paste / cut subtree        | `feat/copy-paste`         | [x]    |
+| E-31 | Layout persistence (sidecar JSON) | `feat/layout-persist`     | [x]    |
+| E-32 | Snap to grid                      | `feat/snap-grid`          | [x]    |
+| E-33 | Subtree drill-down navigation     | `feat/subtree-drilldown`  | [x]    |
+| E-34 | Multi-file include navigation     | `feat/include-navigation` | [x]    |
+| E-35 | Staged node position persist      | `feat/staged-position`    | [x]    |
 
 ---
 

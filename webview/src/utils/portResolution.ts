@@ -1,4 +1,4 @@
-import type { NodeModel, PortModel } from '../../../src/btcpp/types';
+import type { PortModel } from '../../../src/btcpp/types';
 
 export interface ResolvedPort {
   name: string;

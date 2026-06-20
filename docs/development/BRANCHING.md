@@ -29,7 +29,26 @@ Only maintainers merge to `main`:
 4. Merge to `main` after CI green
 5. Tag `vX.Y.Z` on `main` — CI publishes VSIX + Marketplace
 
-See [RELEASE.md](RELEASE.md) for the full runbook.
+See [Release process](../release/RELEASE.md) for the full runbook.
+
+## Development tags (pre-release)
+
+Between Marketplace releases, maintainers may tag **`devel`** for integration checkpoints:
+
+| Tag pattern    | When                                   |
+| -------------- | -------------------------------------- |
+| `vX.Y.0-dev.0` | Baseline before a minor editor phase   |
+| `vX.Y.0-dev.N` | Phase complete on `devel` (N ≥ 1)      |
+| `vX.Y.0-rc.1`  | Release candidate soak test before 1.0 |
+
+Dev tags produce installable VSIX via CI or local `npm run vsix` — **not** published to Marketplace.
+
+**Release tags** (`vX.Y.Z` on `main` only) trigger Marketplace + Open VSX publish.
+
+```text
+feat/* ──► devel ──tag v0.8.0-dev.1──► (soak)
+                └──release/v1.0.0──► main ──tag v1.0.0──► Marketplace
+```
 
 ## Branch protection (maintainers)
 

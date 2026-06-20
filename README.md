@@ -29,27 +29,31 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 | **Cursor**  | Extensions → search **BTView** ([Open VSX](https://open-vsx.org/extension/rangonomics/btview))                                          |
 | **Any**     | Download `.vsix` from [GitHub Releases](https://github.com/guilyx/btview-vscode-plugin/releases) → **Extensions: Install from VSIX...** |
 
-Cursor uses Open VSX, not the Microsoft Marketplace. See [Distribution guide](docs/DISTRIBUTION.md#install-in-cursor).
+Cursor uses Open VSX, not the Microsoft Marketplace. See [Distribution guide](docs/release/DISTRIBUTION.md#install-in-cursor).
 
 ## Quick start
 
 1. Open a `.xml` file containing a BehaviorTree.CPP tree
 2. Click **Open BT Graph** in the editor title bar, or run **BTView: Open BT Graph** from the Command Palette
 3. Use **BTView: Open BT Graph to the Side** for split XML + graph view
-4. Click nodes to inspect and edit attributes; use the toolbar to add nodes
+4. Click nodes to inspect and edit kind, type, name, and ports
 
 ## Documentation
 
-- [User Guide](docs/USER_GUIDE.md) — installation, commands, editing workflow
-- [Configuration](docs/CONFIGURATION.md) — settings and ROS include setup
-- [Development](docs/DEVELOPMENT.md) — build, test, debug
-- [Distribution](docs/DISTRIBUTION.md) — Marketplace, VSIX, release process
-- [Release](docs/RELEASE.md) — versioning and publish runbook
-- [Roadmap](docs/ROADMAP.md) — planned milestones
+**[Documentation index](docs/README.md)** — full map of all guides.
+
+| Topic              | Guide                                                                             |
+| ------------------ | --------------------------------------------------------------------------------- |
+| Using BTView       | [User guide](docs/getting-started/USER_GUIDE.md)                                  |
+| Settings & ROS     | [Configuration](docs/getting-started/CONFIGURATION.md)                            |
+| Building & testing | [Development](docs/development/DEVELOPMENT.md)                                    |
+| Architecture       | [Architecture](docs/development/ARCHITECTURE.md)                                  |
+| Publishing         | [Release](docs/release/RELEASE.md) · [Distribution](docs/release/DISTRIBUTION.md) |
+| Roadmap            | [Roadmap](docs/ROADMAP.md)                                                        |
 
 ## Development
 
-Contributors: branch from **`devel`** and open PRs to **`devel`**. See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/BRANCHING.md](docs/BRANCHING.md).
+Contributors: branch from **`devel`** and open PRs to **`devel`**. See [CONTRIBUTING.md](CONTRIBUTING.md) and [Branching](docs/development/BRANCHING.md).
 
 ```bash
 git checkout devel

@@ -1,90 +1,126 @@
-# BTView Roadmap
+# BTView roadmap
 
-Current release: **0.4.2** on `main`.
-Integration branch: **`devel`**.
+|                    |                                                                                                    |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| **Latest release** | **0.8.0** on `main` ([GitHub](https://github.com/guilyx/btview-vscode-plugin/releases/tag/v0.8.0)) |
+| **Integration**    | `devel` — editor train 0.9.x polish toward 1.0                                                     |
+| **Publisher**      | `rangonomics.btview`                                                                               |
 
-Publisher: **rangonomics** · Extension ID: `rangonomics.btview`
+Deep dives: [Editor roadmap](planning/EDITOR_ROADMAP.md) · [Command surfaces](planning/COMMAND_SURFACES.md) · [Groot parity](planning/GROOT_PARITY.md) · [AI & agents](planning/AI_AGENT_INTEGRATION.md) · [Changelog](../CHANGELOG.md)
 
-Enhanced editor vision vs Groot2: **[GROOT_PARITY.md](GROOT_PARITY.md)**.
+---
+
+## Where we are (Jun 2026)
+
+BTView is a **shippable graph editor** for BehaviorTree.CPP v3/v4. **0.8.0** shipped the 0.5–0.8 editor train (legend, shortcuts, typed ports, layout, drill-down). **0.9.x** polish and **1.0** Editor Complete remain on `devel`.
+
+```text
+Shipped ──────────────────────────────────────────────► 0.8.0 (editor train 0.5–0.8)
+Active train (devel) ─────────────────────────────────► 0.9 polish → 1.0 Editor Complete
+Then ─────────────────────────────────────────────────► 1.1+ simulation monitor
+```
+
+### Capability snapshot
+
+| Area                                          | Status                       |
+| --------------------------------------------- | ---------------------------- |
+| Graph authoring (palette, connect, inspector) | **Shipped** (0.3–0.4)        |
+| Webview reliability                           | **Shipped** (0.4.2–0.4.3)    |
+| Node kind / type editing                      | **Shipped** (0.4.3)          |
+| Legend, shortcuts, context menus, undo        | **Shipped** (0.5, 0.8.0)     |
+| Typed ports & model authoring                 | **Shipped** (0.6–0.7, 0.8.0) |
+| Copy/paste, layout, drill-down                | **Shipped** (0.8.0)          |
+| Simulation monitor + blackboard               | **Deferred** (1.1+)          |
+| Agent API / MCP                               | **Deferred** (1.2+)          |
+
+---
 
 ## Milestones
 
-| Version   | Focus                                                                | Status       |
-| --------- | -------------------------------------------------------------------- | ------------ |
-| **0.1.0** | Ship: Marketplace, VSIX CI, agent docs, full feature stack           | **Released** |
-| **0.2.x** | Integration: devel branch, CI gate, Open VSX, dual publish, VSIX fix | **Released** |
-| **0.3.x** | Authoring: palette, empty canvas, nodeTypeMap, webview reliability   | **Released** |
-| **0.4.0** | Staged nodes, edge connect, webview load hardening                   | **Released** |
-| **0.4.2** | Webview defer/bootstrap fix, branded loader                          | **Released** |
-| **0.4.3** | Node kind/type editing, webview docs, Groot parity plan              | In progress  |
-| **0.5.0** | **Simulation monitor** — tick emulation, node status, blackboard     | Planned      |
-| **1.0.0** | Stable: coverage gate, sync-layer tests, branch protection           | Planned      |
+| Version   | Theme                                              | Status           |
+| --------- | -------------------------------------------------- | ---------------- |
+| **0.4.3** | `changeNodeType`, webview docs, Groot/AI planning  | Released         |
+| **0.5.x** | Editor UX — legend, shortcuts, menus, undo, search | Released (0.8.0) |
+| **0.6.x** | Typed ports — model-aware inspector + canvas chips | Released (0.8.0) |
+| **0.7.x** | Model authoring + export workspace config          | Released (0.8.0) |
+| **0.8.x** | Pro graph ops — copy/paste, layout, drill-down     | **Released**     |
+| **0.9.x** | Hobbyist polish, RC hardening                      | **Active**       |
+| **1.0.0** | **Editor Complete** — release to `main`            | Planned          |
+| **1.1.x** | Simulation monitor                                 | Deferred         |
+| **1.2.x** | Agent commands / capture                           | Deferred         |
+| **1.3+**  | MCP server                                         | Deferred         |
 
-> Architecture (protocol, controller split), validation, performance, and UX milestones originally scoped as 0.2–0.4 were **delivered in 0.1.0**. See [CHANGELOG.md](../CHANGELOG.md).
+Full feature checklist: [EDITOR_ROADMAP.md](planning/EDITOR_ROADMAP.md).
 
-## 0.4.3 — Inspector & editor parity (in progress)
+---
 
-- [x] **Change node kind + type** — inspector dropdown + registered ID; fixes unknown/mis-typed XML
-- [x] **Webview postmortem** — [WEBVIEW.md](WEBVIEW.md) + Cursor rule `webview-html.mdc`
-- [x] **Groot parity matrix** — [GROOT_PARITY.md](GROOT_PARITY.md)
-- [ ] Undo/redo for structural edits
-- [ ] Copy/paste subtree
-- [ ] Add/remove custom port fields in inspector
+## Active backlog (editor train)
 
-## 0.4.2 — Webview boot fix (released)
+### 0.5.x — Editor UX
 
-- [x] `defer` script at end of body; stop regex-patching Vite HTML
+- [ ] Color legend (E-01)
+- [ ] Keyboard shortcuts + context menus (E-03, E-06)
+- [ ] Undo / redo (E-02)
+- [ ] Node search / highlight (E-04)
+- [ ] Drop-target highlight (E-05)
+
+### 0.6.x — Typed ports
+
+- [ ] Port resolution against `TreeNodesModel` (E-10)
+- [ ] Inspector typed port sections (E-11–E-12)
+- [ ] Port chips on canvas (E-13)
+- [ ] Add/remove port attrs (E-14)
+- [ ] Port validation (E-15)
+
+### 0.7.x — Model authoring
+
+- [ ] TreeNodesModel editor UI (E-20–E-21)
+- [ ] Export workspace config button (E-24)
+
+### 0.8.x — Pro graph ops
+
+- [ ] Copy / paste subtree (E-30)
+- [ ] Layout persistence + snap (E-31–E-32)
+- [ ] Subtree drill-down + includes (E-33–E-34)
+
+See [Groot parity](planning/GROOT_PARITY.md) for matrix vs Groot2.
+
+### 1.1+ — Simulation monitor (deferred)
+
+- Tick emulation, node status overlays, blackboard inspector
+- Previously planned as 0.5.0; deferred until Editor Complete (1.0)
+
+### AI & agents (deferred to 1.2+)
+
+Full spec: [AI_AGENT_INTEGRATION.md](planning/AI_AGENT_INTEGRATION.md)
+
+---
+
+## Shipped highlights (reference)
+
+<details>
+<summary>0.4.3 — Inspector & docs (2026-06)</summary>
+
+- [x] Editable node kind + registered ID (`changeNodeType`)
+- [x] [Webview guide](development/WEBVIEW.md) + Cursor rule `webview-html.mdc`
+- [x] [Groot parity matrix](planning/GROOT_PARITY.md), [AI roadmap](planning/AI_AGENT_INTEGRATION.md)
+
+</details>
+
+<details>
+<summary>0.4.2 — Webview boot fix (2026-06)</summary>
+
+- [x] Script `defer` at end of `<body>`; stop patching Vite HTML
 - [x] `__BTVIEW_BOOT__` embedded document; branded loading animation
 
-## 0.4.0 — Graph authoring UX (released)
+</details>
 
-- [x] **Staged (dangling) nodes** — palette drag/click places unconnected nodes on canvas
-- [x] **Edge connect** — parent bottom → child top handle commits `addNode` / `reparentNode`
-- [x] **Set as tree root** — inspector action for staged control on empty tree
-- [x] **Webview load hardening** — `WebviewOutboundGate`, ready retry, integration tests
-- [ ] Persist staged node positions across reload (webview state — partial)
-- [ ] Drop target highlight when connecting palette nodes onto specific parents
-- [ ] Undo/redo for structural edits
-- [ ] Snap-to-grid and manual layout save (override auto-layout positions)
-
-## 0.5.0 — Simulation monitor (planned)
-
-Interactive **monitor view** alongside the graph editor to explore how a behavior tree would tick without a live robot stack.
-
-- [ ] **Monitor panel** — separate webview or split view (“BT Monitor”) opened from command palette / title bar
-- [ ] **Emulation configuration** — choose tick mode (single step, continuous, rate Hz), initial blackboard key/values, which subtree is `main_tree_to_execute`
-- [ ] **Node status overlay** — IDLE / RUNNING / SUCCESS / FAILURE (and SKIPPED) on graph nodes per tick
-- [ ] **Manual branch selection** — for controls with multiple running children, pick which child advances (what-if exploration)
-- [ ] **Tick timeline** — step history, current path through the tree, optional export of tick log
-- [ ] **Blackboard inspector** — live view of port reads/writes per tick (aligned with BTCpp v3/v4 port model)
-- [ ] **Fixture / mock actions** — configurable outcomes for action nodes during emulation (success, failure, async delay)
-- [ ] **ROS-optional** — monitor works on standalone XML; later hook to live `btcpp` / ROS 2 topic feedback
-
-Design note: emulation stays **read-only against disk XML** unless the user explicitly applies edits; monitor state is ephemeral (session-scoped) unless saved as a scenario file.
-
-## 0.3.x — Visual authoring (shipped)
-
-- [x] **`btview.nodeTypeMap`**, **`btview.newTree`**, palette sidebar, empty canvas
-- [x] Visual edits → XML via `DocumentSyncService`
-- [x] **0.3.1** — webview black screen fix (CSP, ready handshake, upgrade reload)
-
-## 1.0.0 — Stable
-
-- [ ] `DocumentSyncService` unit or integration tests
-- [ ] Coverage thresholds enforced in `verify.sh` for `src/btcpp/` (target ≥ 70% lines)
-- [ ] Optional telemetry (opt-in usage, no PII)
-- [ ] VS Code Marketplace + Open VSX listings verified end-to-end
-- [ ] Branch protection on `devel` + `main` (GitHub settings — maintainer)
-
-## Delivered in 0.1.0 (reference)
-
-- Shared `src/shared/protocol.ts`, `WebviewPanelManager`, `DocumentRefreshScheduler`
-- Output channel, `DiagnosticsService`, validation on parse/edit
-- Inspector debounce, skip self-refresh, async includes, viewport persistence
-- `NodePicker`, reparent/reorder UX, `WarningsPanel`
-- Unit + integration tests, governance docs, release automation
+---
 
 ## Tracking
 
-GitHub issues and PRs on [guilyx/btview-vscode-plugin](https://github.com/guilyx/btview-vscode-plugin).
-Feature PRs target **`devel`**; release PRs target **`main`**.
+- Feature/fix PRs → **`devel`**
+- Release PRs → **`main`** → tag `vX.Y.Z` → CI publishes registries
+- Dev tags on `devel` between Marketplace releases: `v0.X.0-dev.N`
+
+Workflow: [Branching](development/BRANCHING.md) · [Release process](release/RELEASE.md)

@@ -21,7 +21,7 @@ All npm scripts use `scripts/with-node.sh` to auto-load nvm when available.
 - **`devel`** — default; branch from here and open PRs here
 - **`main`** — releases only
 
-See [BRANCHING.md](BRANCHING.md).
+See [Branching](BRANCHING.md).
 
 ## Setup
 

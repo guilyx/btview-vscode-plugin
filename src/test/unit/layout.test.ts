@@ -29,5 +29,8 @@ describe('buildFlowGraph', () => {
     expect(nodes).toHaveLength(2);
     expect(edges).toHaveLength(1);
     expect(nodes[0]?.data.childCount).toBe(1);
+    expect(nodes[0]?.position).toEqual(
+      expect.objectContaining({ x: expect.any(Number), y: expect.any(Number) }),
+    );
   });
 });

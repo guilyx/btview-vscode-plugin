@@ -12,9 +12,9 @@ import {
   type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { buildFlowGraph, type FlowNodeData } from './layout';
+import { buildFlowGraph, snapToGrid, type FlowNodeData } from './layout';
 import { BtFlowNode } from '../nodes/BtNode';
-import type { BtNodeData } from '../types';
+import type { BtNodeData, SerializedDocument } from '../types';
 import { BTVIEW_NODE_DRAG, type PaletteDragPayload } from '../panels/NodePaletteSidebar';
 import { getState, postMessage, setState } from '../vscodeApi';
 import {
@@ -26,13 +26,39 @@ import {
   type StagedNode,
 } from './stagedNodes';
 import { STAGE_NODE_EVENT, type StageNodeEventDetail } from './stageNodeEvent';
+import { useGraphContext } from '../commands/graphContext';
+import { ContextMenu, type ContextTarget } from '../components/ContextMenu';
+import { enrichNodeData, findInTree } from './enrichNodeData';
 
 const nodeTypes = { btNode: BtFlowNode };
 
 interface BtGraphProps {
   root: BtNodeData | null;
   treeId: string;
+  doc: SerializedDocument;
   onNodeSelect: (node: FlowNodeData | null) => void;
+}
+
+function buildEnrichedFlowGraph(
+  root: BtNodeData | null,
+  doc: SerializedDocument,
+  searchQuery: string,
+  portsVisible: boolean,
+  layoutPositions?: Record<string, { x: number; y: number }>,
+): { nodes: Node<FlowNodeData>[]; edges: ReturnType<typeof buildFlowGraph>['edges'] } {
+  const tree = buildFlowGraph(root, layoutPositions);
+  return {
+    nodes: tree.nodes.map((n) => {
+      const source = findInTree(root, n.id);
+      return {
+        ...n,
+        data: source
+          ? enrichNodeData(source, doc, searchQuery, portsVisible)
+          : (n.data as FlowNodeData),
+      };
+    }),
+    edges: tree.edges,
+  };
 }
 
 function stagedToFlowNode(staged: StagedNode): Node<FlowNodeData> {
@@ -55,17 +81,33 @@ function stagedToFlowNode(staged: StagedNode): Node<FlowNodeData> {
 function mergeGraphWithStaged(
   root: BtNodeData | null,
   staged: StagedNode[],
+  doc: SerializedDocument,
+  searchQuery: string,
+  portsVisible: boolean,
+  layoutPositions?: Record<string, { x: number; y: number }>,
 ): { nodes: Node<FlowNodeData>[]; edges: ReturnType<typeof buildFlowGraph>['edges'] } {
-  const tree = buildFlowGraph(root);
+  const tree = buildEnrichedFlowGraph(root, doc, searchQuery, portsVisible, layoutPositions);
   return {
     nodes: [...tree.nodes, ...staged.map(stagedToFlowNode)],
     edges: tree.edges,
   };
 }
 
-function FitViewOnFirstLoad({ treeId }: { treeId: string }) {
+function FitViewBridge({
+  treeId,
+  fitViewRef,
+}: {
+  treeId: string;
+  fitViewRef: React.MutableRefObject<(() => void) | null>;
+}) {
   const { fitView } = useReactFlow();
   const fittedTree = useRef<string | null>(null);
+
+  useEffect(() => {
+    fitViewRef.current = () => {
+      void fitView({ padding: 0.2, duration: 200 });
+    };
+  }, [fitView, fitViewRef]);
 
   useEffect(() => {
     if (fittedTree.current !== treeId) {
@@ -77,14 +119,26 @@ function FitViewOnFirstLoad({ treeId }: { treeId: string }) {
   return null;
 }
 
-function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
-  const { screenToFlowPosition } = useReactFlow();
+function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
+  const { screenToFlowPosition, getNodes } = useReactFlow();
+  const { searchQuery, portsVisible, fitViewRef } = useGraphContext();
   const [stagedNodes, setStagedNodes] = useState<StagedNode[]>(() => loadStagedNodes(treeId));
-  const initial = useMemo(() => mergeGraphWithStaged(root, stagedNodes), [root, stagedNodes]);
+  const layoutPositions = doc.layoutPositions;
+  const initial = useMemo(
+    () => mergeGraphWithStaged(root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions),
+    [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions],
+  );
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [dragTarget, setDragTarget] = useState<string | null>(null);
+  const [stagedDropTarget, setStagedDropTarget] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    target: ContextTarget;
+    x: number;
+    y: number;
+  } | null>(null);
   const graphRef = useRef<HTMLDivElement>(null);
+  const layoutSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setStagedNodes(loadStagedNodes(treeId));
@@ -97,15 +151,37 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
   }, [treeId]);
 
   useEffect(() => {
-    const { nodes: n, edges: e } = mergeGraphWithStaged(root, stagedNodes);
+    const { nodes: n, edges: e } = mergeGraphWithStaged(
+      root,
+      stagedNodes,
+      doc,
+      searchQuery,
+      portsVisible,
+      layoutPositions,
+    );
     setNodes(n);
     setEdges(e);
-  }, [root, stagedNodes, setNodes, setEdges]);
+  }, [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions, setNodes, setEdges]);
+
+  const saveLayout = useCallback(() => {
+    const positions: Record<string, { x: number; y: number }> = {};
+    for (const n of getNodes()) {
+      if (!isStagedId(n.id)) {
+        positions[n.id] = { x: n.position.x, y: n.position.y };
+      }
+    }
+    postMessage({ type: 'saveLayout', treeId, positions });
+  }, [getNodes, treeId]);
+
+  const scheduleLayoutSave = useCallback(() => {
+    if (layoutSaveTimer.current) {
+      clearTimeout(layoutSaveTimer.current);
+    }
+    layoutSaveTimer.current = setTimeout(saveLayout, 400);
+  }, [saveLayout]);
 
   const flowPositionFromClient = useCallback(
-    (clientX: number, clientY: number) => {
-      return screenToFlowPosition({ x: clientX, y: clientY });
-    },
+    (clientX: number, clientY: number) => screenToFlowPosition({ x: clientX, y: clientY }),
     [screenToFlowPosition],
   );
 
@@ -124,7 +200,7 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
         id: createStagedId(),
         registeredId,
         kind,
-        position,
+        position: { x: snapToGrid(position.x), y: snapToGrid(position.y) },
       };
       setStagedNodes((prev) => {
         const next = [...prev, entry];
@@ -170,6 +246,31 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
     [onNodeSelect],
   );
 
+  const onNodeDoubleClick = useCallback(
+    (_: unknown, node: Node<FlowNodeData>) => {
+      if (!isStagedId(node.id) && node.data.kind === 'subtree') {
+        const treeMatch = doc.trees.find((t) => t.id === node.data.registeredId);
+        if (treeMatch) {
+          postMessage({ type: 'selectTree', treeId: treeMatch.id });
+        }
+      }
+    },
+    [doc.trees],
+  );
+
+  const onNodeContextMenu = useCallback((e: React.MouseEvent, node: Node<FlowNodeData>) => {
+    e.preventDefault();
+    const target: ContextTarget = (node.data as FlowNodeData).staged
+      ? { kind: 'staged', node: node.data as FlowNodeData }
+      : { kind: 'node', node: node.data as FlowNodeData };
+    setContextMenu({ target, x: e.clientX, y: e.clientY });
+  }, []);
+
+  const onPaneContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ target: { kind: 'canvas' }, x: e.clientX, y: e.clientY });
+  }, []);
+
   const findReparentTarget = useCallback(
     (dragged: Node<FlowNodeData>, allNodes: Node<FlowNodeData>[]) => {
       if (isStagedId(dragged.id)) {
@@ -189,31 +290,70 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
     [],
   );
 
+  const findStagedDropParent = useCallback(
+    (stagedNode: Node<FlowNodeData>, allNodes: Node<FlowNodeData>[]) => {
+      return allNodes
+        .filter((n) => !isStagedId(n.id) && (n.data as FlowNodeData).kind !== 'action')
+        .filter((n) => {
+          const dy = stagedNode.position.y - n.position.y;
+          const dx = Math.abs(stagedNode.position.x - n.position.x);
+          return dy > 10 && dx < 120;
+        })
+        .sort((a, b) => b.position.y - a.position.y)[0];
+    },
+    [],
+  );
+
   const onNodeDrag = useCallback(
     (_: unknown, node: Node<FlowNodeData>) => {
+      if (isStagedId(node.id)) {
+        const target = findStagedDropParent(node, nodes as Node<FlowNodeData>[]);
+        setStagedDropTarget(target?.id ?? null);
+        return;
+      }
       const target = findReparentTarget(node, nodes as Node<FlowNodeData>[]);
       setDragTarget(target?.id ?? null);
     },
-    [nodes, findReparentTarget],
+    [nodes, findReparentTarget, findStagedDropParent],
   );
 
   const onNodeDragStop = useCallback(
     (_: unknown, node: Node<FlowNodeData>) => {
       setDragTarget(null);
+      setStagedDropTarget(null);
 
       if (isStagedId(node.id)) {
         setStagedNodes((prev) => {
-          const next = prev.map((s) => (s.id === node.id ? { ...s, position: node.position } : s));
+          const next = prev.map((s) =>
+            s.id === node.id
+              ? {
+                  ...s,
+                  position: { x: snapToGrid(node.position.x), y: snapToGrid(node.position.y) },
+                }
+              : s,
+          );
           mergeStagedIntoState(treeId, () => next);
           return next;
         });
         return;
       }
 
+      const snapped = {
+        ...node,
+        position: { x: snapToGrid(node.position.x), y: snapToGrid(node.position.y) },
+      };
+      setNodes((nds) =>
+        nds.map((n) => (n.id === node.id ? { ...n, position: snapped.position } : n)),
+      );
+      scheduleLayoutSave();
+
       if (!node.id || node.id === '0') {
         return;
       }
-      const target = findReparentTarget(node, nodes as Node<FlowNodeData>[]);
+      const target = findReparentTarget(
+        snapped as Node<FlowNodeData>,
+        nodes as Node<FlowNodeData>[],
+      );
       if (target) {
         postMessage({
           type: 'reparentNode',
@@ -223,7 +363,7 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
         });
       }
     },
-    [nodes, treeId, findReparentTarget],
+    [nodes, treeId, findReparentTarget, scheduleLayoutSave, setNodes],
   );
 
   const onConnect = useCallback(
@@ -296,14 +436,14 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
         ...n,
         className:
           [
-            n.id === dragTarget ? 'drop-target' : '',
+            n.id === dragTarget || n.id === stagedDropTarget ? 'drop-target' : '',
             (n.data as FlowNodeData).staged ? 'staged-node' : '',
           ]
             .filter(Boolean)
             .join(' ') || undefined,
         selected: n.selected,
       })),
-    [nodes, dragTarget],
+    [nodes, dragTarget, stagedDropTarget],
   );
 
   const showEmptyHint = !root && stagedNodes.length === 0;
@@ -332,6 +472,9 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
+        onNodeDoubleClick={onNodeDoubleClick}
+        onNodeContextMenu={onNodeContextMenu}
+        onPaneContextMenu={onPaneContextMenu}
         onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onConnect={onConnect}
@@ -345,11 +488,19 @@ function BtGraphInner({ root, treeId, onNodeSelect }: BtGraphProps) {
           getState<{ viewport?: { x: number; y: number; zoom: number } }>()?.viewport
         }
       >
-        <FitViewOnFirstLoad treeId={treeId} />
+        <FitViewBridge treeId={treeId} fitViewRef={fitViewRef} />
         <Background gap={16} />
         <Controls />
         <MiniMap />
       </ReactFlow>
+      {contextMenu && (
+        <ContextMenu
+          target={contextMenu.target}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 }

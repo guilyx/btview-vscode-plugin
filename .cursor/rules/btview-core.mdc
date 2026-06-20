@@ -7,10 +7,11 @@ alwaysApply: true
 
 Read [AGENTS.md](../../AGENTS.md) for build, test, PR, and release rules.
 
-- **Branches:** `devel` = integration (merge features here); `main` = releases only — [docs/BRANCHING.md](../../docs/BRANCHING.md)
+- **Branches:** `devel` = integration (merge features here); `main` = releases only — [docs/development/BRANCHING.md](../../docs/development/BRANCHING.md)
 - **CI gate:** [.cursor/rules/ci-gate.mdc](ci-gate.mdc) — never merge without green CI
 - **Webview HTML:** [.cursor/rules/webview-html.mdc](webview-html.mdc) — defer script, bootstrap, no Vite HTML regex hacks
-- Release: [docs/RELEASE.md](../../docs/RELEASE.md)
-- Roadmap: [docs/ROADMAP.md](../../docs/ROADMAP.md) · Groot parity: [docs/GROOT_PARITY.md](../../docs/GROOT_PARITY.md)
+- **Docs index:** [docs/README.md](../../docs/README.md)
+- Release: [docs/release/RELEASE.md](../../docs/release/RELEASE.md)
+- Roadmap: [docs/ROADMAP.md](../../docs/ROADMAP.md) · Planning: [Groot parity](../../docs/planning/GROOT_PARITY.md) · [AI agents](../../docs/planning/AI_AGENT_INTEGRATION.md)
 - Publisher: `rangonomics` / `rangonomics.btview`
 - Before push: `bash scripts/verify.sh`

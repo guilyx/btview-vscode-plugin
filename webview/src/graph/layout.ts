@@ -11,6 +11,12 @@ export interface FlowNodeData extends Record<string, unknown> {
   childCount: number;
   /** Uncommitted palette node — not yet in XML until connected. */
   staged?: boolean;
+  /** Resolved port summary for canvas chips */
+  portSummary?: string[];
+  /** Validation warning on this node */
+  hasWarning?: boolean;
+  /** Dimmed when search filter active */
+  dimmed?: boolean;
 }
 
 const NODE_WIDTH = 180;
@@ -18,7 +24,16 @@ const NODE_HEIGHT = 56;
 const H_GAP = 40;
 const V_GAP = 80;
 
-export function buildFlowGraph(root: BtNodeData | null): {
+export const SNAP_GRID = 16;
+
+export function snapToGrid(value: number): number {
+  return Math.round(value / SNAP_GRID) * SNAP_GRID;
+}
+
+export function buildFlowGraph(
+  root: BtNodeData | null,
+  layoutPositions?: Record<string, { x: number; y: number }>,
+): {
   nodes: Node<FlowNodeData>[];
   edges: Edge[];
 } {
@@ -64,7 +79,9 @@ export function buildFlowGraph(root: BtNodeData | null): {
   }
 
   function addNodes(node: BtNodeData): void {
-    const pos = positions.get(node.path) ?? { x: 0, y: 0 };
+    const autoPos = positions.get(node.path) ?? { x: 0, y: 0 };
+    const saved = layoutPositions?.[node.path];
+    const pos = saved ?? autoPos;
     const label = node.instanceName ?? node.registeredId;
     nodes.push({
       id: node.path,

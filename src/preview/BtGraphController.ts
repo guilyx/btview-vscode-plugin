@@ -8,6 +8,7 @@ import { DiagnosticsService } from '../diagnostics/DiagnosticsService';
 import { WebviewPanelManager } from './WebviewPanelManager';
 import { DocumentRefreshScheduler } from './DocumentRefreshScheduler';
 import { WebviewOutboundGate } from './WebviewOutboundGate';
+import { exportWorkspaceConfig } from '../config/exportWorkspaceConfig';
 
 export const CUSTOM_EDITOR_VIEW_TYPE = 'btview.graph';
 
@@ -297,7 +298,9 @@ export class BtGraphController {
         case 'addNode':
         case 'deleteNode':
         case 'reparentNode':
-        case 'reorderChildren': {
+        case 'reorderChildren':
+        case 'pasteSubtree':
+        case 'removePort': {
           this.scheduler.markSelfEdit(uri);
           const result = await this.syncService.applyEdit(uri, msg);
           if (!result.success) {
@@ -327,8 +330,53 @@ export class BtGraphController {
         case 'openSource':
           await this.openSource(uri);
           break;
+        case 'goToSource':
+          await this.openSource(uri);
+          break;
         case 'openGraphSide':
           await this.showSidePreview(uri);
+          break;
+        case 'undo': {
+          this.scheduler.markSelfEdit(uri);
+          const undoResult = await this.syncService.undo(uri);
+          if (!undoResult.success) {
+            const errMsg = undoResult.error?.message ?? 'Undo failed';
+            this.postToAllWebviews(uri, { type: 'validationError', message: errMsg });
+            return;
+          }
+          await this.refreshUri(uri, false);
+          break;
+        }
+        case 'redo': {
+          this.scheduler.markSelfEdit(uri);
+          const redoResult = await this.syncService.redo(uri);
+          if (!redoResult.success) {
+            const errMsg = redoResult.error?.message ?? 'Redo failed';
+            this.postToAllWebviews(uri, { type: 'validationError', message: errMsg });
+            return;
+          }
+          await this.refreshUri(uri, false);
+          break;
+        }
+        case 'exportWorkspaceConfig': {
+          const doc = this.syncService.getDocument(uri);
+          const folder = vscode.workspace.getWorkspaceFolder(uri);
+          if (doc && folder) {
+            await exportWorkspaceConfig(doc, folder);
+          } else {
+            void vscode.window.showWarningMessage(
+              'BTView: open a workspace folder to export config.',
+            );
+          }
+          break;
+        }
+        case 'saveLayout':
+          this.syncService.saveLayoutPositions(uri, msg.treeId, msg.positions);
+          await this.refreshUri(uri, false);
+          break;
+        case 'resetLayout':
+          this.syncService.resetLayout(uri, msg.treeId);
+          await this.refreshUri(uri, false);
           break;
         case 'ready':
           logInfo(`BTView: webview ready for ${uri.fsPath}`);
@@ -348,6 +396,52 @@ export class BtGraphController {
       logError('Webview message handler failed', err);
       this.postToAllWebviews(uri, { type: 'error', message });
       void vscode.window.showErrorMessage(`BTView: ${message}`);
+    }
+  }
+
+  private getActiveBtUri(): vscode.Uri | undefined {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      return editor.document.uri;
+    }
+    const open = this.panels.getOpenUris();
+    return open[0];
+  }
+
+  async graphUndo(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (!uri) {
+      return;
+    }
+    this.scheduler.markSelfEdit(uri);
+    const result = await this.syncService.undo(uri);
+    if (result.success) {
+      await this.refreshUri(uri, false);
+    }
+  }
+
+  async graphRedo(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (!uri) {
+      return;
+    }
+    this.scheduler.markSelfEdit(uri);
+    const result = await this.syncService.redo(uri);
+    if (result.success) {
+      await this.refreshUri(uri, false);
+    }
+  }
+
+  async exportWorkspaceConfigForActive(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (!uri) {
+      void vscode.window.showWarningMessage('Open a BT Graph editor first.');
+      return;
+    }
+    const doc = this.syncService.getDocument(uri);
+    const folder = vscode.workspace.getWorkspaceFolder(uri);
+    if (doc && folder) {
+      await exportWorkspaceConfig(doc, folder);
     }
   }
 

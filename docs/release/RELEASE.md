@@ -5,7 +5,7 @@
 - **`devel`** — integration; all features land here first
 - **`main`** — releases only; tagged versions published to Marketplace
 
-See [BRANCHING.md](BRANCHING.md).
+See [Branching](../development/BRANCHING.md).
 
 ## Versioning
 
@@ -46,7 +46,7 @@ SemVer pre-1.0: bump **minor** for features, **patch** for fixes.
 | `PAT_AZURE_MARKETPLACE` | VS Code Marketplace | [VS Code publishing docs](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)          |
 | `OVSX_PAT`              | Open VSX (Cursor)   | [open-vsx.org tokens](https://open-vsx.org/user-settings/tokens); run `npx ovsx create-namespace rangonomics` once |
 
-See [DISTRIBUTION.md](DISTRIBUTION.md) for full Cursor / Open VSX setup.
+See [Distribution](DISTRIBUTION.md) for full Cursor / Open VSX setup.
 
 ### Publish an existing tag to registries
 

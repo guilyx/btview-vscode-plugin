@@ -100,6 +100,51 @@
         "command": "btview.newTree",
         "title": "New Behavior Tree",
         "category": "BTView"
+      },
+      {
+        "command": "btview.graph.undo",
+        "title": "Undo Graph Edit",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.redo",
+        "title": "Redo Graph Edit",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.exportWorkspaceConfig",
+        "title": "Export Workspace Config (Save Types)",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.fitView",
+        "title": "Fit Graph View",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.toggleLegend",
+        "title": "Toggle Color Legend",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.togglePorts",
+        "title": "Toggle Port Labels",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.focusSearch",
+        "title": "Focus Node Search",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.deleteNode",
+        "title": "Delete Selected Node",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.showShortcutHelp",
+        "title": "Show Keyboard Shortcuts",
+        "category": "BTView"
       }
     ],
     "menus": {
@@ -222,6 +267,11 @@
           "type": "string",
           "default": ".btview/models.xml",
           "description": "Relative path for exported TreeNodesModel file when using Save custom types to workspace."
+        },
+        "btview.simpleMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide advanced graph menus (cut subtree, export config) for a simpler editing experience."
         }
       }
     }

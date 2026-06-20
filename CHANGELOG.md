@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Model CRUD** — add/delete custom `TreeNodesModel` entries from the model panel (E-21)
+- **Palette port tooltips** — port direction and type hints on palette nodes from models (E-22)
+- **Export model snippet** — copy single-model XML to clipboard from model panel (E-23)
+- **Shortcut cheat sheet** — `?` key and Command Palette `btview.graph.showShortcutHelp` (E-46)
+- **Graph Command Palette commands** — fit view, toggle legend/ports, focus search, delete node (E-47)
+- **Simple mode** — `btview.simpleMode` hides advanced context menu items and Save types button (E-40)
+
 ## [0.8.0] - 2026-06-16
 
 ### Added

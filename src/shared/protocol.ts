@@ -31,7 +31,16 @@ export interface SerializedDocument {
   /** Saved node positions per tree (from sidecar layout file). */
   layoutPositions?: Record<string, { x: number; y: number }>;
   showNodePorts?: boolean;
+  simpleMode?: boolean;
 }
+
+export type GraphAction =
+  | 'fitView'
+  | 'toggleLegend'
+  | 'togglePorts'
+  | 'focusSearch'
+  | 'deleteNode'
+  | 'showShortcutHelp';
 
 export type WebviewToHostMessage =
   | { type: 'ready' }
@@ -97,13 +106,16 @@ export type WebviewToHostMessage =
       treeId: string;
       positions: Record<string, { x: number; y: number }>;
     }
-  | { type: 'resetLayout'; treeId: string };
+  | { type: 'resetLayout'; treeId: string }
+  | { type: 'addModel'; id: string; kind: string }
+  | { type: 'deleteModel'; modelId: string };
 
 export type HostToWebviewMessage =
   | { type: 'loadDocument'; document: SerializedDocument }
   | { type: 'documentChanged'; document: SerializedDocument }
   | { type: 'error'; message: string }
-  | { type: 'validationError'; message: string };
+  | { type: 'validationError'; message: string }
+  | { type: 'graphAction'; action: GraphAction };
 
 export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null {
   if (!data || typeof data !== 'object' || !('type' in data)) {
@@ -231,6 +243,13 @@ export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null 
       return null;
     case 'resetLayout':
       return typeof msg.treeId === 'string' ? { type: 'resetLayout', treeId: msg.treeId } : null;
+    case 'addModel':
+      if (typeof msg.id === 'string' && typeof msg.kind === 'string') {
+        return { type: 'addModel', id: msg.id, kind: msg.kind };
+      }
+      return null;
+    case 'deleteModel':
+      return typeof msg.modelId === 'string' ? { type: 'deleteModel', modelId: msg.modelId } : null;
     case 'saveLayout':
       if (typeof msg.treeId === 'string' && msg.positions && typeof msg.positions === 'object') {
         return {

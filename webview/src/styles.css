@@ -365,6 +365,131 @@ html,
   opacity: 0.65;
 }
 
+.model-editor-add {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.model-editor-input {
+  flex: 1;
+  min-width: 80px;
+}
+
+.model-editor-kind-select {
+  font-size: 11px;
+}
+
+.model-editor-btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-button-border, #555);
+  background: var(--vscode-button-secondaryBackground, #333);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+  cursor: pointer;
+}
+
+.model-editor-btn.subtle {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+.model-editor-btn.danger {
+  color: var(--vscode-editorError-foreground, #f14c4c);
+}
+
+.model-editor-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.model-editor-notice {
+  font-size: 11px;
+  color: var(--vscode-charts-green, #4ade80);
+  margin: 0 0 6px;
+}
+
+.palette-node-ports {
+  font-size: 9px;
+  opacity: 0.6;
+  margin-left: 4px;
+}
+
+.shortcut-help-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.shortcut-help-dialog {
+  background: var(--vscode-editor-background, #1e1e1e);
+  border: 1px solid var(--vscode-panel-border, #444);
+  border-radius: 8px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+  padding: 12px 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.shortcut-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.shortcut-help-header h2 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.shortcut-help-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.shortcut-help-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.shortcut-help-table th,
+.shortcut-help-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--vscode-panel-border, #333);
+  text-align: left;
+}
+
+.shortcut-help-table kbd {
+  font-family: var(--vscode-font-family, monospace);
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-panel-border, #555);
+  background: var(--vscode-editor-inactiveSelectionBackground, #333);
+}
+
+.shortcut-help-hint {
+  margin: 12px 0 0;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
 .validation-error-banner {
   background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
   color: var(--vscode-inputValidation-errorForeground, #f88);

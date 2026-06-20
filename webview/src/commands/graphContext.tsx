@@ -11,6 +11,7 @@ import type { FlowNodeData } from '../graph/layout';
 import type { BtNodeData, SerializedDocument } from '../types';
 import { postMessage } from '../vscodeApi';
 import { removeStagedNode } from '../graph/stagedNodes';
+import { subscribeHostMessages } from '../hostMessages';
 
 export interface GraphContextValue {
   doc: SerializedDocument;
@@ -33,6 +34,9 @@ export interface GraphContextValue {
   drillStack: string[];
   pushDrill: (treeId: string) => void;
   popDrill: () => void;
+  shortcutHelpVisible: boolean;
+  setShortcutHelpVisible: (v: boolean) => void;
+  simpleMode: boolean;
 }
 
 const GraphContext = createContext<GraphContextValue | null>(null);
@@ -66,9 +70,11 @@ export function GraphContextProvider({
   const [renameRequestPath, setRenameRequestPath] = useState<string | null>(null);
   const [clipboardSubtree, setClipboardSubtree] = useState<BtNodeData | null>(null);
   const [drillStack, setDrillStack] = useState<string[]>([]);
+  const [shortcutHelpVisible, setShortcutHelpVisible] = useState(false);
   const fitViewRef = useRef<(() => void) | null>(null);
 
   const treeId = doc.activeTreeId;
+  const simpleMode = doc.simpleMode ?? false;
 
   const deleteSelected = useCallback(() => {
     if (!selectedNode) {
@@ -115,6 +121,42 @@ export function GraphContextProvider({
     });
   }, [doc.trees]);
 
+  useEffect(() => {
+    return subscribeHostMessages((raw) => {
+      if (!raw || typeof raw !== 'object' || !('type' in raw)) {
+        return;
+      }
+      const msg = raw as { type: string; action?: string };
+      if (msg.type !== 'graphAction' || typeof msg.action !== 'string') {
+        return;
+      }
+      switch (msg.action) {
+        case 'fitView':
+          fitViewRef.current?.();
+          break;
+        case 'toggleLegend':
+          setLegendVisible((v) => !v);
+          break;
+        case 'togglePorts':
+          setPortsVisible((v) => !v);
+          break;
+        case 'focusSearch': {
+          const el = document.getElementById('btview-node-search') as HTMLInputElement | null;
+          el?.focus();
+          break;
+        }
+        case 'deleteNode':
+          deleteSelected();
+          break;
+        case 'showShortcutHelp':
+          setShortcutHelpVisible(true);
+          break;
+        default:
+          break;
+      }
+    });
+  }, [deleteSelected]);
+
   const value = useMemo(
     () => ({
       doc,
@@ -137,6 +179,9 @@ export function GraphContextProvider({
       drillStack,
       pushDrill,
       popDrill,
+      shortcutHelpVisible,
+      setShortcutHelpVisible,
+      simpleMode,
     }),
     [
       doc,
@@ -154,6 +199,8 @@ export function GraphContextProvider({
       drillStack,
       pushDrill,
       popDrill,
+      shortcutHelpVisible,
+      simpleMode,
     ],
   );
 

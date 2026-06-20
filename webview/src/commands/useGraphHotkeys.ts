@@ -27,6 +27,7 @@ export function useGraphHotkeys(): void {
     clipboardSubtree,
     setClipboardSubtree,
     findNodeSubtree,
+    setShortcutHelpVisible,
   } = useGraphContext();
 
   useEffect(() => {
@@ -165,6 +166,12 @@ export function useGraphHotkeys(): void {
         postMessage({ type: 'goToSource', path: selectedNode.path });
         return;
       }
+
+      if (e.key === '?' && !mod) {
+        e.preventDefault();
+        setShortcutHelpVisible(true);
+        return;
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -184,5 +191,6 @@ export function useGraphHotkeys(): void {
     clipboardSubtree,
     setClipboardSubtree,
     findNodeSubtree,
+    setShortcutHelpVisible,
   ]);
 }

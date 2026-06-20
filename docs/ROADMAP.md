@@ -56,32 +56,16 @@ Full feature checklist: [EDITOR_ROADMAP.md](planning/EDITOR_ROADMAP.md).
 
 ## Active backlog (editor train)
 
-### 0.5.x — Editor UX
+### 0.9.x — Hobbyist polish (active)
 
-- [ ] Color legend (E-01)
-- [ ] Keyboard shortcuts + context menus (E-03, E-06)
-- [ ] Undo / redo (E-02)
-- [ ] Node search / highlight (E-04)
-- [ ] Drop-target highlight (E-05)
-
-### 0.6.x — Typed ports
-
-- [ ] Port resolution against `TreeNodesModel` (E-10)
-- [ ] Inspector typed port sections (E-11–E-12)
-- [ ] Port chips on canvas (E-13)
-- [ ] Add/remove port attrs (E-14)
-- [ ] Port validation (E-15)
-
-### 0.7.x — Model authoring
-
-- [ ] TreeNodesModel editor UI (E-20–E-21)
-- [ ] Export workspace config button (E-24)
-
-### 0.8.x — Pro graph ops
-
-- [ ] Copy / paste subtree (E-30)
-- [ ] Layout persistence + snap (E-31–E-32)
-- [ ] Subtree drill-down + includes (E-33–E-34)
+- [x] Model CRUD + palette port tooltips + export snippet (E-21–E-23)
+- [x] Shortcut help + Command Palette graph commands (E-46, E-47)
+- [x] Simple mode (E-40)
+- [ ] Onboarding empty states (E-41)
+- [ ] Nav2 fixtures (E-42)
+- [ ] Validation quick-fixes (E-43)
+- [ ] Accessibility pass (E-44)
+- [ ] Editor RC integration tests (E-45)
 
 See [Groot parity](planning/GROOT_PARITY.md) for matrix vs Groot2.
 

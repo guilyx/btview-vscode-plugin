@@ -279,7 +279,7 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "typescript": "^5.8.0",
-    "typescript-eslint": "^8.26.0",
+    "typescript-eslint": "^8.61.1",
     "vite": "^6.2.0",
     "vitest": "^3.0.0"
   }

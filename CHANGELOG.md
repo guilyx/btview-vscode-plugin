@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-06-16
+
 ### Added
 
 - **Editor roadmap** — [docs/planning/EDITOR_ROADMAP.md](docs/planning/EDITOR_ROADMAP.md) long-horizon checklist (0.5–1.0); monitor deferred to 1.1+

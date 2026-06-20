@@ -2,8 +2,8 @@
 
 |                    |                                                                                                    |
 | ------------------ | -------------------------------------------------------------------------------------------------- |
-| **Latest release** | **0.4.3** on `main` ([GitHub](https://github.com/guilyx/btview-vscode-plugin/releases/tag/v0.4.3)) |
-| **Integration**    | `devel` — editor train 0.5.x → 0.8.x in progress                                                   |
+| **Latest release** | **0.8.0** on `main` ([GitHub](https://github.com/guilyx/btview-vscode-plugin/releases/tag/v0.8.0)) |
+| **Integration**    | `devel` — editor train 0.9.x polish toward 1.0                                                     |
 | **Publisher**      | `rangonomics.btview`                                                                               |
 
 Deep dives: [Editor roadmap](planning/EDITOR_ROADMAP.md) · [Command surfaces](planning/COMMAND_SURFACES.md) · [Groot parity](planning/GROOT_PARITY.md) · [AI & agents](planning/AI_AGENT_INTEGRATION.md) · [Changelog](../CHANGELOG.md)
@@ -12,12 +12,11 @@ Deep dives: [Editor roadmap](planning/EDITOR_ROADMAP.md) · [Command surfaces](p
 
 ## Where we are (Jun 2026)
 
-BTView is a **shippable graph editor** for BehaviorTree.CPP v3/v4. **0.4.3** shipped node kind/type editing and webview reliability. The **next major theme is editor excellence** (0.5–0.9), not simulation — monitor moves to **1.1+** after **1.0 Editor Complete**.
+BTView is a **shippable graph editor** for BehaviorTree.CPP v3/v4. **0.8.0** shipped the 0.5–0.8 editor train (legend, shortcuts, typed ports, layout, drill-down). **0.9.x** polish and **1.0** Editor Complete remain on `devel`.
 
 ```text
-Shipped ──────────────────────────────────────────────► 0.4.3
-Active train (devel) ─────────────────────────────────► 0.5–0.8 editor features
-Editor Complete ──────────────────────────────────────► 1.0.0 (main + Marketplace)
+Shipped ──────────────────────────────────────────────► 0.8.0 (editor train 0.5–0.8)
+Active train (devel) ─────────────────────────────────► 0.9 polish → 1.0 Editor Complete
 Then ─────────────────────────────────────────────────► 1.1+ simulation monitor
 ```
 
@@ -28,9 +27,9 @@ Then ─────────────────────────
 | Graph authoring (palette, connect, inspector) | **Shipped** (0.3–0.4)     |
 | Webview reliability                           | **Shipped** (0.4.2–0.4.3) |
 | Node kind / type editing                      | **Shipped** (0.4.3)       |
-| Legend, shortcuts, context menus, undo        | **In progress** (0.5)     |
-| Typed ports & model authoring                 | **Planned** (0.6–0.7)     |
-| Copy/paste, layout, drill-down                | **Planned** (0.8)         |
+| Legend, shortcuts, context menus, undo        | **Shipped** (0.5, 0.8.0)  |
+| Typed ports & model authoring                 | **Shipped** (0.6–0.7, 0.8.0) |
+| Copy/paste, layout, drill-down                | **Shipped** (0.8.0)       |
 | Simulation monitor + blackboard               | **Deferred** (1.1+)       |
 | Agent API / MCP                               | **Deferred** (1.2+)       |
 
@@ -41,11 +40,11 @@ Then ─────────────────────────
 | Version   | Theme                                              | Status     |
 | --------- | -------------------------------------------------- | ---------- |
 | **0.4.3** | `changeNodeType`, webview docs, Groot/AI planning  | Released   |
-| **0.5.x** | Editor UX — legend, shortcuts, menus, undo, search | **Active** |
-| **0.6.x** | Typed ports — model-aware inspector + canvas chips | Planned    |
-| **0.7.x** | Model authoring + export workspace config          | Planned    |
-| **0.8.x** | Pro graph ops — copy/paste, layout, drill-down     | Planned    |
-| **0.9.x** | Hobbyist polish, RC hardening                      | Planned    |
+| **0.5.x** | Editor UX — legend, shortcuts, menus, undo, search | Released (0.8.0) |
+| **0.6.x** | Typed ports — model-aware inspector + canvas chips | Released (0.8.0) |
+| **0.7.x** | Model authoring + export workspace config          | Released (0.8.0) |
+| **0.8.x** | Pro graph ops — copy/paste, layout, drill-down     | **Released**     |
+| **0.9.x** | Hobbyist polish, RC hardening                      | **Active**       |
 | **1.0.0** | **Editor Complete** — release to `main`            | Planned    |
 | **1.1.x** | Simulation monitor                                 | Deferred   |
 | **1.2.x** | Agent commands / capture                           | Deferred   |

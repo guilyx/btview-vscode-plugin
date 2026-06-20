@@ -22,33 +22,33 @@ Then ─────────────────────────
 
 ### Capability snapshot
 
-| Area                                          | Status                    |
-| --------------------------------------------- | ------------------------- |
-| Graph authoring (palette, connect, inspector) | **Shipped** (0.3–0.4)     |
-| Webview reliability                           | **Shipped** (0.4.2–0.4.3) |
-| Node kind / type editing                      | **Shipped** (0.4.3)       |
-| Legend, shortcuts, context menus, undo        | **Shipped** (0.5, 0.8.0)  |
+| Area                                          | Status                       |
+| --------------------------------------------- | ---------------------------- |
+| Graph authoring (palette, connect, inspector) | **Shipped** (0.3–0.4)        |
+| Webview reliability                           | **Shipped** (0.4.2–0.4.3)    |
+| Node kind / type editing                      | **Shipped** (0.4.3)          |
+| Legend, shortcuts, context menus, undo        | **Shipped** (0.5, 0.8.0)     |
 | Typed ports & model authoring                 | **Shipped** (0.6–0.7, 0.8.0) |
-| Copy/paste, layout, drill-down                | **Shipped** (0.8.0)       |
-| Simulation monitor + blackboard               | **Deferred** (1.1+)       |
-| Agent API / MCP                               | **Deferred** (1.2+)       |
+| Copy/paste, layout, drill-down                | **Shipped** (0.8.0)          |
+| Simulation monitor + blackboard               | **Deferred** (1.1+)          |
+| Agent API / MCP                               | **Deferred** (1.2+)          |
 
 ---
 
 ## Milestones
 
-| Version   | Theme                                              | Status     |
-| --------- | -------------------------------------------------- | ---------- |
-| **0.4.3** | `changeNodeType`, webview docs, Groot/AI planning  | Released   |
+| Version   | Theme                                              | Status           |
+| --------- | -------------------------------------------------- | ---------------- |
+| **0.4.3** | `changeNodeType`, webview docs, Groot/AI planning  | Released         |
 | **0.5.x** | Editor UX — legend, shortcuts, menus, undo, search | Released (0.8.0) |
 | **0.6.x** | Typed ports — model-aware inspector + canvas chips | Released (0.8.0) |
 | **0.7.x** | Model authoring + export workspace config          | Released (0.8.0) |
 | **0.8.x** | Pro graph ops — copy/paste, layout, drill-down     | **Released**     |
 | **0.9.x** | Hobbyist polish, RC hardening                      | **Active**       |
-| **1.0.0** | **Editor Complete** — release to `main`            | Planned    |
-| **1.1.x** | Simulation monitor                                 | Deferred   |
-| **1.2.x** | Agent commands / capture                           | Deferred   |
-| **1.3+**  | MCP server                                         | Deferred   |
+| **1.0.0** | **Editor Complete** — release to `main`            | Planned          |
+| **1.1.x** | Simulation monitor                                 | Deferred         |
+| **1.2.x** | Agent commands / capture                           | Deferred         |
+| **1.3+**  | MCP server                                         | Deferred         |
 
 Full feature checklist: [EDITOR_ROADMAP.md](planning/EDITOR_ROADMAP.md).
 

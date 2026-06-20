@@ -1,0 +1,16 @@
+export const SHORTCUT_ROWS = [
+  { action: 'Delete node', shortcut: 'Del' },
+  { action: 'Deselect', shortcut: 'Esc' },
+  { action: 'Rename', shortcut: 'F2' },
+  { action: 'Undo / Redo', shortcut: 'Ctrl+Z / Ctrl+Shift+Z' },
+  { action: 'Search nodes', shortcut: 'Ctrl+F' },
+  { action: 'Fit view', shortcut: 'Ctrl+0' },
+  { action: 'Toggle legend', shortcut: 'Ctrl+Shift+G' },
+  { action: 'Toggle port labels', shortcut: 'Ctrl+Alt+P' },
+  { action: 'Copy / Cut / Paste subtree', shortcut: 'Ctrl+C / X / V' },
+  { action: 'Duplicate subtree', shortcut: 'Ctrl+D' },
+  { action: 'Reset layout', shortcut: 'Ctrl+Shift+L' },
+  { action: 'Shortcut help', shortcut: '?' },
+  { action: 'Open BT Graph', shortcut: 'Ctrl+Shift+V' },
+  { action: 'Graph beside', shortcut: 'Ctrl+K V' },
+] as const;

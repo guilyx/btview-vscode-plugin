@@ -300,7 +300,9 @@ export class BtGraphController {
         case 'reparentNode':
         case 'reorderChildren':
         case 'pasteSubtree':
-        case 'removePort': {
+        case 'removePort':
+        case 'addModel':
+        case 'deleteModel': {
           this.scheduler.markSelfEdit(uri);
           const result = await this.syncService.applyEdit(uri, msg);
           if (!result.success) {
@@ -443,6 +445,38 @@ export class BtGraphController {
     if (doc && folder) {
       await exportWorkspaceConfig(doc, folder);
     }
+  }
+
+  async invokeGraphAction(action: import('../shared/protocol').GraphAction): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (!uri) {
+      return;
+    }
+    this.postToAllWebviews(uri, { type: 'graphAction', action });
+  }
+
+  async graphDeleteNode(): Promise<void> {
+    await this.invokeGraphAction('deleteNode');
+  }
+
+  async graphFitView(): Promise<void> {
+    await this.invokeGraphAction('fitView');
+  }
+
+  async graphToggleLegend(): Promise<void> {
+    await this.invokeGraphAction('toggleLegend');
+  }
+
+  async graphTogglePorts(): Promise<void> {
+    await this.invokeGraphAction('togglePorts');
+  }
+
+  async graphFocusSearch(): Promise<void> {
+    await this.invokeGraphAction('focusSearch');
+  }
+
+  async graphShowShortcutHelp(): Promise<void> {
+    await this.invokeGraphAction('showShortcutHelp');
   }
 
   async maybeAutoOpen(document: vscode.TextDocument): Promise<void> {

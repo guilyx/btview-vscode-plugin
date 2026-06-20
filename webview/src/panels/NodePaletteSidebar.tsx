@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { SerializedDocument } from '../types';
 import { dispatchStageNode } from '../graph/stageNodeEvent';
+import { formatPortTooltip } from '../utils/modelSnippet';
 
 export const BTVIEW_NODE_DRAG = 'application/btview-node';
 
@@ -50,6 +51,8 @@ function paletteEntries(doc: SerializedDocument): { id: string; kind: string; so
 export function NodePaletteSidebar({ doc }: NodePaletteSidebarProps) {
   const [query, setQuery] = useState('');
 
+  const modelById = useMemo(() => new Map(doc.models.map((m) => [m.id, m])), [doc.models]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const all = paletteEntries(doc);
@@ -77,6 +80,13 @@ export function NodePaletteSidebar({ doc }: NodePaletteSidebarProps) {
   const onDragStart = (e: React.DragEvent, entry: PaletteDragPayload) => {
     e.dataTransfer.setData(BTVIEW_NODE_DRAG, JSON.stringify(entry));
     e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  const entryTitle = (entry: { id: string; kind: string; source: string }) => {
+    const model = modelById.get(entry.id);
+    const portTip = model ? formatPortTooltip(model) : undefined;
+    const base = `Stage ${entry.id} (${entry.kind}) on canvas`;
+    return portTip ? `${base}\n${portTip}` : base;
   };
 
   return (
@@ -117,10 +127,15 @@ export function NodePaletteSidebar({ doc }: NodePaletteSidebarProps) {
                       draggable
                       onDragStart={(e) => onDragStart(e, { id: entry.id, kind: entry.kind })}
                       onClick={() => stageNode(entry.id, entry.kind)}
-                      title={`Stage ${entry.id} (${entry.kind}) on canvas`}
+                      title={entryTitle(entry)}
                     >
                       <span className="palette-node-id">{entry.id}</span>
                       <span className="palette-node-kind">{entry.kind}</span>
+                      {modelById.get(entry.id)?.ports.length ? (
+                        <span className="palette-node-ports" aria-hidden="true">
+                          {modelById.get(entry.id)!.ports.length}p
+                        </span>
+                      ) : null}
                     </button>
                   </li>
                 ))}

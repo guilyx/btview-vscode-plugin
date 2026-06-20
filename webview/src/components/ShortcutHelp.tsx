@@ -15,7 +15,12 @@ export function ShortcutHelp({ onClose }: ShortcutHelpProps) {
       >
         <header className="shortcut-help-header">
           <h2 id="shortcut-help-title">Keyboard shortcuts</h2>
-          <button type="button" className="shortcut-help-close" onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            className="shortcut-help-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
             ×
           </button>
         </header>
@@ -37,7 +42,9 @@ export function ShortcutHelp({ onClose }: ShortcutHelpProps) {
             ))}
           </tbody>
         </table>
-        <p className="shortcut-help-hint">Press <kbd>?</kbd> or Escape to close.</p>
+        <p className="shortcut-help-hint">
+          Press <kbd>?</kbd> or Escape to close.
+        </p>
       </div>
     </div>
   );

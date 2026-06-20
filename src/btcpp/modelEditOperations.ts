@@ -30,7 +30,10 @@ export function addNodeModel(doc: BtDocument, id: string, kind: NodeKind): Model
   if (!MODEL_ID_PATTERN.test(trimmed)) {
     return {
       success: false,
-      error: { path: '', message: 'Model ID must start with a letter and use only letters, digits, or underscores.' },
+      error: {
+        path: '',
+        message: 'Model ID must start with a letter and use only letters, digits, or underscores.',
+      },
     };
   }
   if (doc.models.has(trimmed)) {

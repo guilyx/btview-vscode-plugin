@@ -2,8 +2,8 @@
 
 |                    |                                                                                                    |
 | ------------------ | -------------------------------------------------------------------------------------------------- |
-| **Latest release** | **0.8.0** on `main` ([GitHub](https://github.com/guilyx/btview-vscode-plugin/releases/tag/v0.8.0)) |
-| **Integration**    | `devel` — editor train 0.9.x polish toward 1.0                                                     |
+| **Latest release** | **0.9.0** on `main` ([GitHub](https://github.com/guilyx/btview-vscode-plugin/releases/tag/v0.9.0)) |
+| **Integration**    | `devel` — 1.0 Editor Complete hardening                                                            |
 | **Publisher**      | `rangonomics.btview`                                                                               |
 
 Deep dives: [Editor roadmap](planning/EDITOR_ROADMAP.md) · [Command surfaces](planning/COMMAND_SURFACES.md) · [Groot parity](planning/GROOT_PARITY.md) · [AI & agents](planning/AI_AGENT_INTEGRATION.md) · [Changelog](../CHANGELOG.md)
@@ -12,11 +12,11 @@ Deep dives: [Editor roadmap](planning/EDITOR_ROADMAP.md) · [Command surfaces](p
 
 ## Where we are (Jun 2026)
 
-BTView is a **shippable graph editor** for BehaviorTree.CPP v3/v4. **0.8.0** shipped the 0.5–0.8 editor train (legend, shortcuts, typed ports, layout, drill-down). **0.9.x** polish and **1.0** Editor Complete remain on `devel`.
+BTView is a **shippable graph editor** for BehaviorTree.CPP v3/v4. **0.9.0** shipped phase 0.9 polish (model CRUD, shortcuts, simple mode) and dependency updates. **1.0** Editor Complete remains on `devel`.
 
 ```text
-Shipped ──────────────────────────────────────────────► 0.8.0 (editor train 0.5–0.8)
-Active train (devel) ─────────────────────────────────► 0.9 polish → 1.0 Editor Complete
+Shipped ──────────────────────────────────────────────► 0.9.0 (phase 0.9 polish)
+Active train (devel) ─────────────────────────────────► 1.0 Editor Complete
 Then ─────────────────────────────────────────────────► 1.1+ simulation monitor
 ```
 
@@ -44,8 +44,8 @@ Then ─────────────────────────
 | **0.6.x** | Typed ports — model-aware inspector + canvas chips | Released (0.8.0) |
 | **0.7.x** | Model authoring + export workspace config          | Released (0.8.0) |
 | **0.8.x** | Pro graph ops — copy/paste, layout, drill-down     | **Released**     |
-| **0.9.x** | Hobbyist polish, RC hardening                      | **Active**       |
-| **1.0.0** | **Editor Complete** — release to `main`            | Planned          |
+| **0.9.x** | Hobbyist polish, RC hardening                      | **Released**     |
+| **1.0.0** | **Editor Complete** — release to `main`            | **Active**       |
 | **1.1.x** | Simulation monitor                                 | Deferred         |
 | **1.2.x** | Agent commands / capture                           | Deferred         |
 | **1.3+**  | MCP server                                         | Deferred         |

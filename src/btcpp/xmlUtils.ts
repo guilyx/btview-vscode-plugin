@@ -73,7 +73,7 @@ export function parseNodeElement(
   const attrs = getAttrs(el);
   let registeredId = tag;
   let legacyTag: string | undefined;
-  let kind: NodeKind = 'unknown';
+  let kind: NodeKind;
 
   if (EXPLICIT_WRAPPER_TAGS.has(tag)) {
     registeredId = attrs.ID ?? tag;

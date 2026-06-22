@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Dependencies** — consolidate Dependabot bumps: esbuild 0.28.1, fast-xml-parser 5.9.3, vitest 4.1.9, typescript-eslint 8.61.1, @types/vscode 1.125.0, eslint 10, TypeScript 6; bump `engines.vscode` to ^1.125.0
+
+### Fixed
+
+- **ESLint 10** — remove useless `kind` initializer in `xmlUtils.ts` (`no-useless-assignment`)
+- **TypeScript 6** — add `types: ["node"]` to `tsconfig.json`; add `@eslint/js` for ESLint 10 flat config
+
 ### Added
 
 - **Model CRUD** — add/delete custom `TreeNodesModel` entries from the model panel (E-21)

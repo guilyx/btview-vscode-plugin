@@ -11,6 +11,7 @@ import { readBootstrapDocument } from './bootstrap';
 import { LoadingScreen } from './components/LoadingScreen';
 import { KindLegend } from './components/KindLegend';
 import { NodeSearch } from './components/NodeSearch';
+import { ShortcutHelp } from './components/ShortcutHelp';
 import { signalReady, subscribeHostMessages } from './hostMessages';
 import { postMessage } from './vscodeApi';
 import { GraphContextProvider, useGraphContext } from './commands/graphContext';
@@ -91,10 +92,20 @@ function GraphWorkspaceInner({
   saving: boolean;
 }) {
   useGraphHotkeys();
-  const { legendVisible, setLegendVisible, drillStack, popDrill } = useGraphContext();
+  const {
+    legendVisible,
+    setLegendVisible,
+    drillStack,
+    popDrill,
+    shortcutHelpVisible,
+    setShortcutHelpVisible,
+    simpleMode,
+  } = useGraphContext();
+  const simple = doc.simpleMode ?? simpleMode;
 
   return (
     <>
+      {shortcutHelpVisible && <ShortcutHelp onClose={() => setShortcutHelpVisible(false)} />}
       <header className="header">
         <div className="header-left">
           <span className="format-badge">BTCpp v{doc.formatVersion}</span>
@@ -135,10 +146,20 @@ function GraphWorkspaceInner({
           <button
             type="button"
             className="header-btn"
-            onClick={() => postMessage({ type: 'exportWorkspaceConfig' })}
+            onClick={() => setShortcutHelpVisible(true)}
+            title="Keyboard shortcuts (?)"
           >
-            Save types
+            ?
           </button>
+          {!simple && (
+            <button
+              type="button"
+              className="header-btn"
+              onClick={() => postMessage({ type: 'exportWorkspaceConfig' })}
+            >
+              Save types
+            </button>
+          )}
           <ViewSwitcher />
           {saving && (
             <span className="saving-indicator" aria-live="polite">

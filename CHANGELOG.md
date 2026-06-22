@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-06-22
+
+### Changed
+
+- **Dependencies** — consolidate Dependabot bumps: esbuild 0.28.1, fast-xml-parser 5.9.3, vitest 4.1.9, typescript-eslint 8.61.1, @types/vscode 1.125.0, eslint 10, TypeScript 6; bump `engines.vscode` to ^1.125.0
+
+### Fixed
+
+- **ESLint 10** — remove useless `kind` initializer in `xmlUtils.ts` (`no-useless-assignment`)
+- **TypeScript 6** — add `types: ["node"]` to `tsconfig.json`; add `@eslint/js` for ESLint 10 flat config
+
+### Added
+
+- **Model CRUD** — add/delete custom `TreeNodesModel` entries from the model panel (E-21)
+- **Palette port tooltips** — port direction and type hints on palette nodes from models (E-22)
+- **Export model snippet** — copy single-model XML to clipboard from model panel (E-23)
+- **Shortcut cheat sheet** — `?` key and Command Palette `btview.graph.showShortcutHelp` (E-46)
+- **Graph Command Palette commands** — fit view, toggle legend/ports, focus search, delete node (E-47)
+- **Simple mode** — `btview.simpleMode` hides advanced context menu items and Save types button (E-40)
+
 ## [0.8.0] - 2026-06-16
 
 ### Added

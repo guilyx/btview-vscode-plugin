@@ -2,7 +2,7 @@
   "name": "btview",
   "displayName": "BTView — Behavior Tree Editor",
   "description": "Visual graph editor for BehaviorTree.CPP v3.8 and v4 XML files",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "publisher": "rangonomics",
   "license": "Apache-2.0",
   "icon": "media/icon.png",
@@ -24,7 +24,7 @@
     "url": "https://github.com/guilyx/btview-vscode-plugin/issues"
   },
   "engines": {
-    "vscode": "^1.85.0",
+    "vscode": "^1.125.0",
     "node": ">=20"
   },
   "categories": [
@@ -99,6 +99,51 @@
       {
         "command": "btview.newTree",
         "title": "New Behavior Tree",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.undo",
+        "title": "Undo Graph Edit",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.redo",
+        "title": "Redo Graph Edit",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.exportWorkspaceConfig",
+        "title": "Export Workspace Config (Save Types)",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.fitView",
+        "title": "Fit Graph View",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.toggleLegend",
+        "title": "Toggle Color Legend",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.togglePorts",
+        "title": "Toggle Port Labels",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.focusSearch",
+        "title": "Focus Node Search",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.deleteNode",
+        "title": "Delete Selected Node",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.showShortcutHelp",
+        "title": "Show Keyboard Shortcuts",
         "category": "BTView"
       }
     ],
@@ -222,6 +267,11 @@
           "type": "string",
           "default": ".btview/models.xml",
           "description": "Relative path for exported TreeNodesModel file when using Save custom types to workspace."
+        },
+        "btview.simpleMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Hide advanced graph menus (cut subtree, export config) for a simpler editing experience."
         }
       }
     }
@@ -256,31 +306,32 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
+    "@eslint/js": "^10.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.9.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@types/vscode": "^1.85.0",
+    "@types/vscode": "^1.125.0",
     "@vitejs/plugin-react": "^4.4.0",
-    "@vitest/coverage-v8": "^3.2.6",
+    "@vitest/coverage-v8": "^4.1.9",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^3.0.0",
     "@vscode/vsce": "^3.3.0",
     "@xyflow/react": "^12.6.0",
     "elkjs": "^0.11.1",
-    "esbuild": "^0.28.0",
-    "eslint": "^9.22.0",
+    "esbuild": "^0.28.1",
+    "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.0",
-    "fast-xml-parser": "^5.0.9",
+    "fast-xml-parser": "^5.9.3",
     "globals": "^17.6.0",
     "mocha": "^11.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.5.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "typescript": "^5.8.0",
-    "typescript-eslint": "^8.26.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1",
     "vite": "^6.2.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.9"
   }
 }

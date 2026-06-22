@@ -54,9 +54,9 @@ Related: [Roadmap](../ROADMAP.md) · [Command surfaces](COMMAND_SURFACES.md) · 
 | ID   | Feature                                                        | Branch                         | Status |
 | ---- | -------------------------------------------------------------- | ------------------------------ | ------ |
 | E-20 | TreeNodesModel editor panel                                    | `feat/model-editor-ui`         | [x]    |
-| E-21 | Create / delete custom node models                             | `feat/model-crud`              | [ ]    |
-| E-22 | Palette grouped by kind + port tooltips                        | `feat/palette-models`          | [ ]    |
-| E-23 | Export model snippet to clipboard                              | `feat/export-model-snippet`    | [ ]    |
+| E-21 | Create / delete custom node models                             | `feat/model-crud`              | [x]    |
+| E-22 | Palette grouped by kind + port tooltips                        | `feat/palette-models`          | [x]    |
+| E-23 | Export model snippet to clipboard                              | `feat/export-model-snippet`    | [x]    |
 | E-24 | Export workspace config (`nodeTypeMap` + `.btview/models.xml`) | `feat/export-workspace-config` | [x]    |
 
 ---
@@ -74,18 +74,18 @@ Related: [Roadmap](../ROADMAP.md) · [Command surfaces](COMMAND_SURFACES.md) · 
 
 ---
 
-## Phase 0.9 — Hobbyist polish (deferred)
+## Phase 0.9 — Hobbyist polish
 
 | ID   | Feature                                   | Branch                          | Status |
 | ---- | ----------------------------------------- | ------------------------------- | ------ |
-| E-40 | Simple mode (`btview.simpleMode`)         | `feat/simple-mode`              | [ ]    |
+| E-40 | Simple mode (`btview.simpleMode`)         | `feat/simple-mode`              | [x]    |
 | E-41 | Onboarding empty states                   | `feat/onboarding`               | [ ]    |
 | E-42 | Nav2 fixture pack                         | `feat/nav2-fixtures`            | [ ]    |
 | E-43 | Validation quick-fixes                    | `feat/validation-quickfix`      | [ ]    |
 | E-44 | Accessibility pass                        | `feat/a11y-pass`                | [ ]    |
 | E-45 | Editor RC integration tests               | `feat/editor-integration-tests` | [ ]    |
-| E-46 | Shortcut cheat sheet (`?`)                | `feat/shortcut-help`            | [ ]    |
-| E-47 | Command Palette `btview.graph.*` commands | `feat/graph-commands`           | [ ]    |
+| E-46 | Shortcut cheat sheet (`?`)                | `feat/shortcut-help`            | [x]    |
+| E-47 | Command Palette `btview.graph.*` commands | `feat/graph-commands`           | [x]    |
 
 ---
 

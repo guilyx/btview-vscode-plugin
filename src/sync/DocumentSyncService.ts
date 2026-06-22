@@ -13,6 +13,7 @@ import {
   reorderChildren,
 } from '../btcpp/editOperations';
 import { validateDocument, type ValidationError } from '../btcpp/validation';
+import { addNodeModel, deleteNodeModel } from '../btcpp/modelEditOperations';
 import { buildNodePalette } from '../btcpp/nodeRegistry';
 import { getRosConfig, getDefaultFormatVersion, getNodeTypeMap } from '../config/settings';
 import type { SerializedDocument, WebviewToHostMessage } from '../shared/protocol';
@@ -96,6 +97,7 @@ export class DocumentSyncService {
     const activeTreeId = this.getActiveTreeId(uri);
     const layoutPositions = getLayoutForTree(uri.fsPath, activeTreeId, this.workspaceRoot());
     const showNodePorts = vscode.workspace.getConfiguration('btview').get<boolean>('showNodePorts');
+    const simpleMode = vscode.workspace.getConfiguration('btview').get<boolean>('simpleMode');
 
     return {
       formatVersion: doc.formatVersion,
@@ -121,6 +123,7 @@ export class DocumentSyncService {
       validationErrors: errors.length > 0 ? errors : undefined,
       layoutPositions,
       showNodePorts,
+      simpleMode,
     };
   }
 
@@ -272,6 +275,18 @@ export class DocumentSyncService {
         break;
       case 'removePort':
         doc = removeNodeAttribute(doc, edit.treeId, edit.path, edit.attr);
+        break;
+      case 'addModel': {
+        const result = addNodeModel(doc, edit.id, edit.kind as import('../btcpp/types').NodeKind);
+        if (!result.success) {
+          this.editStack.discardLastUndo(uri.toString());
+          return { success: false, error: result.error };
+        }
+        doc = result.document!;
+        break;
+      }
+      case 'deleteModel':
+        doc = deleteNodeModel(doc, edit.modelId);
         break;
     }
 

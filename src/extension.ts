@@ -26,7 +26,9 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       if (
         e.affectsConfiguration('btview.nodeTypeMap') ||
-        e.affectsConfiguration('btview.defaultFormatVersion')
+        e.affectsConfiguration('btview.defaultFormatVersion') ||
+        e.affectsConfiguration('btview.simpleMode') ||
+        e.affectsConfiguration('btview.showNodePorts')
       ) {
         void controller.reloadOpenDocuments();
       }
@@ -80,6 +82,30 @@ export function activate(context: vscode.ExtensionContext): void {
 
     vscode.commands.registerCommand('btview.exportWorkspaceConfig', () => {
       void controller.exportWorkspaceConfigForActive();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.fitView', () => {
+      void controller.graphFitView();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.toggleLegend', () => {
+      void controller.graphToggleLegend();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.togglePorts', () => {
+      void controller.graphTogglePorts();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.focusSearch', () => {
+      void controller.graphFocusSearch();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.deleteNode', () => {
+      void controller.graphDeleteNode();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.showShortcutHelp', () => {
+      void controller.graphShowShortcutHelp();
     }),
   );
 

@@ -39,6 +39,7 @@ export function ContextMenu({ target, x, y, onClose }: ContextMenuProps) {
     findNodeSubtree,
     setClipboardSubtree,
     pushDrill,
+    simpleMode,
   } = useGraphContext();
 
   useEffect(() => {
@@ -99,11 +100,13 @@ export function ContextMenu({ target, x, y, onClose }: ContextMenuProps) {
         shortcut: 'Ctrl+Shift+L',
         action: () => postMessage({ type: 'resetLayout', treeId }),
       },
-      {
+    );
+    if (!simpleMode) {
+      items.push({
         label: 'Export workspace config',
         action: () => postMessage({ type: 'exportWorkspaceConfig' }),
-      },
-    );
+      });
+    }
   } else if (target.kind === 'staged') {
     items.push(
       {
@@ -156,7 +159,10 @@ export function ContextMenu({ target, x, y, onClose }: ContextMenuProps) {
           }
         },
       },
-      {
+    );
+
+    if (!simpleMode) {
+      items.push({
         label: 'Cut subtree',
         shortcut: 'Ctrl+X',
         disabled: !canDelete,
@@ -168,13 +174,14 @@ export function ContextMenu({ target, x, y, onClose }: ContextMenuProps) {
           postMessage({ type: 'deleteNode', treeId, path: node.path });
           setSelectedNode(null);
         },
-      },
-      {
-        label: 'Go to XML source',
-        shortcut: 'Alt+Enter',
-        action: () => postMessage({ type: 'goToSource', path: node.path }),
-      },
-    );
+      });
+    }
+
+    items.push({
+      label: 'Go to XML source',
+      shortcut: 'Alt+Enter',
+      action: () => postMessage({ type: 'goToSource', path: node.path }),
+    });
 
     if (node.kind === 'subtree') {
       items.push({

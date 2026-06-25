@@ -304,7 +304,7 @@
     "vsix": "vsce package --no-dependencies"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.0.2",
+    "@commitlint/cli": "^21.1.0",
     "@commitlint/config-conventional": "^21.0.2",
     "@eslint/js": "^10.0.1",
     "@types/mocha": "^10.0.10",

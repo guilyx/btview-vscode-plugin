@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Webview crash** — add missing `useEffect` import in `graphContext.tsx`; the graph webview threw `useEffect is not defined` and failed to render (root `tsconfig.json` only type-checks `src/**`, so the missing import was never caught)
+
 ## [0.9.0] - 2026-06-22
 
 ### Changed

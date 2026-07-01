@@ -79,3 +79,11 @@ See [docs/release/RELEASE.md](docs/release/RELEASE.md). Roadmap: [docs/ROADMAP.m
 **Always:** branch from `devel`; run `verify.sh` or at least `pre-commit run --all-files` before push; update CHANGELOG; wait for CI green before merge.
 
 **Never:** hardcode API keys; modify `node_modules/`; co-sign commits; merge while CI is failing; open feature PRs to `main`.
+
+## Cursor Cloud specific instructions
+
+Dependencies are refreshed automatically on VM startup (`bash scripts/ci-install.sh` → `npm ci` + platform Rollup binary). Node 22 and Python 3.12 are preinstalled, so `scripts/with-node.sh` short-circuits and all npm scripts work directly. Standard build/test commands are in **Build & test** above.
+
+- **Integration tests need a virtual display.** `xvfb` is installed: run `xvfb-run -a npm run test:integration`. The first run downloads ~277 MB of VS Code into `.vscode-test/` (cached afterward). The `Failed to connect to the bus` (dbus) and GPU/`command_buffer` errors in the output are harmless headless noise — tests still pass.
+- **Running the extension interactively** (there is no F5 in cloud): launch the VS Code binary that `test:integration` already downloaded as an Extension Development Host, e.g. `xvfb-run -a .vscode-test/vscode-linux-x64-*/code --no-sandbox --user-data-dir /tmp/btview-uh --extensionDevelopmentPath="$PWD" fixtures/v4/simple_sequence.xml`, then run **BTView: Open BT Graph**. Run `npm run compile` first so `dist/` and `webview/dist/` exist. Sample trees live in `fixtures/`.
+- The product has **no backend/database**; the only "services" are the esbuild extension bundle (`dist/extension.js`) and the Vite webview bundle (`webview/dist/`), both produced by `npm run compile`.

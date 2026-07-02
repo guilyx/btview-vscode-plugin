@@ -323,7 +323,7 @@
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.0",
     "fast-xml-parser": "^5.9.3",
-    "globals": "^17.6.0",
+    "globals": "^17.7.0",
     "mocha": "^11.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.5.0",

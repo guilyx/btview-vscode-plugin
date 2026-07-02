@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Static verification pack** — `validateDocument` now checks SubTree references resolve to a defined tree, `main_tree_to_execute` exists, `<BehaviorTree ID>` uniqueness, recursive subtree cycles, and required (input/inout, no-default) ports. Surfaces in the Problems panel and inspector alongside existing structural checks (roadmap Phase 1 / E-43)
+
 ### Fixed
 
 - **Webview crash** — add missing `useEffect` import in `graphContext.tsx`; the graph webview threw `useEffect is not defined` and failed to render (root `tsconfig.json` only type-checks `src/**`, so the missing import was never caught)

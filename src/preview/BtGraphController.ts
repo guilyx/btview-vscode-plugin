@@ -9,6 +9,15 @@ import { WebviewPanelManager } from './WebviewPanelManager';
 import { DocumentRefreshScheduler } from './DocumentRefreshScheduler';
 import { WebviewOutboundGate } from './WebviewOutboundGate';
 import { exportWorkspaceConfig } from '../config/exportWorkspaceConfig';
+import { Simulator } from '../btcpp/exec/tick';
+import type { OutcomeProvider } from '../btcpp/exec/outcomes';
+
+/**
+ * Offline "signal firing" model: each leaf reports RUNNING on its first tick and
+ * SUCCESS afterward, so stepping walks visibly through the tree one node at a time.
+ * A richer mock/random provider can replace this later without touching the wiring.
+ */
+const oneTickRunning: OutcomeProvider = (_node, ticks) => (ticks < 2 ? 'RUNNING' : 'SUCCESS');
 
 export const CUSTOM_EDITOR_VIEW_TYPE = 'btview.graph';
 
@@ -35,6 +44,7 @@ export class BtGraphController {
   private readonly scheduler = new DocumentRefreshScheduler();
   private readonly diagnostics = new DiagnosticsService();
   private initialLoadDone = new Map<string, boolean>();
+  private readonly simulators = new Map<string, Simulator>();
   private readonly webviewDocumentLoaded = new WeakMap<vscode.Webview, boolean>();
   private readonly loadRetryTimers = new WeakMap<vscode.Webview, ReturnType<typeof setInterval>>();
 
@@ -231,6 +241,17 @@ export class BtGraphController {
       return;
     }
 
+    // A document change invalidates any in-progress simulation; drop it and clear overlays.
+    if (this.simulators.delete(uri.toString())) {
+      this.postToAllWebviews(uri, {
+        type: 'tickUpdate',
+        tick: 0,
+        rootStatus: 'IDLE',
+        statuses: {},
+        blackboard: {},
+      });
+    }
+
     try {
       await this.syncService.loadFromFile(uri);
       const payload = this.syncService.serializeForWebview(uri);
@@ -380,6 +401,13 @@ export class BtGraphController {
           this.syncService.resetLayout(uri, msg.treeId);
           await this.refreshUri(uri, false);
           break;
+        case 'sim':
+          if (msg.action === 'step') {
+            this.doSimStep(uri);
+          } else {
+            this.doSimReset(uri);
+          }
+          break;
         case 'ready':
           logInfo(`BTView: webview ready for ${uri.fsPath}`);
           this.webviewDocumentLoaded.set(sourceWebview, false);
@@ -453,6 +481,65 @@ export class BtGraphController {
       return;
     }
     this.postToAllWebviews(uri, { type: 'graphAction', action });
+  }
+
+  /** Advance the offline simulation by one tick and broadcast the node statuses. */
+  private doSimStep(uri: vscode.Uri): void {
+    const doc = this.syncService.getDocument(uri);
+    if (!doc) {
+      return;
+    }
+    const key = uri.toString();
+    let sim = this.simulators.get(key);
+    if (!sim) {
+      try {
+        sim = new Simulator(doc, {
+          treeId: this.syncService.getActiveTreeId(uri),
+          outcome: oneTickRunning,
+        });
+      } catch (err) {
+        this.postToAllWebviews(uri, {
+          type: 'error',
+          message: err instanceof Error ? err.message : String(err),
+        });
+        return;
+      }
+      this.simulators.set(key, sim);
+    }
+    const result = sim.tick();
+    this.postToAllWebviews(uri, {
+      type: 'tickUpdate',
+      tick: result.tick,
+      rootStatus: result.rootStatus,
+      statuses: result.statuses,
+      blackboard: result.blackboard,
+    });
+  }
+
+  /** Stop the simulation and clear all status overlays. */
+  private doSimReset(uri: vscode.Uri): void {
+    this.simulators.delete(uri.toString());
+    this.postToAllWebviews(uri, {
+      type: 'tickUpdate',
+      tick: 0,
+      rootStatus: 'IDLE',
+      statuses: {},
+      blackboard: {},
+    });
+  }
+
+  async simStep(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (uri) {
+      this.doSimStep(uri);
+    }
+  }
+
+  async simReset(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (uri) {
+      this.doSimReset(uri);
+    }
   }
 
   async graphDeleteNode(): Promise<void> {

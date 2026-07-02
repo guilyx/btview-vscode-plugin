@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Live signal-firing overlays** — step/play/pause/reset an offline simulation of the active tree from a new graph toolbar (or `BTView: Simulate: Step One Tick` / `Reset`). Nodes light up with RUNNING/SUCCESS/FAILURE status as ticks fire, the blackboard readout updates, and edits clear the run. Host drives the Phase 2a `Simulator`; new `sim`/`tickUpdate` protocol messages carry per-node status (roadmap Phase 2b)
 - **Tick-semantics exec core** (`src/btcpp/exec/`) — a pure, offline BehaviorTree.CPP simulator: `NodeStatus`, a stateful `Simulator` with faithful memory/reactive control flow (Sequence, SequenceWithMemory, ReactiveSequence, Fallback/ReactiveFallback, Parallel, IfThenElse), decorators (Inverter, Force\*, Repeat, Retry, RunOnce), SubTree expansion, a minimal Script/blackboard, and pluggable leaf outcome providers. Foundation for signal-firing overlays and the trace-testing pipeline (roadmap Phase 2)
 
 ### Fixed

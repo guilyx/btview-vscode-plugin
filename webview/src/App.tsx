@@ -5,6 +5,7 @@ import { Inspector } from './panels/Inspector';
 import { NodePaletteSidebar } from './panels/NodePaletteSidebar';
 import { WarningsPanel } from './panels/WarningsPanel';
 import { ViewSwitcher } from './panels/ViewSwitcher';
+import { SimToolbar } from './panels/SimToolbar';
 import { ModelEditor } from './panels/ModelEditor';
 import type { FlowNodeData } from './graph/layout';
 import { readBootstrapDocument } from './bootstrap';
@@ -160,6 +161,7 @@ function GraphWorkspaceInner({
               Save types
             </button>
           )}
+          <SimToolbar />
           <ViewSwitcher />
           {saving && (
             <span className="saving-indicator" aria-live="polite">

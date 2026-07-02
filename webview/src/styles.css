@@ -305,6 +305,63 @@ html,
   color: var(--vscode-editorWarning-foreground, #cca700);
 }
 
+.bt-node-status {
+  position: absolute;
+  top: -9px;
+  left: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 8px;
+  color: #10151c;
+}
+
+.bt-node.status-RUNNING {
+  animation: bt-status-pulse 1s ease-in-out infinite;
+}
+
+@keyframes bt-status-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.35);
+  }
+}
+
+.sim-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-left: 1px solid var(--vscode-panel-border, #3c3c3c);
+  border-right: 1px solid var(--vscode-panel-border, #3c3c3c);
+}
+
+.sim-label {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.sim-status {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.sim-blackboard {
+  font-size: 11px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  opacity: 0.7;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .port-field {
   display: flex;
   flex-direction: column;

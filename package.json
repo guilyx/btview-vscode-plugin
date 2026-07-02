@@ -145,6 +145,16 @@
         "command": "btview.graph.showShortcutHelp",
         "title": "Show Keyboard Shortcuts",
         "category": "BTView"
+      },
+      {
+        "command": "btview.graph.simStep",
+        "title": "Simulate: Step One Tick",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.simReset",
+        "title": "Simulate: Reset",
+        "category": "BTView"
       }
     ],
     "menus": {

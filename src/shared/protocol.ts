@@ -108,14 +108,26 @@ export type WebviewToHostMessage =
     }
   | { type: 'resetLayout'; treeId: string }
   | { type: 'addModel'; id: string; kind: string }
-  | { type: 'deleteModel'; modelId: string };
+  | { type: 'deleteModel'; modelId: string }
+  | { type: 'sim'; action: 'step' | 'reset' };
+
+/** One simulation tick pushed to the webview to drive status overlays ("signal firing"). */
+export interface TickUpdate {
+  type: 'tickUpdate';
+  tick: number;
+  rootStatus: string;
+  /** Node path → NodeStatus for the active tree. */
+  statuses: Record<string, string>;
+  blackboard: Record<string, string>;
+}
 
 export type HostToWebviewMessage =
   | { type: 'loadDocument'; document: SerializedDocument }
   | { type: 'documentChanged'; document: SerializedDocument }
   | { type: 'error'; message: string }
   | { type: 'validationError'; message: string }
-  | { type: 'graphAction'; action: GraphAction };
+  | { type: 'graphAction'; action: GraphAction }
+  | TickUpdate;
 
 export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null {
   if (!data || typeof data !== 'object' || !('type' in data)) {
@@ -250,6 +262,10 @@ export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null 
       return null;
     case 'deleteModel':
       return typeof msg.modelId === 'string' ? { type: 'deleteModel', modelId: msg.modelId } : null;
+    case 'sim':
+      return msg.action === 'step' || msg.action === 'reset'
+        ? { type: 'sim', action: msg.action }
+        : null;
     case 'saveLayout':
       if (typeof msg.treeId === 'string' && msg.positions && typeof msg.positions === 'object') {
         return {

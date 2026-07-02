@@ -107,6 +107,14 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('btview.graph.showShortcutHelp', () => {
       void controller.graphShowShortcutHelp();
     }),
+
+    vscode.commands.registerCommand('btview.graph.simStep', () => {
+      void controller.simStep();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.simReset', () => {
+      void controller.simReset();
+    }),
   );
 
   const currentVersion = context.extension.packageJSON.version as string;

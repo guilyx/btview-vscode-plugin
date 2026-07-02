@@ -7,6 +7,7 @@ export function enrichNodeData(
   doc: SerializedDocument,
   searchQuery: string,
   portsVisible: boolean,
+  statuses?: Record<string, string>,
 ): FlowNodeData {
   const q = searchQuery.trim().toLowerCase();
   const label = node.instanceName ?? node.registeredId;
@@ -35,6 +36,7 @@ export function enrichNodeData(
     portSummary,
     hasWarning: doc.validationErrors?.some((e) => e.path === node.path),
     dimmed: Boolean(q) && !matches,
+    status: statuses?.[node.path],
   };
 }
 

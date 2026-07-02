@@ -45,6 +45,7 @@ function buildEnrichedFlowGraph(
   searchQuery: string,
   portsVisible: boolean,
   layoutPositions?: Record<string, { x: number; y: number }>,
+  statuses?: Record<string, string>,
 ): { nodes: Node<FlowNodeData>[]; edges: ReturnType<typeof buildFlowGraph>['edges'] } {
   const tree = buildFlowGraph(root, layoutPositions);
   return {
@@ -53,7 +54,7 @@ function buildEnrichedFlowGraph(
       return {
         ...n,
         data: source
-          ? enrichNodeData(source, doc, searchQuery, portsVisible)
+          ? enrichNodeData(source, doc, searchQuery, portsVisible, statuses)
           : (n.data as FlowNodeData),
       };
     }),
@@ -85,8 +86,16 @@ function mergeGraphWithStaged(
   searchQuery: string,
   portsVisible: boolean,
   layoutPositions?: Record<string, { x: number; y: number }>,
+  statuses?: Record<string, string>,
 ): { nodes: Node<FlowNodeData>[]; edges: ReturnType<typeof buildFlowGraph>['edges'] } {
-  const tree = buildEnrichedFlowGraph(root, doc, searchQuery, portsVisible, layoutPositions);
+  const tree = buildEnrichedFlowGraph(
+    root,
+    doc,
+    searchQuery,
+    portsVisible,
+    layoutPositions,
+    statuses,
+  );
   return {
     nodes: [...tree.nodes, ...staged.map(stagedToFlowNode)],
     edges: tree.edges,
@@ -121,12 +130,21 @@ function FitViewBridge({
 
 function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
   const { screenToFlowPosition, getNodes } = useReactFlow();
-  const { searchQuery, portsVisible, fitViewRef } = useGraphContext();
+  const { searchQuery, portsVisible, fitViewRef, simStatuses } = useGraphContext();
   const [stagedNodes, setStagedNodes] = useState<StagedNode[]>(() => loadStagedNodes(treeId));
   const layoutPositions = doc.layoutPositions;
   const initial = useMemo(
-    () => mergeGraphWithStaged(root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions),
-    [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions],
+    () =>
+      mergeGraphWithStaged(
+        root,
+        stagedNodes,
+        doc,
+        searchQuery,
+        portsVisible,
+        layoutPositions,
+        simStatuses,
+      ),
+    [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions, simStatuses],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
@@ -158,10 +176,21 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
       searchQuery,
       portsVisible,
       layoutPositions,
+      simStatuses,
     );
     setNodes(n);
     setEdges(e);
-  }, [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions, setNodes, setEdges]);
+  }, [
+    root,
+    stagedNodes,
+    doc,
+    searchQuery,
+    portsVisible,
+    layoutPositions,
+    simStatuses,
+    setNodes,
+    setEdges,
+  ]);
 
   const saveLayout = useCallback(() => {
     const positions: Record<string, { x: number; y: number }> = {};

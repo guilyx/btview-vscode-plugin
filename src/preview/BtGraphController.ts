@@ -11,6 +11,7 @@ import { WebviewOutboundGate } from './WebviewOutboundGate';
 import { exportWorkspaceConfig } from '../config/exportWorkspaceConfig';
 import { Simulator } from '../btcpp/exec/tick';
 import type { OutcomeProvider } from '../btcpp/exec/outcomes';
+import { verifyTree } from '../btcpp/verify/boundedCheck';
 
 /**
  * Offline "signal firing" model: each leaf reports RUNNING on its first tick and
@@ -540,6 +541,26 @@ export class BtGraphController {
     if (uri) {
       this.doSimReset(uri);
     }
+  }
+
+  /** Run the bounded exhaustive verifier on the active tree and report the results. */
+  async verifyActiveTree(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (!uri) {
+      void vscode.window.showWarningMessage('Open a BT Graph editor first.');
+      return;
+    }
+    const doc = this.syncService.getDocument(uri);
+    if (!doc) {
+      return;
+    }
+    const results = verifyTree(doc, { treeId: this.syncService.getActiveTreeId(uri) });
+    const lines = results.map(
+      (r) =>
+        `${r.holds ? '✓' : '✗'} ${r.property}${r.note ? ` — ${r.note}` : ''} (${r.checked} runs)`,
+    );
+    logInfo(`BTView verify:\n${lines.join('\n')}`);
+    void vscode.window.showInformationMessage(`BTView verification — ${lines.join('  |  ')}`);
   }
 
   async graphDeleteNode(): Promise<void> {

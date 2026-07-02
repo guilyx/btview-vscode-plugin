@@ -155,6 +155,11 @@
         "command": "btview.graph.simReset",
         "title": "Simulate: Reset",
         "category": "BTView"
+      },
+      {
+        "command": "btview.verifyTree",
+        "title": "Verify Tree (Bounded Check)",
+        "category": "BTView"
       }
     ],
     "menus": {

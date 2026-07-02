@@ -115,6 +115,10 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('btview.graph.simReset', () => {
       void controller.simReset();
     }),
+
+    vscode.commands.registerCommand('btview.verifyTree', () => {
+      void controller.verifyActiveTree();
+    }),
   );
 
   const currentVersion = context.extension.packageJSON.version as string;

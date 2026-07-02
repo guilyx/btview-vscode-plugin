@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Tick-semantics exec core** (`src/btcpp/exec/`) — a pure, offline BehaviorTree.CPP simulator: `NodeStatus`, a stateful `Simulator` with faithful memory/reactive control flow (Sequence, SequenceWithMemory, ReactiveSequence, Fallback/ReactiveFallback, Parallel, IfThenElse), decorators (Inverter, Force\*, Repeat, Retry, RunOnce), SubTree expansion, a minimal Script/blackboard, and pluggable leaf outcome providers. Foundation for signal-firing overlays and the trace-testing pipeline (roadmap Phase 2)
+
 ### Fixed
 
 - **Webview crash** — add missing `useEffect` import in `graphContext.tsx`; the graph webview threw `useEffect is not defined` and failed to render (root `tsconfig.json` only type-checks `src/**`, so the missing import was never caught)

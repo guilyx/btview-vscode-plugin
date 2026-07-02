@@ -56,19 +56,34 @@ function intAttr(node: BtNode, name: string, fallback: number): number {
   return Number.isNaN(n) ? fallback : n;
 }
 
-/** Reset a node and its structural descendants to IDLE (halt semantics). */
-function halt(node: BtNode, ctx: TickContext, scope: string): void {
-  const key = scope + node.path;
-  ctx.state.delete(key);
-  ctx.statuses.set(key, 'IDLE');
+/** Reset a node's internal state (child index, counters, leaf tick count) so it
+ *  re-ticks fresh on the next run. Does NOT touch the observable status — statuses
+ *  are latched (Groot-like) until a node is re-ticked or explicitly halted. */
+function resetState(node: BtNode, ctx: TickContext, scope: string): void {
+  ctx.state.delete(scope + node.path);
   for (const child of node.children) {
-    halt(child, ctx, scope);
+    resetState(child, ctx, scope);
+  }
+}
+
+function resetChildStates(node: BtNode, ctx: TickContext, scope: string): void {
+  for (const child of node.children) {
+    resetState(child, ctx, scope);
+  }
+}
+
+/** Visibly halt a node: reset its state AND set its status (and descendants') to IDLE. */
+function haltNode(node: BtNode, ctx: TickContext, scope: string): void {
+  ctx.state.delete(scope + node.path);
+  ctx.statuses.set(scope + node.path, 'IDLE');
+  for (const child of node.children) {
+    haltNode(child, ctx, scope);
   }
 }
 
 function haltChildrenFrom(node: BtNode, from: number, ctx: TickContext, scope: string): void {
   for (let i = from; i < node.children.length; i++) {
-    halt(node.children[i], ctx, scope);
+    haltNode(node.children[i], ctx, scope);
   }
 }
 
@@ -147,11 +162,11 @@ function tickControl(node: BtNode, ctx: TickContext, scope: string): NodeStatus 
     const needSuccess = successThresh < 0 ? kids.length : successThresh;
     const needFailure = failureThresh < 0 ? kids.length : failureThresh;
     if (success >= needSuccess) {
-      haltChildrenFrom(node, 0, ctx, scope);
+      resetChildStates(node, ctx, scope);
       return 'SUCCESS';
     }
     if (failure >= needFailure) {
-      haltChildrenFrom(node, 0, ctx, scope);
+      resetChildStates(node, ctx, scope);
       return 'FAILURE';
     }
     return 'RUNNING';
@@ -169,7 +184,7 @@ function tickControl(node: BtNode, ctx: TickContext, scope: string): NodeStatus 
     }
     if (isFallback) {
       if (st === 'SUCCESS') {
-        haltChildrenFrom(node, 0, ctx, scope);
+        resetChildStates(node, ctx, scope);
         s.index = 0;
         return 'SUCCESS';
       }
@@ -177,10 +192,11 @@ function tickControl(node: BtNode, ctx: TickContext, scope: string): NodeStatus 
     } else {
       if (st === 'FAILURE') {
         if (keepIndexOnFail) {
+          // SequenceWithMemory resumes at the failed child next run.
           s.index = i;
-          halt(kids[i], ctx, scope);
+          resetState(kids[i], ctx, scope);
         } else {
-          haltChildrenFrom(node, 0, ctx, scope);
+          resetChildStates(node, ctx, scope);
           s.index = 0;
         }
         return 'FAILURE';
@@ -188,6 +204,7 @@ function tickControl(node: BtNode, ctx: TickContext, scope: string): NodeStatus 
       // SUCCESS / SKIPPED → advance to next child
     }
   }
+  resetChildStates(node, ctx, scope);
   s.index = 0;
   return isFallback ? 'FAILURE' : 'SUCCESS';
 }
@@ -225,7 +242,7 @@ function tickDecorator(node: BtNode, ctx: TickContext, scope: string): NodeStatu
         return 'FAILURE';
       }
       s.count = (s.count ?? 0) + 1;
-      halt(child, ctx, scope);
+      resetState(child, ctx, scope);
       if (cycles >= 0 && s.count >= cycles) {
         s.count = 0;
         return 'SUCCESS';
@@ -242,7 +259,7 @@ function tickDecorator(node: BtNode, ctx: TickContext, scope: string): NodeStatu
         return 'SUCCESS';
       }
       s.count = (s.count ?? 0) + 1;
-      halt(child, ctx, scope);
+      resetState(child, ctx, scope);
       if (attempts >= 0 && s.count >= attempts) {
         s.count = 0;
         return 'FAILURE';

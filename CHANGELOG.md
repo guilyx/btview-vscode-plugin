@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Bounded formal verification** (`src/btcpp/verify/boundedCheck.ts`) — exhaustively enumerates every SUCCESS/FAILURE combination of a tree's leaves, runs the exec-core `Simulator` for each, and proves reachability/termination properties ("root can succeed", "root can fail", "always terminates") with witnesses/counterexamples. Offline, no external solver. Exposed via `BTView: Verify Tree (Bounded Check)` (roadmap Phase 5)
+- **Tick-semantics exec core** (`src/btcpp/exec/`) — a pure, offline BehaviorTree.CPP simulator: `NodeStatus`, a stateful `Simulator` with faithful memory/reactive control flow (Sequence, SequenceWithMemory, ReactiveSequence, Fallback/ReactiveFallback, Parallel, IfThenElse), decorators (Inverter, Force\*, Repeat, Retry, RunOnce), SubTree expansion, a minimal Script/blackboard, and pluggable leaf outcome providers. Foundation for signal-firing overlays and the trace-testing pipeline (roadmap Phase 2)
 - **Static verification pack** — `validateDocument` now checks SubTree references resolve to a defined tree, `main_tree_to_execute` exists, `<BehaviorTree ID>` uniqueness, recursive subtree cycles, and required (input/inout, no-default) ports. Surfaces in the Problems panel and inspector alongside existing structural checks (roadmap Phase 1 / E-43)
 
 ### Fixed

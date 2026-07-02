@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Bounded formal verification** (`src/btcpp/verify/boundedCheck.ts`) — exhaustively enumerates every SUCCESS/FAILURE combination of a tree's leaves, runs the exec-core `Simulator` for each, and proves reachability/termination properties ("root can succeed", "root can fail", "always terminates") with witnesses/counterexamples. Offline, no external solver. Exposed via `BTView: Verify Tree (Bounded Check)` (roadmap Phase 5)
 - **Behavior-tree trace-testing pipeline** (`src/btcpp/exec/trace.ts`) — declarative `*.trace.json` scenarios (leaf mocks + per-tick/final assertions on node status, root status, and blackboard) run against a tree via the exec core. A Vitest discovery test executes every `fixtures/**/*.trace.json` as a CI behavior gate; sample traces added for `simple_sequence`, `fallback_recovery`, and a two-tick `subtree_running` (roadmap Phase 3 / E-45)
 - **Tick-semantics exec core** (`src/btcpp/exec/`) — a pure, offline BehaviorTree.CPP simulator: `NodeStatus`, a stateful `Simulator` with faithful memory/reactive control flow (Sequence, SequenceWithMemory, ReactiveSequence, Fallback/ReactiveFallback, Parallel, IfThenElse), decorators (Inverter, Force\*, Repeat, Retry, RunOnce), SubTree expansion, a minimal Script/blackboard, and pluggable leaf outcome providers. Foundation for signal-firing overlays and the trace-testing pipeline (roadmap Phase 2)
 

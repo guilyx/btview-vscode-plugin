@@ -145,6 +145,11 @@
         "command": "btview.graph.showShortcutHelp",
         "title": "Show Keyboard Shortcuts",
         "category": "BTView"
+      },
+      {
+        "command": "btview.verifyTree",
+        "title": "Verify Tree (Bounded Check)",
+        "category": "BTView"
       }
     ],
     "menus": {

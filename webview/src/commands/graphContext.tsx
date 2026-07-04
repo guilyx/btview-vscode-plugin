@@ -38,6 +38,15 @@ export interface GraphContextValue {
   shortcutHelpVisible: boolean;
   setShortcutHelpVisible: (v: boolean) => void;
   simpleMode: boolean;
+  simStatuses: Record<string, string>;
+  simTick: number;
+  simRootStatus: string | null;
+  simBlackboard: Record<string, string>;
+  simPlaying: boolean;
+  simStep: () => void;
+  simReset: () => void;
+  simPlay: () => void;
+  simPause: () => void;
 }
 
 const GraphContext = createContext<GraphContextValue | null>(null);
@@ -74,8 +83,44 @@ export function GraphContextProvider({
   const [shortcutHelpVisible, setShortcutHelpVisible] = useState(false);
   const fitViewRef = useRef<(() => void) | null>(null);
 
+  const [simStatuses, setSimStatuses] = useState<Record<string, string>>({});
+  const [simTick, setSimTick] = useState(0);
+  const [simRootStatus, setSimRootStatus] = useState<string | null>(null);
+  const [simBlackboard, setSimBlackboard] = useState<Record<string, string>>({});
+  const [simPlaying, setSimPlaying] = useState(false);
+  const playTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const treeId = doc.activeTreeId;
   const simpleMode = doc.simpleMode ?? false;
+
+  const simStep = useCallback(() => postMessage({ type: 'sim', action: 'step' }), []);
+  const simPause = useCallback(() => {
+    if (playTimer.current) {
+      clearInterval(playTimer.current);
+      playTimer.current = null;
+    }
+    setSimPlaying(false);
+  }, []);
+  const simPlay = useCallback(() => {
+    if (playTimer.current) {
+      return;
+    }
+    setSimPlaying(true);
+    simStep();
+    // Auto-stepping cadence; the host halts us on SUCCESS/FAILURE via tickUpdate.
+    playTimer.current = setInterval(simStep, 700);
+  }, [simStep]);
+  const simReset = useCallback(() => {
+    simPause();
+    postMessage({ type: 'sim', action: 'reset' });
+    setSimStatuses({});
+    setSimTick(0);
+    setSimRootStatus(null);
+    setSimBlackboard({});
+  }, [simPause]);
+
+  // Clear the play interval if the provider unmounts.
+  useEffect(() => () => simPause(), [simPause]);
 
   const deleteSelected = useCallback(() => {
     if (!selectedNode) {
@@ -127,7 +172,24 @@ export function GraphContextProvider({
       if (!raw || typeof raw !== 'object' || !('type' in raw)) {
         return;
       }
-      const msg = raw as { type: string; action?: string };
+      const msg = raw as {
+        type: string;
+        action?: string;
+        tick?: number;
+        rootStatus?: string;
+        statuses?: Record<string, string>;
+        blackboard?: Record<string, string>;
+      };
+      if (msg.type === 'tickUpdate') {
+        setSimStatuses(msg.statuses ?? {});
+        setSimTick(msg.tick ?? 0);
+        setSimRootStatus(msg.rootStatus ?? null);
+        setSimBlackboard(msg.blackboard ?? {});
+        if (msg.rootStatus === 'SUCCESS' || msg.rootStatus === 'FAILURE') {
+          simPause();
+        }
+        return;
+      }
       if (msg.type !== 'graphAction' || typeof msg.action !== 'string') {
         return;
       }
@@ -156,7 +218,7 @@ export function GraphContextProvider({
           break;
       }
     });
-  }, [deleteSelected]);
+  }, [deleteSelected, simPause]);
 
   const value = useMemo(
     () => ({
@@ -183,6 +245,15 @@ export function GraphContextProvider({
       shortcutHelpVisible,
       setShortcutHelpVisible,
       simpleMode,
+      simStatuses,
+      simTick,
+      simRootStatus,
+      simBlackboard,
+      simPlaying,
+      simStep,
+      simReset,
+      simPlay,
+      simPause,
     }),
     [
       doc,
@@ -202,6 +273,15 @@ export function GraphContextProvider({
       popDrill,
       shortcutHelpVisible,
       simpleMode,
+      simStatuses,
+      simTick,
+      simRootStatus,
+      simBlackboard,
+      simPlaying,
+      simStep,
+      simReset,
+      simPlay,
+      simPause,
     ],
   );
 

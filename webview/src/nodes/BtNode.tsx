@@ -3,19 +3,41 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { FlowNodeData } from '../graph/layout';
 import { kindColor } from '../nodes/kindStyles';
 
+const STATUS_COLORS: Record<string, string> = {
+  RUNNING: '#f0ad4e',
+  SUCCESS: '#4ade80',
+  FAILURE: '#f87171',
+  SKIPPED: '#9ca3af',
+};
+
 function BtFlowNodeInner({ data, selected }: NodeProps) {
   const d = data as FlowNodeData;
   const color = kindColor(d.kind);
   const staged = Boolean(d.staged);
+  const status = d.status && d.status !== 'IDLE' ? d.status : undefined;
+  const statusColor = status ? STATUS_COLORS[status] : undefined;
 
   return (
     <div
-      className={`bt-node ${selected ? 'selected' : ''} ${staged ? 'staged' : ''} ${d.dimmed ? 'dimmed' : ''} ${d.hasWarning ? 'has-warning' : ''}`}
-      style={{ borderColor: color, opacity: d.dimmed ? 0.35 : 1 }}
+      className={`bt-node ${selected ? 'selected' : ''} ${staged ? 'staged' : ''} ${d.dimmed ? 'dimmed' : ''} ${d.hasWarning ? 'has-warning' : ''} ${status ? `status-${status}` : ''}`}
+      style={{
+        borderColor: statusColor ?? color,
+        opacity: d.dimmed ? 0.35 : 1,
+        boxShadow: statusColor ? `0 0 0 2px ${statusColor}` : undefined,
+      }}
       aria-selected={selected}
       tabIndex={0}
     >
       <Handle type="target" position={Position.Top} />
+      {status && (
+        <div
+          className="bt-node-status"
+          style={{ background: statusColor }}
+          title={`Status: ${status}`}
+        >
+          {status}
+        </div>
+      )}
       {staged && <div className="bt-node-staged-label">staged</div>}
       {d.hasWarning && (
         <div className="bt-node-warning" title="Validation warning">

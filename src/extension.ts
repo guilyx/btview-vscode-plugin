@@ -108,6 +108,14 @@ export function activate(context: vscode.ExtensionContext): void {
       void controller.graphShowShortcutHelp();
     }),
 
+    vscode.commands.registerCommand('btview.graph.simStep', () => {
+      void controller.simStep();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.simReset', () => {
+      void controller.simReset();
+    }),
+
     vscode.commands.registerCommand('btview.verifyTree', () => {
       void controller.verifyActiveTree();
     }),

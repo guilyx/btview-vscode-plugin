@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" main_tree_to_execute="Main">
+  <BehaviorTree ID="Main">
+    <Sequence>
+      <Action ID="Startup" name="startup"/>
+      <SubTree ID="Grasp"/>
+    </Sequence>
+  </BehaviorTree>
+  <BehaviorTree ID="Grasp">
+    <Sequence>
+      <Action ID="Reach" name="reach"/>
+      <Action ID="Close" name="close"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

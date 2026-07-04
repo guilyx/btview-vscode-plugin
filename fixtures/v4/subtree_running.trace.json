@@ -1,0 +1,12 @@
+[
+  {
+    "name": "grasp subtree completes over two ticks",
+    "mocks": { "reach": ["RUNNING", "SUCCESS"] },
+    "expect": [
+      { "tick": 1, "rootStatus": "RUNNING" },
+      { "tick": 1, "path": "0-0", "status": "SUCCESS" },
+      { "tick": 2, "rootStatus": "SUCCESS" },
+      { "path": "0-1", "status": "SUCCESS" }
+    ]
+  }
+]

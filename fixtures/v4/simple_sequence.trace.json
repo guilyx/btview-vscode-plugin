@@ -1,0 +1,19 @@
+[
+  {
+    "name": "happy path succeeds",
+    "expect": [
+      { "rootStatus": "SUCCESS" },
+      { "path": "0-0", "status": "SUCCESS" },
+      { "path": "0-3", "status": "SUCCESS" }
+    ]
+  },
+  {
+    "name": "gripper failure halts the sequence",
+    "mocks": { "open_gripper": "FAILURE" },
+    "expect": [
+      { "rootStatus": "FAILURE" },
+      { "path": "0-1", "status": "FAILURE" },
+      { "path": "0-2", "status": "IDLE" }
+    ]
+  }
+]

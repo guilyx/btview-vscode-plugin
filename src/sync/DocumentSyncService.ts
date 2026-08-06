@@ -269,8 +269,7 @@ export class DocumentSyncService {
           instanceName: edit.subtree.instanceName,
           attributes: edit.subtree.attributes,
           children: edit.subtree.children as
-            | import('../btcpp/editOperations').SubtreePayload[]
-            | undefined,
+            import('../btcpp/editOperations').SubtreePayload[] | undefined,
         });
         break;
       case 'removePort':

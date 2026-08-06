@@ -1,13 +1,7 @@
 export type FormatVersion = 3 | 4;
 
 export type NodeKind =
-  | 'control'
-  | 'decorator'
-  | 'action'
-  | 'condition'
-  | 'subtree'
-  | 'script'
-  | 'unknown';
+  'control' | 'decorator' | 'action' | 'condition' | 'subtree' | 'script' | 'unknown';
 
 export interface PortModel {
   name: string;

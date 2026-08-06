@@ -44,38 +44,30 @@ export function buildFlowGraph(
     return { nodes, edges };
   }
 
-  const levels = new Map<string, number>();
+  // Tidy tree layout: leaves are placed left-to-right, each parent is
+  // centered over the span of its children, so siblings and cousins never
+  // overlap and every subtree reads as a visual unit.
   const positions = new Map<string, { x: number; y: number }>();
+  let cursor = 0;
 
-  function assignLevel(node: BtNodeData, depth: number): void {
-    levels.set(node.path, depth);
-    for (const child of node.children) {
-      assignLevel(child, depth + 1);
+  function place(node: BtNodeData, depth: number): number {
+    const y = depth * (NODE_HEIGHT + V_GAP);
+    if (node.children.length === 0) {
+      const x = cursor;
+      cursor += NODE_WIDTH + H_GAP;
+      positions.set(node.path, { x, y });
+      return x;
     }
+    const childXs = node.children.map((child) => place(child, depth + 1));
+    const x = (childXs[0]! + childXs[childXs.length - 1]!) / 2;
+    positions.set(node.path, { x, y });
+    return x;
   }
 
-  assignLevel(root, 0);
-
-  const byLevel = new Map<number, BtNodeData[]>();
-  function collect(node: BtNodeData): void {
-    const level = levels.get(node.path) ?? 0;
-    if (!byLevel.has(level)) {
-      byLevel.set(level, []);
-    }
-    byLevel.get(level)!.push(node);
-    for (const child of node.children) {
-      collect(child);
-    }
-  }
-  collect(root);
-
-  for (const [level, levelNodes] of byLevel) {
-    const totalWidth = levelNodes.length * NODE_WIDTH + (levelNodes.length - 1) * H_GAP;
-    let x = -totalWidth / 2;
-    for (const node of levelNodes) {
-      positions.set(node.path, { x, y: level * (NODE_HEIGHT + V_GAP) });
-      x += NODE_WIDTH + H_GAP;
-    }
+  const rootX = place(root, 0);
+  // Recentre so the root sits at x = 0 regardless of tree shape.
+  for (const [path, pos] of positions) {
+    positions.set(path, { x: pos.x - rootX - NODE_WIDTH / 2, y: pos.y });
   }
 
   function addNodes(node: BtNodeData): void {

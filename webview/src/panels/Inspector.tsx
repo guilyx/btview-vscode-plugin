@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FlowNodeData } from '../graph/layout';
+import type { SerializedDocument } from '../types';
 import { removeStagedNode, updateStagedNode } from '../graph/stagedNodes';
 import { postMessage } from '../vscodeApi';
 import { resolveNodePorts, type ResolvedPort } from '../utils/portResolution';
@@ -21,11 +22,7 @@ interface InspectorProps {
   formatVersion: 3 | 4;
   hasRoot: boolean;
   nodePalette: { id: string; kind: string }[];
-  models: {
-    id: string;
-    kind: string;
-    ports: { name: string; direction: string; type?: string; defaultValue?: string }[];
-  }[];
+  models: SerializedDocument['models'];
 }
 
 function portBadge(direction: string): string {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { KIND_COLORS, KIND_LABELS, KIND_ORDER } from '../nodes/kindStyles';
+import { KIND_COLORS, KIND_LABELS, KIND_ORDER, kindGlyph } from '../nodes/kindStyles';
 
 const STORAGE_KEY = 'btview.legendCollapsed';
 
@@ -58,7 +58,9 @@ export function KindLegend({ visible, onToggle }: KindLegendProps) {
         <ul className="kind-legend-list">
           {KIND_ORDER.map((kind) => (
             <li key={kind}>
-              <span className="kind-swatch" style={{ background: KIND_COLORS[kind] }} />
+              <span className="kind-swatch" style={{ background: KIND_COLORS[kind] }}>
+                {kindGlyph(kind)}
+              </span>
               <span>{KIND_LABELS[kind] ?? kind}</span>
             </li>
           ))}

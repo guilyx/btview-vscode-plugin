@@ -1,7 +1,15 @@
 import { useEffect } from 'react';
 import { useGraphContext } from './graphContext';
 import { btNodeDataToPayload } from '../utils/subtreeClipboard';
+import { navigateTree, type NavDirection } from '../utils/treeNavigation';
 import { postMessage } from '../vscodeApi';
+
+const ARROW_DIRECTIONS: Record<string, NavDirection> = {
+  ArrowUp: 'parent',
+  ArrowDown: 'child',
+  ArrowLeft: 'prevSibling',
+  ArrowRight: 'nextSibling',
+};
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!target || !(target instanceof HTMLElement)) {
@@ -13,6 +21,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 
 export function useGraphHotkeys(): void {
   const {
+    doc,
     selectedNode,
     setSelectedNode,
     setSearchQuery,
@@ -23,6 +32,7 @@ export function useGraphHotkeys(): void {
     deleteSelected,
     requestRename,
     fitViewRef,
+    selectPath,
     treeId,
     clipboardSubtree,
     setClipboardSubtree,
@@ -37,6 +47,18 @@ export function useGraphHotkeys(): void {
       }
 
       const mod = e.ctrlKey || e.metaKey;
+
+      const arrowDir = ARROW_DIRECTIONS[e.key];
+      if (arrowDir && !mod && !e.altKey && !e.shiftKey) {
+        e.preventDefault();
+        const activeTree = doc.trees.find((t) => t.id === doc.activeTreeId) ?? doc.trees[0];
+        const currentPath = selectedNode && !selectedNode.staged ? selectedNode.path : null;
+        const target = navigateTree(activeTree?.root ?? null, currentPath, arrowDir);
+        if (target) {
+          selectPath(target);
+        }
+        return;
+      }
 
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedNode) {
@@ -177,6 +199,8 @@ export function useGraphHotkeys(): void {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [
+    doc,
+    selectPath,
     selectedNode,
     setSelectedNode,
     setSearchQuery,

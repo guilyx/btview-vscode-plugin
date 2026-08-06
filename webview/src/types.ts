@@ -1,1 +1,5 @@
-export type { BtNodePayload as BtNodeData, SerializedDocument } from '../../src/shared/protocol';
+export type {
+  BtNodePayload as BtNodeData,
+  SerializedDocument,
+  HostToWebviewMessage,
+} from '../../src/shared/protocol';

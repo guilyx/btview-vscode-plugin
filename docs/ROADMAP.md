@@ -62,9 +62,10 @@ Full feature checklist: [EDITOR_ROADMAP.md](planning/EDITOR_ROADMAP.md).
 - [x] Shortcut help + Command Palette graph commands (E-46, E-47)
 - [x] Simple mode (E-40)
 - [ ] Onboarding empty states (E-41)
-- [ ] Nav2 fixtures (E-42)
+- [x] Nav2 fixtures (E-42) — `fixtures/nav2/` + parser regression tests
 - [ ] Validation quick-fixes (E-43)
-- [ ] Accessibility pass (E-44)
+- [ ] Accessibility pass (E-44) — arrow-key tree navigation, search match cycling, clickable issues panel shipped; screen-reader audit remaining
+- [x] Tidy layout + node card redesign + webview typecheck gate (unplanned polish)
 - [ ] Editor RC integration tests (E-45)
 
 See [Groot parity](planning/GROOT_PARITY.md) for matrix vs Groot2.

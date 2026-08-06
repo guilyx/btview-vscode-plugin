@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Webview crash** — `GraphContextProvider` used `useEffect` without importing it, crashing the graph editor at mount; the webview is now typechecked (`tsconfig.webview.json`, wired into `npm run check-types`) so missing imports and type drift fail CI
+- **Broken install** — `npm ci` failed after the vite 8 bump (`@vitejs/plugin-react@4` peer conflict); upgraded to `@vitejs/plugin-react@6`
+- **Issues panel** — clicking a validation issue now selects the offending node and centers the viewport on it (was a no-op)
+
+### Added
+
+- **Tidy tree layout** — parents are centered over their children instead of each depth being laid out independently, so large trees read as nested subtrees without overlaps
+- **Kind glyphs** — node cards and the legend show Groot-style glyphs (`→` Sequence, `?` Fallback, `⇉` Parallel, `↻` Retry, …) with a per-kind accent color
+- **Search navigation** — match counter in the search box; `Enter` / `Shift+Enter` cycle through matches and center the viewport on each (E-44 groundwork)
+- **Keyboard tree navigation** — arrow keys walk the tree: `↑` parent, `↓` first child, `←`/`→` siblings (E-44)
+- **Drill-down breadcrumbs** — subtree drill-in shows a clickable breadcrumb trail instead of a single Back button
+- **Minimap upgrades** — nodes colored by kind, pannable and zoomable
+- **Nav2 fixture** — `fixtures/nav2/navigate_w_replanning_and_recovery.xml` with `TreeNodesModel` for the custom Nav2 nodes, plus parser regression tests (E-42)
+
+### Changed
+
+- **Node card design** — kind-colored accent bar and glyph chip, child-count badge, subtree open hint, truncation for long names; edges, controls, and minimap themed to match the active VS Code theme
+
 ## [0.9.0] - 2026-06-22
 
 ### Changed

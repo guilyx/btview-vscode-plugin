@@ -279,7 +279,7 @@
   "scripts": {
     "compile": "bash scripts/with-node.sh npm run compile:inner",
     "compile:inner": "npm run check-types && node esbuild.js && npm run build:webview",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc --noEmit && tsc --noEmit -p tsconfig.webview.json",
     "watch": "bash scripts/with-node.sh npm run watch:inner",
     "watch:inner": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
@@ -312,7 +312,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.125.0",
-    "@vitejs/plugin-react": "^4.4.0",
+    "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.9",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",

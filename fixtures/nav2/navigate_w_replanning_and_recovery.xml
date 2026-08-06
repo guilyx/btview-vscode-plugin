@@ -1,0 +1,70 @@
+<!--
+  Nav2-style "navigate with replanning and recovery" behavior tree.
+  Modeled on the stock Nav2 BT: a RecoveryNode wraps a PipelineSequence of
+  rate-controlled planning + path following, with a RoundRobin of recovery
+  behaviors (costmap clearing, spin, wait, back up).
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingActions">
+            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+          <Spin spin_dist="1.57"/>
+          <Wait wait_duration="5"/>
+          <BackUp backup_dist="0.30" backup_speed="0.05"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Control ID="RecoveryNode">
+      <input_port name="number_of_retries" type="int"/>
+    </Control>
+    <Control ID="PipelineSequence"/>
+    <Control ID="RoundRobin"/>
+    <Decorator ID="RateController">
+      <input_port name="hz" type="double"/>
+    </Decorator>
+    <Action ID="ComputePathToPose">
+      <input_port name="goal" type="geometry_msgs::msg::PoseStamped"/>
+      <input_port name="planner_id" type="std::string"/>
+      <output_port name="path" type="nav_msgs::msg::Path"/>
+    </Action>
+    <Action ID="FollowPath">
+      <input_port name="path" type="nav_msgs::msg::Path"/>
+      <input_port name="controller_id" type="std::string"/>
+    </Action>
+    <Action ID="ClearEntireCostmap">
+      <input_port name="service_name" type="std::string"/>
+    </Action>
+    <Action ID="Spin">
+      <input_port name="spin_dist" type="double"/>
+    </Action>
+    <Action ID="Wait">
+      <input_port name="wait_duration" type="double"/>
+    </Action>
+    <Action ID="BackUp">
+      <input_port name="backup_dist" type="double"/>
+      <input_port name="backup_speed" type="double"/>
+    </Action>
+    <Condition ID="GoalUpdated"/>
+  </TreeNodesModel>
+</root>

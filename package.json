@@ -320,7 +320,7 @@
     "@xyflow/react": "^12.11.1",
     "elkjs": "^0.11.1",
     "esbuild": "^0.28.1",
-    "eslint": "^10.5.0",
+    "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.0",
     "fast-xml-parser": "^5.9.3",
     "globals": "^17.7.0",

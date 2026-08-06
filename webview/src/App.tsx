@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { SerializedDocument, BtNodeData } from './types';
+import type { SerializedDocument, BtNodeData, HostToWebviewMessage } from './types';
 import { BtGraph } from './graph/BtGraph';
 import { Inspector } from './panels/Inspector';
 import { NodePaletteSidebar } from './panels/NodePaletteSidebar';
@@ -18,7 +18,7 @@ import { GraphContextProvider, useGraphContext } from './commands/graphContext';
 import { useGraphHotkeys } from './commands/useGraphHotkeys';
 import { resolveNodePorts } from './utils/portResolution';
 
-function isHostMessage(data: unknown): data is { type: string } {
+function isHostMessage(data: unknown): data is { type: string } & Record<string, unknown> {
   return Boolean(data && typeof data === 'object' && 'type' in data);
 }
 
@@ -96,7 +96,8 @@ function GraphWorkspaceInner({
     legendVisible,
     setLegendVisible,
     drillStack,
-    popDrill,
+    jumpDrill,
+    selectPath,
     shortcutHelpVisible,
     setShortcutHelpVisible,
     simpleMode,
@@ -129,9 +130,32 @@ function GraphWorkspaceInner({
             </span>
           )}
           {drillStack.length > 0 && (
-            <button type="button" className="drill-back-btn" onClick={popDrill}>
-              ← Back
-            </button>
+            <nav className="drill-breadcrumbs" aria-label="Subtree navigation">
+              <button
+                type="button"
+                className="drill-crumb"
+                onClick={() => jumpDrill(-1)}
+                title="Back to main tree"
+              >
+                {doc.trees[0]?.id ?? 'root'}
+              </button>
+              {drillStack.map((id, i) => (
+                <span key={`${id}-${i}`} className="drill-crumb-wrap">
+                  <span className="drill-crumb-sep" aria-hidden="true">
+                    ›
+                  </span>
+                  {i === drillStack.length - 1 ? (
+                    <span className="drill-crumb current" aria-current="page">
+                      {id}
+                    </span>
+                  ) : (
+                    <button type="button" className="drill-crumb" onClick={() => jumpDrill(i)}>
+                      {id}
+                    </button>
+                  )}
+                </span>
+              ))}
+            </nav>
           )}
           <NodeSearch />
         </div>
@@ -172,7 +196,7 @@ function GraphWorkspaceInner({
       <div className="workspace">
         <NodePaletteSidebar doc={doc} />
         <div className="workspace-main">
-          <WarningsPanel doc={doc} onSelectPath={() => undefined} />
+          <WarningsPanel doc={doc} onSelectPath={selectPath} />
 
           {doc.includes.length > 0 && (
             <div className="includes">
@@ -276,25 +300,25 @@ export function App() {
       if (!isHostMessage(raw)) {
         return;
       }
-      const msg = raw;
+      const msg = raw as HostToWebviewMessage;
       if (msg.type === 'loadDocument') {
         documentReceived = true;
         setWaitingForHost(false);
-        setDoc((msg as { document: SerializedDocument }).document);
+        setDoc(msg.document);
         setError(null);
         setValidationError(null);
         setSaving(false);
       } else if (msg.type === 'documentChanged') {
         documentReceived = true;
         setWaitingForHost(false);
-        setDoc((msg as { document: SerializedDocument }).document);
+        setDoc(msg.document);
         setSaving(false);
       } else if (msg.type === 'error') {
         setWaitingForHost(false);
-        setError((msg as { message: string }).message);
+        setError(msg.message);
         setSaving(false);
       } else if (msg.type === 'validationError') {
-        setValidationError((msg as { message: string }).message);
+        setValidationError(msg.message);
         setSaving(false);
       }
     };

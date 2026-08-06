@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -12,6 +13,7 @@ import type { BtNodeData, SerializedDocument } from '../types';
 import { postMessage } from '../vscodeApi';
 import { removeStagedNode } from '../graph/stagedNodes';
 import { subscribeHostMessages } from '../hostMessages';
+import { enrichNodeData } from '../graph/enrichNodeData';
 
 export interface GraphContextValue {
   doc: SerializedDocument;
@@ -28,12 +30,18 @@ export interface GraphContextValue {
   renameRequestPath: string | null;
   requestRename: (path: string | null) => void;
   fitViewRef: React.MutableRefObject<(() => void) | null>;
+  /** Centers the viewport on a node path; wired up by the graph canvas. */
+  focusPathRef: React.MutableRefObject<((path: string) => void) | null>;
+  /** Selects the node at `path` and centers the viewport on it. */
+  selectPath: (path: string) => void;
   deleteSelected: () => void;
   clipboardSubtree: BtNodeData | null;
   setClipboardSubtree: (node: BtNodeData | null) => void;
   drillStack: string[];
   pushDrill: (treeId: string) => void;
   popDrill: () => void;
+  /** Jump to a breadcrumb entry: -1 for the home tree, otherwise a drill stack index. */
+  jumpDrill: (index: number) => void;
   shortcutHelpVisible: boolean;
   setShortcutHelpVisible: (v: boolean) => void;
   simpleMode: boolean;
@@ -72,9 +80,22 @@ export function GraphContextProvider({
   const [drillStack, setDrillStack] = useState<string[]>([]);
   const [shortcutHelpVisible, setShortcutHelpVisible] = useState(false);
   const fitViewRef = useRef<(() => void) | null>(null);
+  const focusPathRef = useRef<((path: string) => void) | null>(null);
 
   const treeId = doc.activeTreeId;
   const simpleMode = doc.simpleMode ?? false;
+
+  const selectPath = useCallback(
+    (path: string) => {
+      const node = findNodeSubtree(path);
+      if (!node) {
+        return;
+      }
+      setSelectedNode(enrichNodeData(node, doc, '', doc.showNodePorts ?? false));
+      focusPathRef.current?.(path);
+    },
+    [findNodeSubtree, doc, setSelectedNode],
+  );
 
   const deleteSelected = useCallback(() => {
     if (!selectedNode) {
@@ -120,6 +141,20 @@ export function GraphContextProvider({
       return next;
     });
   }, [doc.trees]);
+
+  const jumpDrill = useCallback(
+    (index: number) => {
+      setDrillStack((prev) => {
+        const next = index < 0 ? [] : prev.slice(0, index + 1);
+        const target = next[next.length - 1] ?? doc.trees[0]?.id;
+        if (target) {
+          postMessage({ type: 'selectTree', treeId: target });
+        }
+        return next;
+      });
+    },
+    [doc.trees],
+  );
 
   useEffect(() => {
     return subscribeHostMessages((raw) => {
@@ -173,12 +208,15 @@ export function GraphContextProvider({
       renameRequestPath,
       requestRename,
       fitViewRef,
+      focusPathRef,
+      selectPath,
       deleteSelected,
       clipboardSubtree,
       setClipboardSubtree,
       drillStack,
       pushDrill,
       popDrill,
+      jumpDrill,
       shortcutHelpVisible,
       setShortcutHelpVisible,
       simpleMode,
@@ -194,11 +232,13 @@ export function GraphContextProvider({
       portsVisible,
       renameRequestPath,
       requestRename,
+      selectPath,
       deleteSelected,
       clipboardSubtree,
       drillStack,
       pushDrill,
       popDrill,
+      jumpDrill,
       shortcutHelpVisible,
       simpleMode,
     ],

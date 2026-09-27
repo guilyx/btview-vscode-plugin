@@ -31,3 +31,42 @@ export const KIND_ORDER = [
 export function kindColor(kind: string): string {
   return KIND_COLORS[kind] ?? KIND_COLORS.unknown;
 }
+
+/** Groot-style glyphs for well-known BTCpp node types, keyed by prefix. */
+const TYPE_GLYPHS: [string, string][] = [
+  ['Sequence', '→'],
+  ['ReactiveSequence', '→'],
+  ['Fallback', '?'],
+  ['ReactiveFallback', '?'],
+  ['Selector', '?'],
+  ['Parallel', '⇉'],
+  ['Inverter', '!'],
+  ['Retry', '↻'],
+  ['Repeat', '↺'],
+  ['Timeout', '⏱'],
+  ['Delay', '…'],
+  ['ForceSuccess', '✓'],
+  ['ForceFailure', '✗'],
+];
+
+const KIND_GLYPHS: Record<string, string> = {
+  control: '⇶',
+  decorator: '◇',
+  action: '⚡',
+  condition: '≟',
+  subtree: '⧉',
+  script: 'ƒ',
+  unknown: '·',
+};
+
+/** Small visual glyph for a node: type-specific when recognized, kind fallback otherwise. */
+export function kindGlyph(kind: string, registeredId?: string): string {
+  if (registeredId) {
+    for (const [prefix, glyph] of TYPE_GLYPHS) {
+      if (registeredId === prefix || registeredId.startsWith(`${prefix}Star`)) {
+        return glyph;
+      }
+    }
+  }
+  return KIND_GLYPHS[kind] ?? KIND_GLYPHS.unknown!;
+}

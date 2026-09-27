@@ -29,8 +29,14 @@ import { STAGE_NODE_EVENT, type StageNodeEventDetail } from './stageNodeEvent';
 import { useGraphContext } from '../commands/graphContext';
 import { ContextMenu, type ContextTarget } from '../components/ContextMenu';
 import { enrichNodeData, findInTree } from './enrichNodeData';
+import { kindColor } from '../nodes/kindStyles';
 
 const nodeTypes = { btNode: BtFlowNode };
+
+function minimapNodeColor(node: Node): string {
+  const kind = (node.data as FlowNodeData | undefined)?.kind;
+  return kindColor(typeof kind === 'string' ? kind : 'unknown');
+}
 
 interface BtGraphProps {
   root: BtNodeData | null;
@@ -105,11 +111,13 @@ function mergeGraphWithStaged(
 function FitViewBridge({
   treeId,
   fitViewRef,
+  focusPathRef,
 }: {
   treeId: string;
   fitViewRef: React.MutableRefObject<(() => void) | null>;
+  focusPathRef: React.MutableRefObject<((path: string) => void) | null>;
 }) {
-  const { fitView } = useReactFlow();
+  const { fitView, setCenter, getNode, getZoom } = useReactFlow();
   const fittedTree = useRef<string | null>(null);
 
   useEffect(() => {
@@ -117,6 +125,24 @@ function FitViewBridge({
       void fitView({ padding: 0.2, duration: 200 });
     };
   }, [fitView, fitViewRef]);
+
+  useEffect(() => {
+    focusPathRef.current = (path: string) => {
+      const node = getNode(path);
+      if (!node) {
+        return;
+      }
+      const width = node.measured?.width ?? 180;
+      const height = node.measured?.height ?? 56;
+      void setCenter(node.position.x + width / 2, node.position.y + height / 2, {
+        zoom: Math.max(getZoom(), 0.75),
+        duration: 250,
+      });
+    };
+    return () => {
+      focusPathRef.current = null;
+    };
+  }, [getNode, setCenter, getZoom, focusPathRef]);
 
   useEffect(() => {
     if (fittedTree.current !== treeId) {
@@ -130,7 +156,7 @@ function FitViewBridge({
 
 function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
   const { screenToFlowPosition, getNodes } = useReactFlow();
-  const { searchQuery, portsVisible, fitViewRef, simStatuses } = useGraphContext();
+  const { searchQuery, portsVisible, fitViewRef, focusPathRef, simStatuses } = useGraphContext();
   const [stagedNodes, setStagedNodes] = useState<StagedNode[]>(() => loadStagedNodes(treeId));
   const layoutPositions = doc.layoutPositions;
   const initial = useMemo(
@@ -295,7 +321,7 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
     setContextMenu({ target, x: e.clientX, y: e.clientY });
   }, []);
 
-  const onPaneContextMenu = useCallback((e: React.MouseEvent) => {
+  const onPaneContextMenu = useCallback((e: MouseEvent | React.MouseEvent) => {
     e.preventDefault();
     setContextMenu({ target: { kind: 'canvas' }, x: e.clientX, y: e.clientY });
   }, []);
@@ -517,10 +543,10 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
           getState<{ viewport?: { x: number; y: number; zoom: number } }>()?.viewport
         }
       >
-        <FitViewBridge treeId={treeId} fitViewRef={fitViewRef} />
+        <FitViewBridge treeId={treeId} fitViewRef={fitViewRef} focusPathRef={focusPathRef} />
         <Background gap={16} />
         <Controls />
-        <MiniMap />
+        <MiniMap pannable zoomable nodeColor={minimapNodeColor} nodeStrokeWidth={2} />
       </ReactFlow>
       {contextMenu && (
         <ContextMenu

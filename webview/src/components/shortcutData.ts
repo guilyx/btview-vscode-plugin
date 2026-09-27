@@ -1,9 +1,11 @@
 export const SHORTCUT_ROWS = [
+  { action: 'Navigate tree (parent / child / siblings)', shortcut: '↑ ↓ ← →' },
   { action: 'Delete node', shortcut: 'Del' },
   { action: 'Deselect', shortcut: 'Esc' },
   { action: 'Rename', shortcut: 'F2' },
   { action: 'Undo / Redo', shortcut: 'Ctrl+Z / Ctrl+Shift+Z' },
   { action: 'Search nodes', shortcut: 'Ctrl+F' },
+  { action: 'Next / previous search match', shortcut: 'Enter / Shift+Enter' },
   { action: 'Fit view', shortcut: 'Ctrl+0' },
   { action: 'Toggle legend', shortcut: 'Ctrl+Shift+G' },
   { action: 'Toggle port labels', shortcut: 'Ctrl+Alt+P' },

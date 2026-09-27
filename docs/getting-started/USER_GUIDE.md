@@ -52,15 +52,18 @@ Set `btview.defaultOpenMode` to `"graph"` or `"side"` to auto-open BTCpp files i
 
 ## Graph editor
 
-- **Pan/zoom**: scroll and drag the canvas; use the controls panel for fit-to-view
+- **Pan/zoom**: scroll and drag the canvas; use the controls panel or minimap; `Ctrl+0` fits the view
 - **Tree selector**: dropdown in the header when multiple `<BehaviorTree ID="...">` exist
 - **Format badge**: shows `BTCpp v3.8` or `BTCpp v4` — edits preserve the detected format
 - **Inspect node**: click a node → right panel shows `name`, ports, and attributes
+- **Keyboard navigation**: arrow keys walk the tree (`↑` parent, `↓` first child, `←`/`→` siblings); press `?` for the full shortcut cheat sheet
+- **Search**: `Ctrl+F`, then `Enter` / `Shift+Enter` to cycle matches — the viewport centers on each hit
 - **Edit attributes**: change values in the inspector; XML updates automatically
-- **Add nodes**: select a parent node, then use toolbar buttons
-- **Delete node**: use the Delete button in the inspector
+- **Add nodes**: drag from the palette sidebar, or connect a staged node to a parent
+- **Delete node**: `Del`, the inspector button, or the right-click menu
 - **Reparent**: drag a node onto a new parent
-- **SubTree**: double-click navigation planned via include buttons
+- **SubTree**: double-click a subtree node to drill in; a breadcrumb trail in the header takes you back
+- **Issues panel**: click a validation issue to jump to the offending node
 - **Includes**: click include chips in the header to open resolved files
 
 ## Commands

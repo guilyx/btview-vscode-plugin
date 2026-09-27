@@ -35,12 +35,7 @@ export interface SerializedDocument {
 }
 
 export type GraphAction =
-  | 'fitView'
-  | 'toggleLegend'
-  | 'togglePorts'
-  | 'focusSearch'
-  | 'deleteNode'
-  | 'showShortcutHelp';
+  'fitView' | 'toggleLegend' | 'togglePorts' | 'focusSearch' | 'deleteNode' | 'showShortcutHelp';
 
 export type WebviewToHostMessage =
   | { type: 'ready' }

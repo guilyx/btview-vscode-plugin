@@ -74,8 +74,7 @@ describe('trace fixtures', () => {
     it(rel, () => {
       const doc = parseDocument(fs.readFileSync(xmlFile, 'utf8'), { sourceUri: xmlFile });
       const scenarios = JSON.parse(fs.readFileSync(traceFile, 'utf8')) as
-        | TraceScenario
-        | TraceScenario[];
+        TraceScenario | TraceScenario[];
       const list = Array.isArray(scenarios) ? scenarios : [scenarios];
       for (const scenario of list) {
         const res = runScenario(doc, scenario);

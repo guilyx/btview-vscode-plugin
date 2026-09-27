@@ -19,15 +19,33 @@ export function SimToolbar() {
   return (
     <div className="sim-toolbar" role="group" aria-label="Simulation controls">
       <span className="sim-label">Sim</span>
-      <button type="button" className="header-btn" onClick={simStep} title="Step one tick">
+      <button
+        type="button"
+        className="header-btn"
+        onClick={simStep}
+        title="Step one tick"
+        aria-label="Step simulation one tick"
+      >
         Step
       </button>
       {simPlaying ? (
-        <button type="button" className="header-btn" onClick={simPause} title="Pause">
+        <button
+          type="button"
+          className="header-btn"
+          onClick={simPause}
+          title="Pause"
+          aria-label="Pause simulation"
+        >
           Pause
         </button>
       ) : (
-        <button type="button" className="header-btn" onClick={simPlay} title="Play (auto-step)">
+        <button
+          type="button"
+          className="header-btn"
+          onClick={simPlay}
+          title="Play (auto-step)"
+          aria-label="Play simulation"
+        >
           Play
         </button>
       )}
@@ -37,11 +55,12 @@ export function SimToolbar() {
         onClick={simReset}
         disabled={!active && !simPlaying}
         title="Reset simulation"
+        aria-label="Reset simulation"
       >
         Reset
       </button>
       {active && (
-        <span className="sim-status" aria-live="polite">
+        <span className="sim-status">
           tick {simTick}
           {simRootStatus ? ` · ${simRootStatus}` : ''}
         </span>

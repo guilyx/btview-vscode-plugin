@@ -52,9 +52,10 @@ function PortField({
   return (
     <label htmlFor={`btview-port-${port.name}`} className="port-field">
       <span className="port-field-label">
-        <span className="port-badge" title={port.direction}>
+        <span className="port-badge" title={port.direction} aria-hidden="true">
           {portBadge(port.direction)}
         </span>
+        <span className="sr-only">{port.direction} port </span>
         {port.name}
         {hint}
       </span>

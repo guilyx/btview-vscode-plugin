@@ -22,6 +22,7 @@ import { issuesForNode } from './utils/issues';
 import { canvasEmptyState } from './utils/onboarding';
 import { LoadErrorState, NoTreesState, type LoadErrorInfo } from './components/EmptyStates';
 import { FirstRunHint } from './components/FirstRunHint';
+import { LiveAnnouncer } from './components/LiveAnnouncer';
 
 function isHostMessage(data: unknown): data is { type: string } & Record<string, unknown> {
   return Boolean(data && typeof data === 'object' && 'type' in data);
@@ -113,6 +114,7 @@ function GraphWorkspaceInner({
   return (
     <>
       {shortcutHelpVisible && <ShortcutHelp onClose={() => setShortcutHelpVisible(false)} />}
+      <LiveAnnouncer />
       <header className="header">
         <div className="header-left">
           <span className="format-badge">BTCpp v{doc.formatVersion}</span>
@@ -165,11 +167,13 @@ function GraphWorkspaceInner({
           )}
           <NodeSearch />
         </div>
-        <div className="header-right">
+        <div className="header-right" role="group" aria-label="Graph tools">
           <button
             type="button"
             className="header-btn"
             onClick={() => setLegendVisible(!legendVisible)}
+            aria-pressed={legendVisible}
+            title="Toggle color legend (Ctrl+Shift+G)"
           >
             Legend
           </button>
@@ -178,6 +182,8 @@ function GraphWorkspaceInner({
             className="header-btn"
             onClick={() => setShortcutHelpVisible(true)}
             title="Keyboard shortcuts (?)"
+            aria-label="Keyboard shortcuts"
+            aria-haspopup="dialog"
           >
             ?
           </button>
@@ -186,6 +192,7 @@ function GraphWorkspaceInner({
               type="button"
               className="header-btn"
               onClick={() => postMessage({ type: 'exportWorkspaceConfig' })}
+              title="Export node types to workspace config"
             >
               Save types
             </button>

@@ -1,0 +1,63 @@
+name: Docs
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'demo/**'
+      - 'webview/**'
+      - 'src/btcpp/**'
+      - 'src/shared/**'
+      - 'fixtures/**'
+      - 'scripts/docs/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'CHANGELOG.md'
+      - '.github/workflows/docs.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: bash scripts/ci-install.sh
+      - name: Build docs site (with live demo)
+        run: npm run docs:build
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Webview crash** — `GraphContextProvider` used `useEffect` without importing it, crashing the graph editor at mount; the webview is now typechecked (`tsconfig.webview.json`, wired into `npm run check-types`) so missing imports and type drift fail CI
 - **Broken install** — `npm ci` failed after the vite 8 bump (`@vitejs/plugin-react@4` peer conflict); upgraded to `@vitejs/plugin-react@6`
+- **macOS integration tests** — bump `@vscode/test-electron` to 3.1.0; VS Code 1.110+ renamed the macOS app binary and the old runner failed with `spawn …/Contents/MacOS/Electron ENOENT`
 - **Issues panel** — clicking a validation issue now selects the offending node and centers the viewport on it (was a no-op)
 
 ## [0.9.0] - 2026-06-22

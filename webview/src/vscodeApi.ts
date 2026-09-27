@@ -21,3 +21,9 @@ export function getState<T>(): T | undefined {
 export function setState<T>(state: T): void {
   vscode?.setState(state);
 }
+
+/** Merge keys into the persisted webview state (`setState` replaces it wholesale). */
+export function patchState(patch: Record<string, unknown>): void {
+  const current = getState<Record<string, unknown>>();
+  setState({ ...(current && typeof current === 'object' ? current : {}), ...patch });
+}

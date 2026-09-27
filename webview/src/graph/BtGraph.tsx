@@ -16,7 +16,7 @@ import { buildFlowGraph, snapToGrid, type FlowNodeData } from './layout';
 import { BtFlowNode } from '../nodes/BtNode';
 import type { BtNodeData, SerializedDocument } from '../types';
 import { BTVIEW_NODE_DRAG, type PaletteDragPayload } from '../panels/NodePaletteSidebar';
-import { getState, postMessage, setState } from '../vscodeApi';
+import { getState, patchState, postMessage } from '../vscodeApi';
 import {
   STAGED_CHANGED_EVENT,
   createStagedId,
@@ -30,6 +30,7 @@ import { useGraphContext } from '../commands/graphContext';
 import { ContextMenu, type ContextTarget } from '../components/ContextMenu';
 import { enrichNodeData, findInTree } from './enrichNodeData';
 import { kindColor } from '../nodes/kindStyles';
+import { EmptyTreeOverlay } from '../components/EmptyStates';
 
 const nodeTypes = { btNode: BtFlowNode };
 
@@ -457,7 +458,7 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
   );
 
   const onMoveEnd = useCallback((_: unknown, viewport: { x: number; y: number; zoom: number }) => {
-    setState({ viewport });
+    patchState({ viewport });
   }, []);
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -512,15 +513,7 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      {showEmptyHint && (
-        <div className="empty-canvas-overlay" aria-hidden="true">
-          <p className="empty-canvas-title">Empty tree canvas</p>
-          <p className="empty-canvas-desc">
-            Drag nodes from the palette — they appear unconnected. Connect parent → child with edge
-            handles, or set a control as root from the inspector.
-          </p>
-        </div>
-      )}
+      {showEmptyHint && <EmptyTreeOverlay treeId={treeId} />}
       <ReactFlow
         nodes={styledNodes}
         edges={edges}

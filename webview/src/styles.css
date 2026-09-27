@@ -741,8 +741,12 @@ html,
 
 .palette-empty {
   font-size: 11px;
-  opacity: 0.6;
+  color: var(--vscode-descriptionForeground, #a0a0a0);
   padding: 8px 4px;
+}
+
+.palette-empty p {
+  margin: 0 0 6px;
 }
 
 .empty-canvas {
@@ -812,10 +816,157 @@ html,
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   pointer-events: none;
   text-align: center;
   padding: 24px;
-  opacity: 0.85;
+}
+
+/* The overlay lets drops reach the canvas; only its buttons take pointer input. */
+.empty-canvas-overlay .empty-canvas-actions {
+  pointer-events: auto;
+}
+
+.empty-canvas-overlay .empty-canvas-desc {
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+  opacity: 1;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  text-align: center;
+  overflow: auto;
+}
+
+.empty-state-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.empty-state-where {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vscode-errorForeground, #f48771);
+}
+
+.empty-state-error {
+  margin: 0;
+  max-width: min(640px, 90vw);
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  text-align: left;
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 12px;
+  border-left: 3px solid var(--vscode-errorForeground, #f48771);
+  background: var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.1));
+}
+
+.empty-state-desc {
+  margin: 0;
+  max-width: 420px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+}
+
+.empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.empty-state-actions button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-button-border, #555);
+  background: var(--vscode-button-secondaryBackground, #333);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+  cursor: pointer;
+}
+
+.empty-state-actions .empty-state-primary,
+.first-run-hint-ok {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #fff);
+  border-color: var(--vscode-button-border, transparent);
+}
+
+.empty-state-actions .empty-state-primary:hover,
+.first-run-hint-ok:hover {
+  background: var(--vscode-button-hoverBackground, #1177bb);
+}
+
+.first-run-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+  width: min(320px, calc(100% - 24px));
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  background: var(--vscode-editorWidget-background, #252526);
+  color: var(--vscode-editorWidget-foreground, inherit);
+  border: 1px solid var(--vscode-editorWidget-border, var(--vscode-panel-border, #454545));
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.first-run-hint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.first-run-hint h2 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.first-run-hint ul {
+  margin: 8px 0;
+  padding-left: 18px;
+}
+
+.first-run-hint li + li {
+  margin-top: 4px;
+}
+
+.first-run-hint-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.first-run-hint-ok {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.palette-empty-clear {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--vscode-button-border, #555);
+  background: var(--vscode-button-secondaryBackground, #333);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+  cursor: pointer;
 }
 
 .bt-node.staged {

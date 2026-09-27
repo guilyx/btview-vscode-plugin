@@ -3,7 +3,7 @@ import { BtGraphController } from './preview/BtGraphController';
 import { BtCustomEditorProvider } from './preview/BtCustomEditorProvider';
 import { resolveTargetUri } from './commands/targetUri';
 import { convertToV4 } from './commands/convertToV4';
-import { newTree } from './commands/newTree';
+import { newTree, type NewTreeArgs } from './commands/newTree';
 import { getOutputChannel, disposeOutputChannel } from './logging/outputChannel';
 import { clearRosCache } from './ros/packageResolver';
 import { BtCodeActionProvider } from './diagnostics/BtCodeActionProvider';
@@ -71,9 +71,9 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
 
-    vscode.commands.registerCommand('btview.newTree', () => {
-      void newTree();
-    }),
+    vscode.commands.registerCommand('btview.newTree', (args?: NewTreeArgs) =>
+      newTree(args && typeof args === 'object' && !(args instanceof vscode.Uri) ? args : {}),
+    ),
 
     vscode.commands.registerCommand('btview.graph.undo', () => {
       void controller.graphUndo();

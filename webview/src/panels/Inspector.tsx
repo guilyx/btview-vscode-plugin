@@ -190,7 +190,8 @@ export function Inspector({
       <div className="inspector empty" role="complementary" aria-label="Node inspector">
         <p className="inspector-empty-title">Node inspector</p>
         <p className="inspector-hint">
-          Click a node on the canvas to edit its type, name, and ports.
+          Click a node on the canvas (or walk the tree with the arrow keys) to edit its type, name,
+          and ports.
         </p>
       </div>
     );

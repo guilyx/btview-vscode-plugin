@@ -1,4 +1,4 @@
-import type { NodeKind, NodeModel, PortModel } from './types';
+import type { BtDocument, BtNode, NodeKind, NodeModel, PortModel } from './types';
 
 const BUILTIN_CONTROLS_V3 = [
   'Sequence',
@@ -170,4 +170,27 @@ export function mergeModels(
     merged.set(k, v);
   }
   return merged;
+}
+
+/**
+ * Resolve the kind of nodes that could not be classified from their tag alone (e.g. a
+ * v3 compact `<RecoveryNode>` element) using the document's `<TreeNodesModel>`
+ * declarations (`<Control ID="RecoveryNode"/>`). Mutates and returns `doc`.
+ */
+export function applyModelKinds(doc: BtDocument): BtDocument {
+  const visit = (node: BtNode): void => {
+    if (node.kind === 'unknown') {
+      const model = doc.models.get(node.registeredId);
+      if (model && model.kind !== 'unknown') {
+        node.kind = model.kind;
+      }
+    }
+    node.children.forEach(visit);
+  };
+  for (const tree of doc.trees) {
+    if (tree.root) {
+      visit(tree.root);
+    }
+  }
+  return doc;
 }

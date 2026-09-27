@@ -37,4 +37,16 @@ describe('Nav2 navigate_w_replanning_and_recovery fixture', () => {
       expect.arrayContaining(['goal', 'path', 'planner_id']),
     );
   });
+
+  it('classifies compact custom nodes from their TreeNodesModel kind', () => {
+    const doc = parseDocument(fixture);
+    const root = doc.trees[0].root!;
+    expect(root.kind).toBe('control'); // RecoveryNode
+    expect(root.children[0].kind).toBe('control'); // PipelineSequence
+    const rate = root.children[0].children[0];
+    expect(rate.registeredId).toBe('RateController');
+    expect(rate.kind).toBe('decorator');
+    expect(rate.children[0].children[0].kind).toBe('action'); // ComputePathToPose
+    expect(root.children[1].children[0].kind).toBe('condition'); // GoalUpdated
+  });
 });

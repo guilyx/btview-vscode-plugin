@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Custom node kinds** — compact custom nodes (e.g. Nav2's v3 `<RecoveryNode>`, `<RateController>`, `<ComputePathToPose>`) now take their kind from the matching `<TreeNodesModel>` declaration (including models from included files) instead of rendering as UNKNOWN; the simulator ticks them as controls/decorators accordingly
 - **Webview crash** — `GraphContextProvider` used `useEffect` without importing it, crashing the graph editor at mount; the webview is now typechecked (`tsconfig.webview.json`, wired into `npm run check-types`) so missing imports and type drift fail CI
 - **Broken install** — `npm ci` failed after the vite 8 bump (`@vitejs/plugin-react@4` peer conflict); upgraded to `@vitejs/plugin-react@6`
 - **macOS integration tests** — bump `@vscode/test-electron` to 3.1.0; VS Code 1.110+ renamed the macOS app binary and the old runner failed with `spawn …/Contents/MacOS/Electron ENOENT`

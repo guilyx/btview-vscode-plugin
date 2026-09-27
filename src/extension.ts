@@ -6,15 +6,18 @@ import { convertToV4 } from './commands/convertToV4';
 import { newTree } from './commands/newTree';
 import { getOutputChannel, disposeOutputChannel } from './logging/outputChannel';
 import { clearRosCache } from './ros/packageResolver';
+import { BtCodeActionProvider } from './diagnostics/BtCodeActionProvider';
 
 export function activate(context: vscode.ExtensionContext): void {
   const controller = BtGraphController.getInstance(context.extensionUri);
+  controller.getSyncService().setGlobalState(context.globalState);
   controller.registerWorkspaceListeners();
   context.subscriptions.push({ dispose: () => controller.dispose() });
 
   context.subscriptions.push(
     getOutputChannel(),
     BtCustomEditorProvider.register(context, controller),
+    BtCodeActionProvider.register(),
 
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (

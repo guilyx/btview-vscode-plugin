@@ -13,10 +13,16 @@ import {
   reorderChildren,
 } from '../btcpp/editOperations';
 import { validateDocument, type ValidationError } from '../btcpp/validation';
+import { findIssue, quickFixesForIssue, type IssueRef } from '../btcpp/quickFixes';
+import { checkXmlSyntax, XmlSyntaxError } from '../btcpp/xmlSyntax';
 import { addNodeModel, deleteNodeModel } from '../btcpp/modelEditOperations';
 import { buildNodePalette } from '../btcpp/nodeRegistry';
 import { getRosConfig, getDefaultFormatVersion, getNodeTypeMap } from '../config/settings';
-import type { SerializedDocument, WebviewToHostMessage } from '../shared/protocol';
+import type {
+  SerializedDocument,
+  ValidationIssuePayload,
+  WebviewToHostMessage,
+} from '../shared/protocol';
 import { logInfo } from '../logging/outputChannel';
 import { EditStack } from './EditStack';
 import { clearLayout, getLayoutForTree, loadLayout, saveLayout } from '../layout/LayoutStore';
@@ -28,11 +34,47 @@ export interface ApplyEditResult {
   error?: ValidationError;
 }
 
+const ONBOARDING_DISMISSED_KEY = 'btview.onboardingDismissed';
+
+/**
+ * Parse XML text with the user's BTView settings (format default, node type map, ROS
+ * include resolution). Throws `XmlSyntaxError` for XML that is not well-formed.
+ */
+export async function parseWithWorkspaceSettings(
+  xmlText: string,
+  uri: vscode.Uri,
+): Promise<BtDocument> {
+  const syntax = checkXmlSyntax(xmlText);
+  if (syntax) {
+    throw new XmlSyntaxError(syntax);
+  }
+  const rosConfig = getRosConfig();
+  rosConfig.workspaceFolders = (vscode.workspace.workspaceFolders ?? []).map((f) => f.uri.fsPath);
+
+  return loadDocumentWithIncludes(xmlText, uri.fsPath, {
+    defaultFormatVersion: getDefaultFormatVersion(),
+    rosConfig,
+    nodeTypeMap: getNodeTypeMap(),
+  });
+}
+
 export class DocumentSyncService {
   private documents = new Map<string, BtDocument>();
+  /** XML text each document was last loaded from (quick fixes are computed against it). */
+  private texts = new Map<string, string>();
   private activeTreeIds = new Map<string, string>();
   private validationErrors = new Map<string, ValidationError[]>();
   private readonly editStack = new EditStack();
+  private globalState: vscode.Memento | undefined;
+
+  /** Extension global state, used for cross-editor UI flags such as the first-run hint. */
+  setGlobalState(memento: vscode.Memento): void {
+    this.globalState = memento;
+  }
+
+  async dismissOnboarding(): Promise<void> {
+    await this.globalState?.update(ONBOARDING_DISMISSED_KEY, true);
+  }
 
   private workspaceRoot(): string | undefined {
     return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -44,14 +86,7 @@ export class DocumentSyncService {
   }
 
   async loadFromText(xmlText: string, uri: vscode.Uri): Promise<BtDocument> {
-    const rosConfig = getRosConfig();
-    rosConfig.workspaceFolders = (vscode.workspace.workspaceFolders ?? []).map((f) => f.uri.fsPath);
-
-    const doc = await loadDocumentWithIncludes(xmlText, uri.fsPath, {
-      defaultFormatVersion: getDefaultFormatVersion(),
-      rosConfig,
-      nodeTypeMap: getNodeTypeMap(),
-    });
+    const doc = await parseWithWorkspaceSettings(xmlText, uri);
 
     const errors = validateDocument(doc);
     this.validationErrors.set(uri.toString(), errors);
@@ -60,6 +95,7 @@ export class DocumentSyncService {
     }
 
     this.documents.set(uri.toString(), doc);
+    this.texts.set(uri.toString(), xmlText);
 
     const defaultTree = doc.mainTreeToExecute ?? doc.trees[0]?.id ?? 'MainTree';
     if (!this.activeTreeIds.has(uri.toString())) {
@@ -71,6 +107,11 @@ export class DocumentSyncService {
 
   getDocument(uri: vscode.Uri): BtDocument | undefined {
     return this.documents.get(uri.toString());
+  }
+
+  /** XML text the current document state was loaded from. */
+  getText(uri: vscode.Uri): string | undefined {
+    return this.texts.get(uri.toString());
   }
 
   getValidationErrors(uri: vscode.Uri): ValidationError[] {
@@ -92,6 +133,17 @@ export class DocumentSyncService {
     }
 
     const errors = this.validationErrors.get(uri.toString()) ?? [];
+    const text = this.texts.get(uri.toString());
+    const issues: ValidationIssuePayload[] = errors.map((e) => ({
+      path: e.path,
+      message: e.message,
+      code: e.code,
+      treeId: e.treeId,
+      fixes:
+        text !== undefined
+          ? quickFixesForIssue(text, doc, e).map((f) => ({ kind: f.kind, title: f.title }))
+          : undefined,
+    }));
 
     const nodeTypeMap = getNodeTypeMap();
     const activeTreeId = this.getActiveTreeId(uri);
@@ -120,10 +172,11 @@ export class DocumentSyncService {
         error: i.error,
       })),
       warnings: doc.warnings,
-      validationErrors: errors.length > 0 ? errors : undefined,
+      validationErrors: issues.length > 0 ? issues : undefined,
       layoutPositions,
       showNodePorts,
       simpleMode,
+      onboardingDismissed: this.globalState?.get<boolean>(ONBOARDING_DISMISSED_KEY, false),
     };
   }
 
@@ -159,6 +212,56 @@ export class DocumentSyncService {
     const fullRange = await this.getFullRange(uri);
     editBuilder.replace(uri, fullRange, xml);
     await vscode.workspace.applyEdit(editBuilder);
+    return { success: true };
+  }
+
+  /**
+   * Apply a validation quick fix as a text edit on the XML. The pre-fix document is pushed
+   * onto the graph edit stack so graph Undo reverts it like any other graph edit.
+   * `fixId` is the fix title (unique per issue) or, for convenience, its kind.
+   */
+  async applyQuickFix(uri: vscode.Uri, ref: IssueRef, fixId: string): Promise<ApplyEditResult> {
+    const key = uri.toString();
+    const doc = this.documents.get(key);
+    const text = this.texts.get(key);
+    if (!doc || text === undefined) {
+      return { success: false, error: { path: '', message: 'Document not loaded.' } };
+    }
+    const issue = findIssue(this.validationErrors.get(key) ?? [], ref);
+    const candidates = issue ? quickFixesForIssue(text, doc, issue) : [];
+    const fix =
+      candidates.find((f) => f.title === fixId) ?? candidates.find((f) => f.kind === fixId);
+    if (!fix) {
+      return {
+        success: false,
+        error: { path: ref.path, message: 'Quick fix no longer applies; the document changed.' },
+      };
+    }
+
+    const textDoc = await vscode.workspace.openTextDocument(uri);
+    if (textDoc.getText() !== text) {
+      return {
+        success: false,
+        error: { path: ref.path, message: 'Quick fix no longer applies; the document changed.' },
+      };
+    }
+    this.editStack.pushBeforeEdit(key, doc);
+    const workspaceEdit = new vscode.WorkspaceEdit();
+    for (const edit of fix.edits) {
+      workspaceEdit.replace(
+        uri,
+        new vscode.Range(textDoc.positionAt(edit.start), textDoc.positionAt(edit.end)),
+        edit.newText,
+      );
+    }
+    const applied = await vscode.workspace.applyEdit(workspaceEdit);
+    if (!applied) {
+      this.editStack.discardLastUndo(key);
+      return {
+        success: false,
+        error: { path: ref.path, message: 'Quick fix could not be applied.' },
+      };
+    }
     return { success: true };
   }
 
@@ -210,7 +313,10 @@ export class DocumentSyncService {
           | 'goToSource'
           | 'exportWorkspaceConfig'
           | 'saveLayout'
-          | 'resetLayout';
+          | 'resetLayout'
+          | 'sim'
+          | 'applyQuickFix'
+          | 'dismissOnboarding';
       }
     >,
   ): Promise<ApplyEditResult> {
@@ -308,6 +414,7 @@ export class DocumentSyncService {
 
   clear(uri: vscode.Uri): void {
     this.documents.delete(uri.toString());
+    this.texts.delete(uri.toString());
     this.activeTreeIds.delete(uri.toString());
     this.validationErrors.delete(uri.toString());
     this.editStack.clear(uri);

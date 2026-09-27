@@ -18,6 +18,7 @@ import { postMessage } from './vscodeApi';
 import { GraphContextProvider, useGraphContext } from './commands/graphContext';
 import { useGraphHotkeys } from './commands/useGraphHotkeys';
 import { resolveNodePorts } from './utils/portResolution';
+import { issuesForNode } from './utils/issues';
 
 function isHostMessage(data: unknown): data is { type: string } & Record<string, unknown> {
   return Boolean(data && typeof data === 'object' && 'type' in data);
@@ -61,7 +62,7 @@ function toFlowNodeData(
         .slice(0, 3)
     : undefined;
 
-  const hasWarning = doc.validationErrors?.some((e) => e.path === node.path);
+  const hasWarning = issuesForNode(doc, doc.activeTreeId, node.path).length > 0;
 
   return {
     label,
@@ -315,7 +316,7 @@ export function App() {
         setWaitingForHost(false);
         setDoc(msg.document);
         setSaving(false);
-      } else if (msg.type === 'error') {
+      } else if (msg.type === 'error' || msg.type === 'loadError') {
         setWaitingForHost(false);
         setError(msg.message);
         setSaving(false);

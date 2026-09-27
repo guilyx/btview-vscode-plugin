@@ -68,6 +68,7 @@ export function parseV4Document(xmlText: string, options: ParseOptions = {}): Bt
 
   return {
     formatVersion: 4,
+    declaredFormat: rootAttrs.BTCPP_format ?? '',
     mainTreeToExecute,
     trees,
     models,

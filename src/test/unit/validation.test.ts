@@ -8,6 +8,9 @@ import {
   validateSubtreeReferences,
   validateSubtreeCycles,
   validateNodePorts,
+  validateHasTrees,
+  validateDeclaredFormat,
+  validateMainTreeDeclared,
 } from '../../btcpp/validation';
 import type { BtNode, BtDocument, NodeModel } from '../../btcpp/types';
 
@@ -180,5 +183,55 @@ describe('validateNodePorts required ports', () => {
       children: [],
     };
     expect(validateNodePorts(node, models)).toEqual([]);
+  });
+});
+
+describe('document-level checks', () => {
+  it('flags a file without trees', () => {
+    expect(validateHasTrees(doc([]))[0]?.code).toBe('no-behavior-tree');
+    expect(validateHasTrees(doc([{ id: 'Main', root: null }]))).toEqual([]);
+  });
+
+  it('flags v4 documents that do not declare BTCPP_format="4"', () => {
+    const tree = [{ id: 'Main', root: leaf('0') }];
+    expect(validateDeclaredFormat(doc(tree, { declaredFormat: '' }))[0]?.code).toBe(
+      'missing-btcpp-format',
+    );
+    expect(validateDeclaredFormat(doc(tree, { declaredFormat: '4' }))).toEqual([]);
+    // Documents built in code carry no declared format and are not checked.
+    expect(validateDeclaredFormat(doc(tree))).toEqual([]);
+    expect(validateDeclaredFormat(doc(tree, { formatVersion: 3, declaredFormat: '' }))).toEqual([]);
+  });
+
+  it('flags several local trees without main_tree_to_execute', () => {
+    const two = [
+      { id: 'A', root: leaf('0') },
+      { id: 'B', root: leaf('0') },
+    ];
+    expect(validateMainTreeDeclared(doc(two))[0]?.code).toBe('missing-main-tree');
+    expect(validateMainTreeDeclared(doc(two, { mainTreeToExecute: 'A' }))).toEqual([]);
+    expect(validateMainTreeDeclared(doc([two[0]!]))).toEqual([]);
+    // Trees pulled in through <include> do not count.
+    const included = [two[0]!, { ...two[1]!, sourceUri: '/other.xml' }];
+    expect(validateMainTreeDeclared(doc(included, { sourceUri: '/main.xml' }))).toEqual([]);
+  });
+
+  it('tags node issues with a stable code and their tree', () => {
+    const d = doc(
+      [
+        { id: 'Main', root: control('0', [subtree('0-0', 'Ghost')]) },
+        { id: 'Other', root: leaf('0') },
+      ],
+      { mainTreeToExecute: 'Main' },
+    );
+    const errors = validateDocument(d);
+    expect(errors).toEqual([
+      expect.objectContaining({
+        code: 'undefined-subtree',
+        treeId: 'Main',
+        path: '0-0',
+        data: { target: 'Ghost' },
+      }),
+    ]);
   });
 });

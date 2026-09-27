@@ -5,6 +5,8 @@ import { removeStagedNode, updateStagedNode } from '../graph/stagedNodes';
 import { postMessage } from '../vscodeApi';
 import { resolveNodePorts, type ResolvedPort } from '../utils/portResolution';
 import { useGraphContext } from '../commands/graphContext';
+import { issuesForNode } from '../utils/issues';
+import { QuickFixButtons } from '../components/QuickFixButtons';
 
 const NODE_KINDS = [
   'control',
@@ -84,7 +86,7 @@ export function Inspector({
   nodePalette,
   models,
 }: InspectorProps) {
-  const { renameRequestPath, requestRename } = useGraphContext();
+  const { renameRequestPath, requestRename, doc } = useGraphContext();
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [draftName, setDraftName] = useState('');
   const [draftKind, setDraftKind] = useState<string>('action');
@@ -291,10 +293,26 @@ export function Inspector({
     );
   }
 
+  const nodeIssues = issuesForNode(doc, treeId, node.path);
+
   return (
     <div className="inspector" role="complementary" aria-label="Node inspector">
       <h3>{draftTypeId || node.registeredId}</h3>
       <p className="meta">BTCpp v{formatVersion}</p>
+
+      {nodeIssues.length > 0 && (
+        <div className="inspector-issues" role="group" aria-label="Issues on this node">
+          <p className="inspector-section-label">Issues</p>
+          <ul>
+            {nodeIssues.map((issue, i) => (
+              <li key={`${issue.code ?? 'issue'}-${i}`}>
+                <span>{issue.message}</span>
+                <QuickFixButtons issue={issue} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {definitionFields}
 

@@ -42,6 +42,11 @@ export interface IncludeRef {
 
 export interface BtDocument {
   formatVersion: FormatVersion;
+  /**
+   * Raw `BTCPP_format` attribute on `<root>` as written in the file (`''` when absent).
+   * Left `undefined` for documents built in code, which carry no source to check against.
+   */
+  declaredFormat?: string;
   mainTreeToExecute?: string;
   trees: BtTree[];
   models: Map<string, NodeModel>;

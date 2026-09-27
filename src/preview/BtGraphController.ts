@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { DocumentSyncService } from '../sync/DocumentSyncService';
+import { DocumentSyncService, parseWithWorkspaceSettings } from '../sync/DocumentSyncService';
+import { validateDocument } from '../btcpp/validation';
+import { XmlSyntaxError } from '../btcpp/xmlSyntax';
 import { parseWebviewMessage, type HostToWebviewMessage } from '../shared/protocol';
 import { logError, logInfo } from '../logging/outputChannel';
 import { DiagnosticsService } from '../diagnostics/DiagnosticsService';
@@ -48,6 +50,7 @@ export class BtGraphController {
   private readonly simulators = new Map<string, Simulator>();
   private readonly webviewDocumentLoaded = new WeakMap<vscode.Webview, boolean>();
   private readonly loadRetryTimers = new WeakMap<vscode.Webview, ReturnType<typeof setInterval>>();
+  private readonly textValidationTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   private disposables: vscode.Disposable[] = [];
 
@@ -97,8 +100,13 @@ export class BtGraphController {
   }
 
   registerWorkspaceListeners(): void {
+    for (const document of vscode.workspace.textDocuments) {
+      this.scheduleTextValidation(document);
+    }
     this.disposables.push(
+      vscode.workspace.onDidOpenTextDocument((document) => this.scheduleTextValidation(document)),
       vscode.workspace.onDidChangeTextDocument((e) => {
+        this.scheduleTextValidation(e.document);
         if (this.scheduler.shouldSkipRefresh(e.document.uri)) {
           return;
         }
@@ -109,6 +117,10 @@ export class BtGraphController {
       vscode.workspace.onDidCloseTextDocument((doc) => {
         this.scheduler.unmarkAutoOpened(doc.uri);
         this.scheduler.clearTimer(doc.uri);
+        this.clearTextValidationTimer(doc.uri);
+        if (!this.panels.hasBindings(doc.uri)) {
+          this.diagnostics.clear(doc.uri);
+        }
       }),
       vscode.window.onDidChangeActiveTextEditor((editor) => {
         if (editor) {
@@ -116,6 +128,73 @@ export class BtGraphController {
         }
       }),
     );
+  }
+
+  /**
+   * Keep Problems-panel diagnostics (and therefore XML quick fixes) live for BTCpp files
+   * edited as plain text. Files with an open graph are validated by `refreshUri` instead.
+   */
+  private scheduleTextValidation(document: vscode.TextDocument): void {
+    const scheme = document.uri.scheme;
+    if (document.languageId !== 'xml' || (scheme !== 'file' && scheme !== 'untitled')) {
+      return;
+    }
+    if (this.panels.hasBindings(document.uri)) {
+      return;
+    }
+    const key = document.uri.toString();
+    this.clearTextValidationTimer(document.uri);
+    this.textValidationTimers.set(
+      key,
+      setTimeout(() => {
+        this.textValidationTimers.delete(key);
+        void this.validateTextDocument(document);
+      }, 300),
+    );
+  }
+
+  private clearTextValidationTimer(uri: vscode.Uri): void {
+    const key = uri.toString();
+    const timer = this.textValidationTimers.get(key);
+    if (timer) {
+      clearTimeout(timer);
+      this.textValidationTimers.delete(key);
+    }
+  }
+
+  private async validateTextDocument(document: vscode.TextDocument): Promise<void> {
+    if (document.isClosed || this.panels.hasBindings(document.uri)) {
+      return;
+    }
+    const text = document.getText();
+    if (!looksLikeBtCpp(text)) {
+      this.diagnostics.clear(document.uri);
+      return;
+    }
+    try {
+      const doc = await parseWithWorkspaceSettings(text, document.uri);
+      this.diagnostics.setValidationErrors(document.uri, validateDocument(doc), text);
+    } catch (err) {
+      this.reportLoadError(document.uri, err);
+    }
+  }
+
+  private reportLoadError(uri: vscode.Uri, err: unknown): string {
+    const message = err instanceof Error ? err.message : String(err);
+    this.diagnostics.setLoadError(
+      uri,
+      message,
+      err instanceof XmlSyntaxError ? err.issue : undefined,
+    );
+    return message;
+  }
+
+  /** After the last graph for `uri` closes, fall back to text validation if it is still open. */
+  private revalidateOpenText(uri: vscode.Uri): void {
+    const open = vscode.workspace.textDocuments.find((d) => d.uri.toString() === uri.toString());
+    if (open) {
+      this.scheduleTextValidation(open);
+    }
   }
 
   getSyncService(): DocumentSyncService {
@@ -129,6 +208,10 @@ export class BtGraphController {
   dispose(): void {
     this.disposables.forEach((d) => d.dispose());
     this.disposables = [];
+    for (const timer of this.textValidationTimers.values()) {
+      clearTimeout(timer);
+    }
+    this.textValidationTimers.clear();
     this.scheduler.dispose();
     this.panels.dispose();
     this.diagnostics.dispose();
@@ -162,7 +245,11 @@ export class BtGraphController {
     }
 
     const document = await vscode.workspace.openTextDocument(uri);
-    await this.syncService.loadFromFile(uri);
+    try {
+      await this.syncService.loadFromFile(uri);
+    } catch {
+      // Reported to the webview (and Problems panel) by the refresh below.
+    }
 
     this.panels.createSidePanel(
       uri,
@@ -172,6 +259,7 @@ export class BtGraphController {
           this.syncService.clear(uri);
           this.diagnostics.clear(uri);
           this.initialLoadDone.delete(uri.toString());
+          this.revalidateOpenText(uri);
         }
       },
       (msg, webview) => {
@@ -195,7 +283,11 @@ export class BtGraphController {
     }
     const uri = document.uri;
 
-    await this.syncService.loadFromText(document.getText(), uri);
+    try {
+      await this.syncService.loadFromText(document.getText(), uri);
+    } catch {
+      // Still open the editor: the refresh below shows the load error with a way back to XML.
+    }
 
     this.panels.setupCustomEditorWebview(
       uri,
@@ -205,6 +297,7 @@ export class BtGraphController {
           this.syncService.clear(uri);
           this.diagnostics.clear(uri);
           this.initialLoadDone.delete(uri.toString());
+          this.revalidateOpenText(uri);
         }
       },
       (msg, webview) => {
@@ -266,7 +359,7 @@ export class BtGraphController {
       }
 
       const validationErrors = this.syncService.getValidationErrors(uri);
-      this.diagnostics.setValidationErrors(uri, validationErrors);
+      this.diagnostics.setValidationErrors(uri, validationErrors, this.syncService.getText(uri));
 
       const key = uri.toString();
       const firstLoad = !this.initialLoadDone.has(key);
@@ -285,10 +378,19 @@ export class BtGraphController {
         this.outboundGate.post(webview, message);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
       logError('Failed to load document', err);
+      const message = this.reportLoadError(uri, err);
+      const syntax = err instanceof XmlSyntaxError ? err.issue : undefined;
+      // Drop the stale model so graph edits cannot overwrite the broken XML.
+      this.syncService.clear(uri);
+      this.initialLoadDone.delete(uri.toString());
       for (const webview of webviews) {
-        this.outboundGate.post(webview, { type: 'error', message });
+        this.outboundGate.post(webview, {
+          type: 'loadError',
+          message: syntax?.message ?? message,
+          line: syntax?.line,
+          column: syntax?.column,
+        });
       }
     }
   }
@@ -336,6 +438,22 @@ export class BtGraphController {
           await this.refreshUri(uri, false);
           break;
         }
+        case 'applyQuickFix': {
+          this.scheduler.markSelfEdit(uri);
+          const result = await this.syncService.applyQuickFix(uri, msg.issue, msg.fix);
+          if (!result.success) {
+            // No edit happened: consume the self-edit marker so the next real change refreshes.
+            this.scheduler.shouldSkipRefresh(uri);
+            const errMsg = result.error?.message ?? 'Quick fix failed';
+            this.postToAllWebviews(uri, { type: 'validationError', message: errMsg });
+            void vscode.window.showWarningMessage(`BTView: ${errMsg}`);
+          }
+          await this.refreshUri(uri, false);
+          break;
+        }
+        case 'dismissOnboarding':
+          await this.syncService.dismissOnboarding();
+          break;
         case 'openInclude': {
           const target = msg.resolvedUri;
           if (target) {

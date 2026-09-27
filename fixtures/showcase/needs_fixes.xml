@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Intentionally broken tree: exercises the validation pack (issues panel and
+  Problems panel). Every problem below is reported against a node path.
+-->
+<root BTCPP_format="4" main_tree_to_execute="Patrol">
+  <BehaviorTree ID="Patrol">
+    <Sequence name="patrol_loop">
+      <Action ID="NavigateTo" name="go_to_waypoint" planner="NavFn"/>
+      <Inverter name="not_blocked">
+        <Condition ID="IsPathBlocked" name="path_blocked"/>
+        <Condition ID="IsDoorOpen" name="door_open"/>
+      </Inverter>
+      <Action ID="TakePhoto" name="snapshot" resolution="4k" exposure="auto"/>
+      <SubTree ID="Inspect" name="inspect_area"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Action ID="NavigateTo">
+      <input_port name="goal" type="geometry_msgs::msg::PoseStamped"/>
+      <input_port name="planner" type="std::string" default="NavFn"/>
+    </Action>
+    <Action ID="TakePhoto">
+      <input_port name="resolution" type="std::string"/>
+    </Action>
+    <Condition ID="IsPathBlocked"/>
+    <Condition ID="IsDoorOpen"/>
+  </TreeNodesModel>
+</root>

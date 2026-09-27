@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Try BTView in your browser: the BehaviorTree.CPP graph editor from VS Code and Cursor, running on the real parser, validator and simulator."
+    />
+    <title>BTView — live demo</title>
+  </head>
+  <body>
+    <div class="demo-app">
+      <header class="titlebar">
+        <div class="brand">
+          <svg viewBox="0 0 128 128" width="20" height="20" aria-hidden="true">
+            <line x1="64" y1="36" x2="36" y2="54" class="logo-edge" />
+            <line x1="64" y1="36" x2="92" y2="54" class="logo-edge" />
+            <line x1="36" y1="74" x2="64" y2="94" class="logo-edge" />
+            <line x1="92" y1="74" x2="64" y2="94" class="logo-edge" />
+            <circle cx="64" cy="24" r="14" fill="#4a9eff" />
+            <circle cx="36" cy="64" r="12" fill="#4ade80" />
+            <circle cx="92" cy="64" r="12" fill="#4ade80" />
+            <circle cx="64" cy="104" r="12" fill="#a78bfa" />
+          </svg>
+          <span class="brand-name">BTView</span>
+          <span class="brand-badge">Live demo</span>
+        </div>
+        <div class="controls">
+          <label class="control">
+            <span>File</span>
+            <select id="file-select" aria-label="Behavior tree file"></select>
+          </label>
+          <label class="control">
+            <span>Sim outcomes</span>
+            <select id="scenario-select" aria-label="Simulation leaf outcomes"></select>
+          </label>
+          <button type="button" id="btn-verify" class="shell-btn" title="Bounded exhaustive check">
+            Verify tree
+          </button>
+          <button
+            type="button"
+            id="btn-traces"
+            class="shell-btn"
+            title="Run *.trace.json scenarios"
+          >
+            Run trace tests
+          </button>
+          <button type="button" id="btn-xml" class="shell-btn" aria-pressed="true">XML</button>
+          <button type="button" id="btn-theme" class="shell-btn" title="Toggle light / dark theme">
+            Theme
+          </button>
+          <a
+            class="shell-btn link"
+            href="https://github.com/guilyx/btview-vscode-plugin"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
+        </div>
+      </header>
+
+      <main class="editor-area">
+        <section class="editor-group graph-group">
+          <div class="tabs" role="tablist">
+            <div class="tab active" role="tab" aria-selected="true">
+              <span class="tab-icon graph" aria-hidden="true"></span>
+              <span id="graph-tab-name">tree.xml</span>
+              <span class="tab-desc">BT Graph</span>
+            </div>
+          </div>
+          <iframe id="webview" title="BTView graph editor"></iframe>
+        </section>
+        <section class="editor-group xml-group" id="xml-group">
+          <div class="tabs" role="tablist">
+            <div class="tab active" role="tab" aria-selected="true">
+              <span class="tab-icon xml" aria-hidden="true"></span>
+              <span id="xml-tab-name">tree.xml</span>
+              <span class="tab-desc">read-only</span>
+            </div>
+          </div>
+          <div id="xml" class="xml-view" aria-label="XML source" tabindex="0"></div>
+          <div id="output" class="output-panel" hidden>
+            <div class="output-head">
+              <span>OUTPUT — BTView</span>
+              <button type="button" id="output-close" class="output-close" aria-label="Close">
+                ×
+              </button>
+            </div>
+            <pre id="output-body"></pre>
+          </div>
+        </section>
+      </main>
+
+      <footer class="statusbar">
+        <span class="status-item accent" id="status-format">BTCpp v4</span>
+        <span class="status-item" id="status-issues">No issues</span>
+        <span class="status-item" id="status-sim"></span>
+        <span class="status-spacer"></span>
+        <span class="status-item muted"
+          >Same webview as the extension · <code>ext install rangonomics.btview</code></span
+        >
+      </footer>
+      <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    </div>
+    <script type="module" src="./src/shell.ts"></script>
+  </body>
+</html>

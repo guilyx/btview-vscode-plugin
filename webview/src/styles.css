@@ -1324,7 +1324,8 @@ select {
   margin-bottom: 10px;
   padding: 6px 8px;
   border-left: 3px solid var(--vscode-editorWarning-foreground, #cca700);
-  background: var(--vscode-inputValidation-warningBackground, rgba(204, 167, 0, 0.1));
+  background: color-mix(in srgb, var(--vscode-editorWarning-foreground, #cca700) 10%, transparent);
+  color: var(--vscode-foreground, inherit);
   border-radius: 3px;
 }
 

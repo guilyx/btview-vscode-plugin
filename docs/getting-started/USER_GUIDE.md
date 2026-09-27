@@ -63,8 +63,38 @@ Set `btview.defaultOpenMode` to `"graph"` or `"side"` to auto-open BTCpp files i
 - **Delete node**: `Del`, the inspector button, or the right-click menu
 - **Reparent**: drag a node onto a new parent
 - **SubTree**: double-click a subtree node to drill in; a breadcrumb trail in the header takes you back
-- **Issues panel**: click a validation issue to jump to the offending node
+- **Issues panel**: click a validation issue to jump to the offending node; **Fix** applies a quick fix
 - **Includes**: click include chips in the header to open resolved files
+
+### Getting started and empty states
+
+- A **Getting started** card lists the basics the first time you open a graph; dismiss it once and it stays hidden in every editor
+- **Empty tree**: pick **Start with Sequence** / **Start with Fallback**, or drag nodes from the palette and connect them
+- **No `<BehaviorTree>` in the file**: **Add BehaviorTree** creates `MainTree` (and sets `main_tree_to_execute`)
+- **XML that does not parse**: the graph shows the error with its line and column plus **Open XML Source**; it reloads by itself once the XML is fixed. The same error is in the Problems panel
+- **BTView: New Behavior Tree** opens an empty canvas directly in the graph
+
+## Validation and quick fixes
+
+BTView validates BTCpp XML whether it is open as text or as a graph. Issues appear in the **Problems** panel (source `btview`), anchored on the offending element, each with a stable code.
+
+| Where                 | How                                                                    |
+| --------------------- | ---------------------------------------------------------------------- |
+| XML editor            | Put the cursor on the squiggle → lightbulb or `Ctrl+.`                 |
+| XML editor (v3 files) | **Source Action…** → **Convert file to BTCpp v4** (in place, undoable) |
+| Graph Issues panel    | **Fix** next to the issue                                              |
+| Graph inspector       | **Fix** in the selected node's Issues box                              |
+
+Available fixes: create a stub tree for an unknown `<SubTree ID>`, set or retarget `main_tree_to_execute`, add a missing required port as `port="{port}"`, rename a duplicate `<BehaviorTree ID>`, declare `BTCPP_format="4"`, remove an unknown attribute, convert a v3 file that uses v4-only nodes, and add a first `<BehaviorTree>`. Fixes edit only the affected text (comments and formatting are kept). In the XML editor undo with `Ctrl+Z`; from the graph use graph Undo. See [Command surfaces](../planning/COMMAND_SURFACES.md#validation-quick-fixes-09) for the full code → fix table.
+
+## Keyboard and accessibility
+
+- **Tab** / **Shift+Tab** move between node cards (focus selects the node); arrow keys walk the tree
+- **Enter** jumps into the inspector for the selected node; **F2** renames; **Del** deletes
+- **Shift+F10** (or the Menu key) opens the context menu; use `↑`/`↓`, `Home`/`End`, `Enter` and `Escape` inside it
+- **?** opens the shortcut list (a modal dialog; `Escape` closes it)
+- Screen readers hear each node as kind, type, instance name, child count, simulation status and whether it has issues; selection changes and simulation results are announced
+- Colors, borders and focus rings come from the active VS Code theme, including high-contrast themes; with the OS **reduce motion** setting on, the RUNNING pulse, loader animation and viewport transitions are disabled
 
 ## Commands
 
@@ -74,6 +104,9 @@ Set `btview.defaultOpenMode` to `"graph"` or `"side"` to auto-open BTCpp files i
 | Open BT Graph to the Side | `btview.openPreviewSide` |
 | Open XML Source           | `btview.openSource`      |
 | Convert to BTCpp v4       | `btview.convertToV4`     |
+| New Behavior Tree         | `btview.newTree`         |
+
+`btview.newTree` also accepts an argument object for scripts and keybindings — `{ "uri", "formatVersion", "treeId", "rootControl", "openIn" }` — and then runs without prompts (`uri` is required in that mode).
 
 ## v3 → v4 migration
 
@@ -84,7 +117,7 @@ Set `btview.defaultOpenMode` to `"graph"` or `"side"` to auto-open BTCpp files i
 
 ## Troubleshooting
 
-**Graph is empty** — Ensure the XML has a valid `<BehaviorTree>` with child nodes.
+**Graph is empty** — The graph says why: no `<BehaviorTree>` (use **Add BehaviorTree**), an empty tree (pick a starter root), or an XML syntax error (see the line/column shown and the Problems panel).
 
 **ROS include not found** — Source your ROS workspace or configure `btview.rosPackageShareOverrides`. See [CONFIGURATION.md](CONFIGURATION.md).
 

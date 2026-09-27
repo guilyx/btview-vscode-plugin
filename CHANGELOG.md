@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Includes inlined on save** — any graph edit re-serialized the whole document, including trees and `TreeNodesModel` entries merged in from `<include>`d files, copying them into the including file. Saving now writes only what the file itself declares; included trees and models are read-only in the including file (edits explain which file to open), and local model definitions take precedence over included ones
 - **Webview crash** — `GraphContextProvider` used `useEffect` without importing it, crashing the graph editor at mount; the webview is now typechecked (`tsconfig.webview.json`, wired into `npm run check-types`) so missing imports and type drift fail CI
 - **Broken install** — `npm ci` failed after the vite 8 bump (`@vitejs/plugin-react@4` peer conflict); upgraded to `@vitejs/plugin-react@6`
 - **macOS integration tests** — bump `@vscode/test-electron` to 3.1.0; VS Code 1.110+ renamed the macOS app binary and the old runner failed with `spawn …/Contents/MacOS/Electron ENOENT`

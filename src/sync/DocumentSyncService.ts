@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { BtDocument } from '../btcpp/types';
+import type { BtDocument, BtTree } from '../btcpp/types';
 import { loadDocumentWithIncludes } from '../btcpp/includeResolver';
 import { serializeDocument } from '../btcpp/serializer';
 import {
@@ -325,6 +325,17 @@ export class DocumentSyncService {
       return { success: false, error: { path: '', message: 'Document not loaded.' } };
     }
 
+    const includedTree = includedTreeFor(doc, edit);
+    if (includedTree) {
+      return {
+        success: false,
+        error: {
+          path: 'path' in edit && typeof edit.path === 'string' ? edit.path : '',
+          message: `Tree "${includedTree.id}" is defined in ${includedTree.sourceUri}. Open that file to edit it.`,
+        },
+      };
+    }
+
     this.editStack.pushBeforeEdit(uri.toString(), doc);
 
     switch (edit.type) {
@@ -390,9 +401,21 @@ export class DocumentSyncService {
         doc = result.document!;
         break;
       }
-      case 'deleteModel':
+      case 'deleteModel': {
+        const model = doc.models.get(edit.modelId);
+        if (model?.sourceUri !== undefined && model.sourceUri !== doc.sourceUri) {
+          this.editStack.discardLastUndo(uri.toString());
+          return {
+            success: false,
+            error: {
+              path: '',
+              message: `Model "${edit.modelId}" is defined in ${model.sourceUri}. Open that file to delete it.`,
+            },
+          };
+        }
         doc = deleteNodeModel(doc, edit.modelId);
         break;
+      }
     }
 
     this.documents.set(uri.toString(), doc);
@@ -419,4 +442,14 @@ export class DocumentSyncService {
     this.validationErrors.delete(uri.toString());
     this.editStack.clear(uri);
   }
+}
+
+/** The `<include>`d tree an edit targets, if any; those trees are read-only in the including file. */
+function includedTreeFor(doc: BtDocument, edit: object): BtTree | undefined {
+  const treeId = 'treeId' in edit && typeof edit.treeId === 'string' ? edit.treeId : undefined;
+  if (!treeId) {
+    return undefined;
+  }
+  const tree = doc.trees.find((t) => t.id === treeId);
+  return tree?.sourceUri !== undefined && tree.sourceUri !== doc.sourceUri ? tree : undefined;
 }

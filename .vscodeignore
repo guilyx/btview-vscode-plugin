@@ -24,3 +24,4 @@ vite.config.ts
 .prettierrc
 .editorconfig
 **/.eslintrc*
+.claude/**

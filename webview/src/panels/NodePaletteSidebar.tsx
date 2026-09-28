@@ -107,9 +107,24 @@ export function NodePaletteSidebar({ doc }: NodePaletteSidebarProps) {
         </p>
       </div>
       <div className="palette-scroll">
-        {filtered.length === 0 && (
-          <p className="palette-empty">No nodes match &quot;{query}&quot;</p>
-        )}
+        {filtered.length === 0 &&
+          (query.trim() ? (
+            <div className="palette-empty" role="status">
+              <p>No nodes match “{query.trim()}”.</p>
+              <p>
+                Custom nodes appear here once declared in <code>&lt;TreeNodesModel&gt;</code> or
+                <code> btview.nodeTypeMap</code>.
+              </p>
+              <button type="button" className="palette-empty-clear" onClick={() => setQuery('')}>
+                Clear search
+              </button>
+            </div>
+          ) : (
+            <p className="palette-empty" role="status">
+              No nodes available. Add models in the Node models panel or configure{' '}
+              <code>btview.nodeTypeMap</code>.
+            </p>
+          ))}
         {[...KIND_ORDER, 'model'].map((kindKey) => {
           const entries = grouped.get(kindKey);
           if (!entries?.length) {

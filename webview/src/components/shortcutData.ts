@@ -1,5 +1,8 @@
 export const SHORTCUT_ROWS = [
   { action: 'Navigate tree (parent / child / siblings)', shortcut: '↑ ↓ ← →' },
+  { action: 'Next / previous node (focus selects)', shortcut: 'Tab / Shift+Tab' },
+  { action: 'Edit selected node in inspector', shortcut: 'Enter' },
+  { action: 'Open context menu', shortcut: 'Shift+F10' },
   { action: 'Delete node', shortcut: 'Del' },
   { action: 'Deselect', shortcut: 'Esc' },
   { action: 'Rename', shortcut: 'F2' },

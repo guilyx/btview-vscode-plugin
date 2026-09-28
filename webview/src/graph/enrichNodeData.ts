@@ -1,6 +1,7 @@
 import type { BtNodeData, SerializedDocument } from '../types';
 import type { FlowNodeData } from './layout';
 import { resolveNodePorts } from '../utils/portResolution';
+import { issuesForNode } from '../utils/issues';
 
 export function enrichNodeData(
   node: BtNodeData,
@@ -34,7 +35,7 @@ export function enrichNodeData(
     attributes: node.attributes,
     childCount: node.children.length,
     portSummary,
-    hasWarning: doc.validationErrors?.some((e) => e.path === node.path),
+    hasWarning: issuesForNode(doc, doc.activeTreeId, node.path).length > 0,
     dimmed: Boolean(q) && !matches,
     status: statuses?.[node.path],
   };

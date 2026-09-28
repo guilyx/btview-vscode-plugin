@@ -14,10 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Live signal-firing overlays** — step/play/pause/reset an offline simulation of the active tree from a new graph toolbar (or `BTView: Simulate: Step One Tick` / `Reset`). Nodes light up with RUNNING/SUCCESS/FAILURE status as ticks fire, the blackboard readout updates, and edits clear the run. Host drives the Phase 2a `Simulator`; new `sim`/`tickUpdate` protocol messages carry per-node status (roadmap Phase 2b)
 - **Tick-semantics exec core** (`src/btcpp/exec/`) — a pure, offline BehaviorTree.CPP simulator: `NodeStatus`, a stateful `Simulator` with faithful memory/reactive control flow (Sequence, SequenceWithMemory, ReactiveSequence, Fallback/ReactiveFallback, Parallel, IfThenElse), decorators (Inverter, Force\*, Repeat, Retry, RunOnce), SubTree expansion, a minimal Script/blackboard, and pluggable leaf outcome providers. Foundation for signal-firing overlays and the trace-testing pipeline (roadmap Phase 2)
 - **Static verification pack** — `validateDocument` now checks SubTree references resolve to a defined tree, `main_tree_to_execute` exists, `<BehaviorTree ID>` uniqueness, recursive subtree cycles, and required (input/inout, no-default) ports. Surfaces in the Problems panel and inspector alongside existing structural checks (roadmap Phase 1 / E-43)
+- **Tidy tree layout** — parents are centered over their children instead of each depth being laid out independently, so large trees read as nested subtrees without overlaps
+- **Kind glyphs** — node cards and the legend show Groot-style glyphs (`→` Sequence, `?` Fallback, `⇉` Parallel, `↻` Retry, …) with a per-kind accent color
+- **Search navigation** — match counter in the search box; `Enter` / `Shift+Enter` cycle through matches and center the viewport on each (E-44 groundwork)
+- **Keyboard tree navigation** — arrow keys walk the tree: `↑` parent, `↓` first child, `←`/`→` siblings (E-44)
+- **Drill-down breadcrumbs** — subtree drill-in shows a clickable breadcrumb trail instead of a single Back button
+- **Minimap upgrades** — nodes colored by kind, pannable and zoomable
+- **Nav2 fixture** — `fixtures/nav2/navigate_w_replanning_and_recovery.xml` with `TreeNodesModel` for the custom Nav2 nodes, plus parser regression tests (E-42)
+
+### Changed
+
+- **Node card design** — kind-colored accent bar and glyph chip, child-count badge, subtree open hint, truncation for long names; edges, controls, and minimap themed to match the active VS Code theme
 
 ### Fixed
 
-- **Webview crash** — add missing `useEffect` import in `graphContext.tsx`; the graph webview threw `useEffect is not defined` and failed to render (root `tsconfig.json` only type-checks `src/**`, so the missing import was never caught)
+- **Webview crash** — `GraphContextProvider` used `useEffect` without importing it, crashing the graph editor at mount; the webview is now typechecked (`tsconfig.webview.json`, wired into `npm run check-types`) so missing imports and type drift fail CI
+- **Broken install** — `npm ci` failed after the vite 8 bump (`@vitejs/plugin-react@4` peer conflict); upgraded to `@vitejs/plugin-react@6`
+- **macOS integration tests** — bump `@vscode/test-electron` to 3.1.0; VS Code 1.110+ renamed the macOS app binary and the old runner failed with `spawn …/Contents/MacOS/Electron ENOENT`
+- **Issues panel** — clicking a validation issue now selects the offending node and centers the viewport on it (was a no-op)
 
 ## [0.9.0] - 2026-06-22
 

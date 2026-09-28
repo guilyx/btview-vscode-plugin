@@ -8,8 +8,13 @@ Visual graph editor for **BehaviorTree.CPP v3.8 and v4** XML files. Works in **V
 
 ## Features
 
-- Interactive behavior tree graph (zoom, pan, node inspector)
+- Interactive behavior tree graph (zoom, pan, minimap, node inspector)
+- Tidy tree layout — parents centered over children, subtrees read as units
 - Bidirectional XML sync — edits in the graph update the XML file
+- Full keyboard workflow — arrow-key tree navigation, search with match cycling (`Enter`/`Shift+Enter`), rename, copy/paste, undo/redo (press `?` in the graph for the cheat sheet)
+- Node kind glyphs and colors (`→` Sequence, `?` Fallback, `⇉` Parallel, `↻` Retry, …)
+- Validation issues panel — click an issue to jump to the offending node
+- Subtree drill-down with breadcrumb navigation
 - Dual format support: auto-detect v3.8 vs v4 (`BTCPP_format="4"`)
 - Include resolution: relative paths, absolute paths, ROS `ros_pkg`
 - Optional v3 → v4 migration with diff preview

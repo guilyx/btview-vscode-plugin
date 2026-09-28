@@ -6,6 +6,7 @@ import { convertToV4 } from './commands/convertToV4';
 import { newTree } from './commands/newTree';
 import { getOutputChannel, disposeOutputChannel } from './logging/outputChannel';
 import { clearRosCache } from './ros/packageResolver';
+import { registerLanguageFeatures } from './language/providers';
 
 export function activate(context: vscode.ExtensionContext): void {
   const controller = BtGraphController.getInstance(context.extensionUri);
@@ -15,6 +16,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     getOutputChannel(),
     BtCustomEditorProvider.register(context, controller),
+    registerLanguageFeatures((uri, treeId) => controller.openTreeInGraph(uri, treeId)),
 
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (

@@ -144,6 +144,13 @@ export class BtGraphController {
     );
   }
 
+  /** Opens the BT Graph editor with `treeId` selected (used by the XML CodeLens). */
+  async openTreeInGraph(uri: vscode.Uri, treeId: string): Promise<void> {
+    this.syncService.setActiveTreeId(uri, treeId);
+    await this.refreshUri(uri, false);
+    await this.openGraphEditor(uri);
+  }
+
   async openSource(uri: vscode.Uri): Promise<void> {
     await vscode.commands.executeCommand(
       'vscode.openWith',

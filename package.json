@@ -283,6 +283,11 @@
           "default": ".btview/models.xml",
           "description": "Relative path for exported TreeNodesModel file when using Save custom types to workspace."
         },
+        "btview.languageFeatures.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable BT-aware completion, hover, go to definition, references, rename, outline and CodeLens in the XML text editor for BehaviorTree.CPP files."
+        },
         "btview.simpleMode": {
           "type": "boolean",
           "default": false,

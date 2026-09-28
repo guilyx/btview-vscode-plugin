@@ -42,6 +42,7 @@ export function KindLegend({ visible, onToggle }: KindLegendProps) {
           className="kind-legend-toggle"
           onClick={() => setCollapsed((c) => !c)}
           aria-expanded={!collapsed}
+          aria-label={collapsed ? 'Expand legend' : 'Collapse legend'}
         >
           {collapsed ? '▸' : '▾'}
         </button>
@@ -58,7 +59,11 @@ export function KindLegend({ visible, onToggle }: KindLegendProps) {
         <ul className="kind-legend-list">
           {KIND_ORDER.map((kind) => (
             <li key={kind}>
-              <span className="kind-swatch" style={{ background: KIND_COLORS[kind] }}>
+              <span
+                className="kind-swatch"
+                style={{ background: KIND_COLORS[kind] }}
+                aria-hidden="true"
+              >
                 {kindGlyph(kind)}
               </span>
               <span>{KIND_LABELS[kind] ?? kind}</span>

@@ -31,8 +31,9 @@ function BtFlowNodeInner({ data, selected }: NodeProps) {
           boxShadow: statusColor ? `0 0 0 2px ${statusColor}` : undefined,
         } as React.CSSProperties
       }
-      aria-selected={selected}
-      tabIndex={0}
+      // The React Flow wrapper is the focusable element and carries the accessible name
+      // (`nodeAriaLabel`); the card's own text is decorative for assistive technology.
+      aria-hidden="true"
     >
       <Handle type="target" position={Position.Top} />
       {status && (

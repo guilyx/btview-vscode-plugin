@@ -27,11 +27,31 @@ export interface SerializedDocument {
   nodePalette: { id: string; kind: string }[];
   includes: { path: string; rosPkg?: string; resolvedUri?: string; error?: string }[];
   warnings: string[];
-  validationErrors?: { path: string; message: string }[];
+  validationErrors?: ValidationIssuePayload[];
   /** Saved node positions per tree (from sidecar layout file). */
   layoutPositions?: Record<string, { x: number; y: number }>;
   showNodePorts?: boolean;
   simpleMode?: boolean;
+  /** First-run hint was dismissed (remembered across editors in extension global state). */
+  onboardingDismissed?: boolean;
+}
+
+/** A validation issue plus the quick fixes the host can apply for it. */
+export interface ValidationIssuePayload {
+  path: string;
+  message: string;
+  /** Stable issue code (`ValidationCode`); also the diagnostic `code` in the Problems panel. */
+  code?: string;
+  treeId?: string;
+  fixes?: { kind: string; title: string }[];
+}
+
+/** Identifies an issue for `applyQuickFix` independently of its list position. */
+export interface IssueRefPayload {
+  code: string;
+  path: string;
+  treeId?: string;
+  message: string;
 }
 
 export type GraphAction =
@@ -104,7 +124,10 @@ export type WebviewToHostMessage =
   | { type: 'resetLayout'; treeId: string }
   | { type: 'addModel'; id: string; kind: string }
   | { type: 'deleteModel'; modelId: string }
-  | { type: 'sim'; action: 'step' | 'reset' };
+  | { type: 'sim'; action: 'step' | 'reset' }
+  /** `fix` is the fix title from `ValidationIssuePayload.fixes` (or its kind). */
+  | { type: 'applyQuickFix'; issue: IssueRefPayload; fix: string }
+  | { type: 'dismissOnboarding' };
 
 /** One simulation tick pushed to the webview to drive status overlays ("signal firing"). */
 export interface TickUpdate {
@@ -120,6 +143,8 @@ export type HostToWebviewMessage =
   | { type: 'loadDocument'; document: SerializedDocument }
   | { type: 'documentChanged'; document: SerializedDocument }
   | { type: 'error'; message: string }
+  /** The document could not be loaded (XML syntax error, missing `<root>`, …). */
+  | { type: 'loadError'; message: string; line?: number; column?: number }
   | { type: 'validationError'; message: string }
   | { type: 'graphAction'; action: GraphAction }
   | TickUpdate;
@@ -261,6 +286,31 @@ export function parseWebviewMessage(data: unknown): WebviewToHostMessage | null 
       return msg.action === 'step' || msg.action === 'reset'
         ? { type: 'sim', action: msg.action }
         : null;
+    case 'applyQuickFix': {
+      const issue = msg.issue as Record<string, unknown> | undefined;
+      if (
+        issue &&
+        typeof issue === 'object' &&
+        typeof issue.code === 'string' &&
+        typeof issue.path === 'string' &&
+        typeof issue.message === 'string' &&
+        typeof msg.fix === 'string'
+      ) {
+        return {
+          type: 'applyQuickFix',
+          issue: {
+            code: issue.code,
+            path: issue.path,
+            treeId: typeof issue.treeId === 'string' ? issue.treeId : undefined,
+            message: issue.message,
+          },
+          fix: msg.fix,
+        };
+      }
+      return null;
+    }
+    case 'dismissOnboarding':
+      return { type: 'dismissOnboarding' };
     case 'saveLayout':
       if (typeof msg.treeId === 'string' && msg.positions && typeof msg.positions === 'object') {
         return {

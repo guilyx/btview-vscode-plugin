@@ -286,12 +286,14 @@ html,
   cursor: pointer;
 }
 
-.context-menu-item:hover:not(:disabled) {
+.context-menu-item:hover:not([aria-disabled='true']),
+.context-menu-item:focus-visible {
   background: var(--vscode-menu-selectionBackground, #094771);
+  color: var(--vscode-menu-selectionForeground, inherit);
 }
 
-.context-menu-item:disabled {
-  opacity: 0.45;
+.context-menu-item[aria-disabled='true'] {
+  color: var(--vscode-disabledForeground, rgba(204, 204, 204, 0.5));
   cursor: default;
 }
 
@@ -741,8 +743,12 @@ html,
 
 .palette-empty {
   font-size: 11px;
-  opacity: 0.6;
+  color: var(--vscode-descriptionForeground, #a0a0a0);
   padding: 8px 4px;
+}
+
+.palette-empty p {
+  margin: 0 0 6px;
 }
 
 .empty-canvas {
@@ -812,10 +818,157 @@ html,
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   pointer-events: none;
   text-align: center;
   padding: 24px;
-  opacity: 0.85;
+}
+
+/* The overlay lets drops reach the canvas; only its buttons take pointer input. */
+.empty-canvas-overlay .empty-canvas-actions {
+  pointer-events: auto;
+}
+
+.empty-canvas-overlay .empty-canvas-desc {
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+  opacity: 1;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  text-align: center;
+  overflow: auto;
+}
+
+.empty-state-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.empty-state-where {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vscode-errorForeground, #f48771);
+}
+
+.empty-state-error {
+  margin: 0;
+  max-width: min(640px, 90vw);
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  text-align: left;
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 12px;
+  border-left: 3px solid var(--vscode-errorForeground, #f48771);
+  background: var(--vscode-textCodeBlock-background, rgba(127, 127, 127, 0.1));
+}
+
+.empty-state-desc {
+  margin: 0;
+  max-width: 420px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+}
+
+.empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.empty-state-actions button {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-button-border, #555);
+  background: var(--vscode-button-secondaryBackground, #333);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+  cursor: pointer;
+}
+
+.empty-state-actions .empty-state-primary,
+.first-run-hint-ok {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #fff);
+  border-color: var(--vscode-button-border, transparent);
+}
+
+.empty-state-actions .empty-state-primary:hover,
+.first-run-hint-ok:hover {
+  background: var(--vscode-button-hoverBackground, #1177bb);
+}
+
+.first-run-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 6;
+  width: min(320px, calc(100% - 24px));
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  background: var(--vscode-editorWidget-background, #252526);
+  color: var(--vscode-editorWidget-foreground, inherit);
+  border: 1px solid var(--vscode-editorWidget-border, var(--vscode-panel-border, #454545));
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.first-run-hint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.first-run-hint h2 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.first-run-hint ul {
+  margin: 8px 0;
+  padding-left: 18px;
+}
+
+.first-run-hint li + li {
+  margin-top: 4px;
+}
+
+.first-run-hint-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.first-run-hint-ok {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.palette-empty-clear {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--vscode-button-border, #555);
+  background: var(--vscode-button-secondaryBackground, #333);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+  cursor: pointer;
 }
 
 .bt-node.staged {
@@ -1145,6 +1298,51 @@ select {
   text-align: left;
 }
 
+.quick-fixes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.quick-fix-btn {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--vscode-button-border, transparent);
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #fff);
+  cursor: pointer;
+}
+
+.quick-fix-btn:hover {
+  background: var(--vscode-button-hoverBackground, #1177bb);
+}
+
+.inspector-issues {
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--vscode-editorWarning-foreground, #cca700);
+  background: color-mix(in srgb, var(--vscode-editorWarning-foreground, #cca700) 10%, transparent);
+  color: var(--vscode-foreground, inherit);
+  border-radius: 3px;
+}
+
+.inspector-issues .inspector-section-label {
+  margin-top: 0;
+}
+
+.inspector-issues ul {
+  margin: 0;
+  padding-left: 14px;
+  font-size: 11px;
+}
+
+.inspector-issues li + li {
+  margin-top: 4px;
+}
+
 .node-picker {
   display: flex;
   flex-wrap: wrap;
@@ -1216,4 +1414,112 @@ select {
 
 .react-flow__attribution {
   display: none;
+}
+
+/* ── Accessibility (E-44) ─────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Visible keyboard focus everywhere, in the editor's focus color. */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: 1px;
+}
+
+.context-menu-item:focus-visible {
+  outline-offset: -1px;
+}
+
+.react-flow__node:focus-visible {
+  outline: 2px solid var(--vscode-focusBorder, #007fd4);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Secondary text: theme description color instead of low opacity (keeps contrast). */
+.palette-section-title,
+.palette-node-kind,
+.palette-hint,
+.bt-node-id,
+.bt-node-subtree-hint,
+.context-menu-shortcut,
+.inspector .meta,
+.sim-label {
+  opacity: 1;
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+}
+
+.inspector.empty {
+  opacity: 1;
+  color: var(--vscode-descriptionForeground, #a0a0a0);
+}
+
+/* High-contrast themes: solid borders and outlines instead of tinted shadows. */
+body.vscode-high-contrast .bt-node,
+body.vscode-high-contrast-light .bt-node {
+  background: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-contrastBorder, CanvasText);
+  border-left: 4px solid var(--kind-color);
+  box-shadow: none;
+}
+
+body.vscode-high-contrast .bt-node.selected,
+body.vscode-high-contrast-light .bt-node.selected {
+  outline: 2px solid var(--vscode-contrastActiveBorder, Highlight);
+  outline-offset: 2px;
+}
+
+body.vscode-high-contrast .bt-node.has-warning,
+body.vscode-high-contrast-light .bt-node.has-warning {
+  outline: 2px dashed var(--vscode-editorWarning-foreground, CanvasText);
+  outline-offset: 2px;
+}
+
+body.vscode-high-contrast button,
+body.vscode-high-contrast-light button {
+  border-color: var(--vscode-contrastBorder, CanvasText);
+}
+
+body.vscode-high-contrast [tabindex]:focus-visible,
+body.vscode-high-contrast button:focus-visible,
+body.vscode-high-contrast-light [tabindex]:focus-visible,
+body.vscode-high-contrast-light button:focus-visible {
+  outline: 2px solid var(--vscode-contrastActiveBorder, Highlight);
+}
+
+/* Honour the OS reduced-motion setting: no pulsing, sliding or animated transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .bt-node.status-RUNNING {
+    animation: none;
+    outline: 2px dashed var(--vscode-editorWarning-foreground, #f0ad4e);
+    outline-offset: 2px;
+  }
+
+  .btview-loader-bar-fill,
+  .btview-loader-node-root,
+  .btview-loader-node-left,
+  .btview-loader-node-right,
+  .btview-loader-node-leaf {
+    animation: none;
+  }
+
+  .bt-node,
+  .react-flow__viewport,
+  .react-flow__edge-path {
+    transition: none;
+  }
 }

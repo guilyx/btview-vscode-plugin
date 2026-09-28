@@ -72,7 +72,10 @@ export function ModelEditor({ doc }: ModelEditorProps) {
       {copyNotice && <p className="model-editor-notice">{copyNotice}</p>}
 
       {doc.models.length === 0 ? (
-        <p className="inspector-hint">No TreeNodesModel entries in this file.</p>
+        <p className="inspector-hint">
+          No <code>&lt;TreeNodesModel&gt;</code> entries yet. Declare your custom actions and
+          conditions above so the palette, inspector ports and validation know about them.
+        </p>
       ) : (
         <ul className="model-editor-list">
           {doc.models.map((model) => (

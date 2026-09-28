@@ -5,6 +5,8 @@ import { removeStagedNode, updateStagedNode } from '../graph/stagedNodes';
 import { postMessage } from '../vscodeApi';
 import { resolveNodePorts, type ResolvedPort } from '../utils/portResolution';
 import { useGraphContext } from '../commands/graphContext';
+import { issuesForNode } from '../utils/issues';
+import { QuickFixButtons } from '../components/QuickFixButtons';
 
 const NODE_KINDS = [
   'control',
@@ -50,9 +52,10 @@ function PortField({
   return (
     <label htmlFor={`btview-port-${port.name}`} className="port-field">
       <span className="port-field-label">
-        <span className="port-badge" title={port.direction}>
+        <span className="port-badge" title={port.direction} aria-hidden="true">
           {portBadge(port.direction)}
         </span>
+        <span className="sr-only">{port.direction} port </span>
         {port.name}
         {hint}
       </span>
@@ -84,7 +87,7 @@ export function Inspector({
   nodePalette,
   models,
 }: InspectorProps) {
-  const { renameRequestPath, requestRename } = useGraphContext();
+  const { renameRequestPath, requestRename, doc } = useGraphContext();
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [draftName, setDraftName] = useState('');
   const [draftKind, setDraftKind] = useState<string>('action');
@@ -188,7 +191,8 @@ export function Inspector({
       <div className="inspector empty" role="complementary" aria-label="Node inspector">
         <p className="inspector-empty-title">Node inspector</p>
         <p className="inspector-hint">
-          Click a node on the canvas to edit its type, name, and ports.
+          Click a node on the canvas (or walk the tree with the arrow keys) to edit its type, name,
+          and ports.
         </p>
       </div>
     );
@@ -291,10 +295,26 @@ export function Inspector({
     );
   }
 
+  const nodeIssues = issuesForNode(doc, treeId, node.path);
+
   return (
     <div className="inspector" role="complementary" aria-label="Node inspector">
       <h3>{draftTypeId || node.registeredId}</h3>
       <p className="meta">BTCpp v{formatVersion}</p>
+
+      {nodeIssues.length > 0 && (
+        <div className="inspector-issues" role="group" aria-label="Issues on this node">
+          <p className="inspector-section-label">Issues</p>
+          <ul>
+            {nodeIssues.map((issue, i) => (
+              <li key={`${issue.code ?? 'issue'}-${i}`}>
+                <span>{issue.message}</span>
+                <QuickFixButtons issue={issue} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {definitionFields}
 

@@ -56,17 +56,17 @@ Full feature checklist: [EDITOR_ROADMAP.md](planning/EDITOR_ROADMAP.md).
 
 ## Active backlog (editor train)
 
-### 0.9.x — Hobbyist polish (active)
+### 0.9.x — Hobbyist polish (complete on `devel`)
 
 - [x] Model CRUD + palette port tooltips + export snippet (E-21–E-23)
 - [x] Shortcut help + Command Palette graph commands (E-46, E-47)
 - [x] Simple mode (E-40)
-- [ ] Onboarding empty states (E-41)
+- [x] Onboarding empty states (E-41) — load-error, no-tree and empty-tree states, palette empty search, first-run tips
 - [x] Nav2 fixtures (E-42) — `fixtures/nav2/` + parser regression tests
-- [ ] Validation quick-fixes (E-43)
-- [ ] Accessibility pass (E-44) — arrow-key tree navigation, search match cycling, clickable issues panel shipped; screen-reader audit remaining
+- [x] Validation quick-fixes (E-43) — coded diagnostics, XML lightbulb fixes, **Fix** buttons in the Issues panel and inspector
+- [x] Accessibility pass (E-44) — node labels, focus-follows-selection, keyboard context menu, live region, high-contrast and reduced-motion styles
 - [x] Tidy layout + node card redesign + webview typecheck gate (unplanned polish)
-- [ ] Editor RC integration tests (E-45)
+- [x] Editor RC integration tests (E-45) — fixtures open in the graph, edit/undo round-trip, quick fixes, convert, new tree
 
 See [Groot parity](planning/GROOT_PARITY.md) for matrix vs Groot2.
 

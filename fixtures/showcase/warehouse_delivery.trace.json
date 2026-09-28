@@ -1,0 +1,29 @@
+[
+  {
+    "name": "happy path delivers the order",
+    "expect": [
+      { "rootStatus": "SUCCESS" },
+      { "path": "0-5", "status": "SUCCESS" },
+      { "blackboard": { "station": "packing_3", "dock": "dock_A" } }
+    ]
+  },
+  {
+    "name": "navigation keeps failing, operator is called",
+    "mocks": { "drive_to_packing": ["RUNNING", "FAILURE"] },
+    "expect": [
+      { "tick": 1, "rootStatus": "RUNNING" },
+      { "rootStatus": "SUCCESS" },
+      { "path": "0-3-0", "status": "FAILURE" },
+      { "path": "0-3-1", "status": "SUCCESS" }
+    ]
+  },
+  {
+    "name": "grasp failure aborts the delivery",
+    "mocks": { "Grasp": "FAILURE" },
+    "expect": [
+      { "rootStatus": "FAILURE" },
+      { "path": "0-2", "status": "FAILURE" },
+      { "path": "0-5", "status": "IDLE" }
+    ]
+  }
+]

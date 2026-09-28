@@ -66,6 +66,24 @@ Set `btview.defaultOpenMode` to `"graph"` or `"side"` to auto-open BTCpp files i
 - **Issues panel**: click a validation issue to jump to the offending node
 - **Includes**: click include chips in the header to open resolved files
 
+## Text editor features
+
+When a file is recognized as a BehaviorTree.CPP document (a `<root>` with `<BehaviorTree>` or `<TreeNodesModel>`, or any `*.bt.xml` file), the plain XML text editor becomes BT-aware. Other XML files are left alone.
+
+- **Completion**
+  - Element names inside a `<BehaviorTree>`: built-in controls, decorators and actions for the detected format (v3.8 or v4), plus custom nodes from the file's `<TreeNodesModel>`, its includes, the workspace models file (`btview.customModelsInclude`, default `.btview/models.xml`) and `btview.nodeTypeMap`. Nodes with required input ports insert them as a snippet.
+  - Under `<root>`: `BehaviorTree`, `TreeNodesModel`, `include`. Inside `<TreeNodesModel>`: `Action` / `Condition` / `Control` / `Decorator` / `SubTree` and the `input_port` / `output_port` / `inout_port` tags.
+  - Attribute names: the node's declared ports (direction, type and default shown), `name`, and in v4 the `_skipIf` / `_successIf` / `_failureIf` / `_while` / `_onSuccess` / `_onFailure` / `_post` / `_onHalted` script attributes.
+  - Attribute values: `<SubTree ID="…">` and `main_tree_to_execute` suggest trees from the file and its includes; `<Action ID="…">`-style wrappers suggest declared nodes of that kind; typing `{` suggests blackboard keys already used in the file; boolean ports suggest `true` / `false`.
+- **Hover** — node names show kind, source (built-in, TreeNodesModel, include path, workspace models, or setting) and a ports table; port attributes show direction, type, default and description; `{key}` values list every node that reads, writes or remaps that blackboard entry; SubTree IDs show where the tree is defined and how often it is referenced.
+- **Go to Definition** (`F12`) — from `<SubTree ID>` or `main_tree_to_execute` to the `<BehaviorTree ID>` (in this file or a resolved include); from a custom node to its TreeNodesModel entry; from `<include path>` to the file (relative paths and `ros_pkg`); from `{key}` to where it is written.
+- **Find All References** (`Shift+F12`) — SubTree usages of a tree, instances of a custom node, and uses of a blackboard key.
+- **Rename** (`F2`) — renaming a `<BehaviorTree ID>` updates every `<SubTree ID>` reference and `main_tree_to_execute` in the same file. Trees defined in an included file must be renamed there.
+- **Outline** — trees as top-level symbols with the nested node hierarchy (instance `name` or node ID), plus includes and the TreeNodesModel section. Also powers breadcrumbs and `Ctrl+Shift+O`.
+- **CodeLens** — above each `<BehaviorTree>`: **Open in BT Graph** (opens the graph with that tree selected), the node count, and a clickable SubTree reference count.
+
+Disable all of the above with `"btview.languageFeatures.enabled": false`.
+
 ## Commands
 
 | Command                   | ID                       |

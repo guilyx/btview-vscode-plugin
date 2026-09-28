@@ -86,6 +86,16 @@ Keys are node IDs; values must be one of: `action`, `condition`, `control`, `dec
 
 Nodes declared in `<TreeNodesModel>` with explicit wrappers (`<Action ID="…">`) are classified from the wrapper tag; the map applies to compact tags and palette entries not present in the model.
 
+### `btview.languageFeatures.enabled`
+
+Enable BT-aware completion, hover, go to definition, references, rename, outline and CodeLens in the XML text editor (default `true`). Only files recognized as BehaviorTree.CPP documents are affected. See [Text editor features](USER_GUIDE.md#text-editor-features).
+
+```json
+{ "btview.languageFeatures.enabled": false }
+```
+
+Custom nodes are collected from the file's `<TreeNodesModel>`, its includes, the workspace models file set by `btview.customModelsInclude` (default `.btview/models.xml`), and `btview.nodeTypeMap`.
+
 ## ROS include resolution
 
 For XML like:

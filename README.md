@@ -26,6 +26,7 @@ Visual graph editor, simulator and verifier for **BehaviorTree.CPP v3.8 and v4**
 
 - Subtree drill-down with breadcrumb navigation, multi-tree files, `main_tree_to_execute`
 - Include resolution: relative paths, absolute paths, ROS 2 `ros_pkg`
+- BT-aware XML text editor — completion for nodes, ports and blackboard keys, hover with port tables, go to definition / references / rename for trees, Outline, and an **Open in BT Graph** CodeLens
 - Dual format support: auto-detect v3.8 vs v4 (`BTCPP_format="4"`), version-faithful round-trip, v3 → v4 migration with diff preview
 
 **Check behaviour before you run the robot**

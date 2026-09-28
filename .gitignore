@@ -17,3 +17,4 @@ docs/public/demo/
 docs/changelog.md
 demo/dist/
 *.webm
+.claude/worktrees/

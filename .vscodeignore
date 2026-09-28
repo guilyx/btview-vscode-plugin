@@ -31,3 +31,4 @@ scripts/media/**
 scripts/docs/**
 tsconfig.demo.json
 .prettierignore
+.claude/**

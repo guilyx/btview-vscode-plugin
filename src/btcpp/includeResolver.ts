@@ -3,7 +3,6 @@ import { existsSync } from 'fs';
 import * as path from 'path';
 import type { BtDocument, IncludeRef, NodeKind } from './types';
 import { parseDocument } from './parser';
-import { mergeModels } from './nodeRegistry';
 import { resolveRosPackageShare, type RosResolverConfig } from '../ros/packageResolver';
 
 export interface ResolvedInclude {
@@ -96,7 +95,13 @@ export async function loadDocumentWithIncludes(
         }
       }
 
-      doc.models = mergeModels(doc.models, includedDoc.models);
+      // Models declared in the including file win; included ones remember their origin so
+      // saving the including file does not copy them into it.
+      for (const [id, model] of includedDoc.models) {
+        if (!doc.models.has(id)) {
+          doc.models.set(id, { ...model, sourceUri: model.sourceUri ?? resolvedPath });
+        }
+      }
       doc.warnings.push(...includedDoc.warnings);
     }
 

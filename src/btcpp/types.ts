@@ -14,6 +14,8 @@ export interface NodeModel {
   id: string;
   kind: NodeKind;
   ports: PortModel[];
+  /** Set when the model comes from an `<include>`d file rather than the document itself. */
+  sourceUri?: string;
 }
 
 export interface BtNode {

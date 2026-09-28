@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Dependencies** — consolidate Dependabot bumps (#76, #77, #79–#84): vite 8.1.4, vitest 4.1.10, @vitest/coverage-v8 4.1.10, eslint 10.8.0, typescript-eslint 8.66.0, @xyflow/react 12.11.2, @types/node 26.1.2, @commitlint/cli 21.2.1. TypeScript 7 (#78) held back until typescript-eslint supports it
+- **Dependabot** — PRs now target `devel` instead of `main`
 - **Node card design** — kind-colored accent bar and glyph chip, child-count badge, subtree open hint, truncation for long names; edges, controls, and minimap themed to match the active VS Code theme
 
 ### Fixed

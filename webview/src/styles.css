@@ -162,6 +162,12 @@ html,
   min-width: 240px;
   border-left: 1px solid var(--vscode-panel-border, #444);
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* The standalone inspector is 260px wide; inside the side column it fills the column. */
+.side-panels .inspector {
+  width: auto;
 }
 
 .header-btn {
@@ -430,8 +436,9 @@ html,
 
 .model-editor-item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 4px 8px;
   padding: 4px 0;
 }
 
@@ -445,6 +452,7 @@ html,
   margin-left: auto;
   font-size: 10px;
   opacity: 0.65;
+  white-space: nowrap;
 }
 
 .model-editor-add {
@@ -455,8 +463,8 @@ html,
 }
 
 .model-editor-input {
-  flex: 1;
-  min-width: 80px;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .model-editor-kind-select {
@@ -464,6 +472,7 @@ html,
 }
 
 .model-editor-btn {
+  white-space: nowrap;
   font-size: 11px;
   padding: 4px 8px;
   border-radius: 4px;

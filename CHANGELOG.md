@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Clipped model list** — in the side column the inspector kept its fixed 260px width and the add-model row its intrinsic input widths, so the Node models list scrolled sideways and cut off the Copy XML / Delete buttons; rows now wrap and the inspector fills the column
 - **Custom node kinds** — compact custom nodes (e.g. Nav2's v3 `<RecoveryNode>`, `<RateController>`, `<ComputePathToPose>`) now take their kind from the matching `<TreeNodesModel>` declaration (including models from included files) instead of rendering as UNKNOWN; the simulator ticks them as controls/decorators accordingly
 - **Includes inlined on save** — any graph edit re-serialized the whole document, including trees and `TreeNodesModel` entries merged in from `<include>`d files, copying them into the including file. Saving now writes only what the file itself declares; included trees and models are read-only in the including file (edits explain which file to open), and local model definitions take precedence over included ones
 - **Webview crash** — `GraphContextProvider` used `useEffect` without importing it, crashing the graph editor at mount; the webview is now typechecked (`tsconfig.webview.json`, wired into `npm run check-types`) so missing imports and type drift fail CI

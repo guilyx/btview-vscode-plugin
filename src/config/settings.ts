@@ -42,3 +42,14 @@ export function getNodeTypeMap(): Record<string, NodeKind> {
   }
   return map;
 }
+
+export function isLanguageFeaturesEnabled(): boolean {
+  return (
+    vscode.workspace.getConfiguration('btview').get<boolean>('languageFeatures.enabled') ?? true
+  );
+}
+
+export function getCustomModelsInclude(scope?: vscode.Uri): string {
+  const config = vscode.workspace.getConfiguration('btview', scope);
+  return config.get<string>('customModelsInclude') || '.btview/models.xml';
+}

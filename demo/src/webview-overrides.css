@@ -1,0 +1,29 @@
+/*
+ * Demo-only layout patch for the model list in the 280px side panel: long model IDs
+ * push the Copy XML / Delete buttons past the panel edge. Let rows wrap and keep the
+ * buttons on one line. (Tracked as a webview styling issue; remove once fixed in
+ * webview/src/styles.css.)
+ */
+.model-editor-item {
+  flex-wrap: wrap;
+}
+
+.model-editor-ports,
+.model-editor-btn {
+  white-space: nowrap;
+}
+
+/* The inspector is 260px + padding inside a 280px column, and the "add model" row has
+ * intrinsic input widths, so the column scrolls sideways and clips the list. */
+.side-panels .inspector {
+  width: auto;
+}
+
+.model-editor-add > * {
+  min-width: 0;
+}
+
+.model-editor-add .model-editor-input {
+  flex: 1 1 auto;
+  width: 0;
+}

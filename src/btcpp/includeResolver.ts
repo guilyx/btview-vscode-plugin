@@ -3,6 +3,7 @@ import { existsSync } from 'fs';
 import * as path from 'path';
 import type { BtDocument, IncludeRef, NodeKind } from './types';
 import { parseDocument } from './parser';
+import { applyModelKinds, mergeModels } from './nodeRegistry';
 import { resolveRosPackageShare, type RosResolverConfig } from '../ros/packageResolver';
 
 export interface ResolvedInclude {
@@ -106,7 +107,8 @@ export async function loadDocumentWithIncludes(
     }
 
     doc.includes = resolvedIncludes;
-    return doc;
+    // Models from included files can classify nodes of this file.
+    return applyModelKinds(doc);
   }
 
   return loadRecursive(xmlText, sourcePath, 0);

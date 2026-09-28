@@ -24,4 +24,11 @@ vite.config.ts
 .prettierrc
 .editorconfig
 **/.eslintrc*
+# Docs site, browser demo and media tooling are not part of the extension
+docs/**
+demo/**
+scripts/media/**
+scripts/docs/**
+tsconfig.demo.json
+.prettierignore
 .claude/**

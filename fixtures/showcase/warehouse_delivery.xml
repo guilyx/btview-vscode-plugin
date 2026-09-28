@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Warehouse delivery robot: pick an order item from a shelf and drop it at the
+  packing station, guarding battery level and recovering from navigation failures.
+  Used by the docs site, the browser demo and the promo media.
+-->
+<root BTCPP_format="4" main_tree_to_execute="DeliverOrder">
+  <BehaviorTree ID="DeliverOrder">
+    <Sequence name="deliver_order">
+      <Script name="init_mission" code="station:='packing_3'; dock:='dock_A'"/>
+      <ReactiveFallback name="battery_guard">
+        <Condition ID="IsBatteryOk" name="battery_ok" min_percent="20"/>
+        <SubTree ID="Recharge" name="recharge" dock="{dock}"/>
+      </ReactiveFallback>
+      <SubTree ID="PickItem" name="pick_item" item="{order_item}"/>
+      <Fallback name="reach_packing">
+        <Decorator ID="RetryUntilSuccessful" num_attempts="3" name="retry_navigation">
+          <Action ID="NavigateTo" name="drive_to_packing" goal="{station}" planner="SmacHybrid"/>
+        </Decorator>
+        <Action ID="RequestHelp" name="call_operator" reason="navigation_failed"/>
+      </Fallback>
+      <SubTree ID="PlaceItem" name="place_item" item="{order_item}"/>
+      <Action ID="ReportDone" name="report_done" order_id="{order_id}"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="PickItem">
+    <Sequence name="pick_sequence">
+      <Action ID="NavigateTo" name="drive_to_shelf" goal="{shelf_pose}" planner="SmacHybrid"/>
+      <Action ID="DetectObject" name="detect_item" target="{item}" pose="{item_pose}"/>
+      <Fallback name="grasp_or_realign">
+        <Action ID="Grasp" name="grasp" pose="{item_pose}" force="12.5"/>
+        <Sequence name="realign_and_retry">
+          <Action ID="Realign" name="realign" offset="0.05"/>
+          <Action ID="Grasp" name="grasp_again" pose="{item_pose}" force="15.0"/>
+        </Sequence>
+      </Fallback>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="PlaceItem">
+    <Sequence name="place_sequence">
+      <Action ID="DetectObject" name="find_bin" target="packing_bin" pose="{bin_pose}"/>
+      <Action ID="Release" name="release_item" pose="{bin_pose}"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Recharge">
+    <Sequence name="recharge_sequence">
+      <Action ID="NavigateTo" name="drive_to_dock" goal="{dock}" planner="NavFn"/>
+      <Action ID="Dock" name="dock"/>
+      <Action ID="WaitForCharge" name="wait_for_charge" target_percent="80"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <TreeNodesModel>
+    <Decorator ID="RetryUntilSuccessful">
+      <input_port name="num_attempts" type="int"/>
+    </Decorator>
+    <Condition ID="IsBatteryOk">
+      <input_port name="min_percent" type="double" default="15"/>
+    </Condition>
+    <Action ID="NavigateTo">
+      <input_port name="goal" type="geometry_msgs::msg::PoseStamped"/>
+      <input_port name="planner" type="std::string" default="NavFn"/>
+    </Action>
+    <Action ID="DetectObject">
+      <input_port name="target" type="std::string"/>
+      <output_port name="pose" type="geometry_msgs::msg::PoseStamped"/>
+    </Action>
+    <Action ID="Grasp">
+      <input_port name="pose" type="geometry_msgs::msg::PoseStamped"/>
+      <input_port name="force" type="double" default="10.0"/>
+    </Action>
+    <Action ID="Realign">
+      <input_port name="offset" type="double"/>
+    </Action>
+    <Action ID="Release">
+      <input_port name="pose" type="geometry_msgs::msg::PoseStamped"/>
+    </Action>
+    <Action ID="RequestHelp">
+      <input_port name="reason" type="std::string"/>
+    </Action>
+    <Action ID="ReportDone">
+      <input_port name="order_id" type="std::string"/>
+    </Action>
+    <Action ID="Dock"/>
+    <Action ID="WaitForCharge">
+      <input_port name="target_percent" type="int" default="90"/>
+    </Action>
+    <SubTree ID="PickItem">
+      <input_port name="item" type="std::string"/>
+    </SubTree>
+    <SubTree ID="PlaceItem">
+      <input_port name="item" type="std::string"/>
+    </SubTree>
+    <SubTree ID="Recharge">
+      <input_port name="dock" type="std::string"/>
+    </SubTree>
+  </TreeNodesModel>
+</root>

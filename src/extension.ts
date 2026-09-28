@@ -7,6 +7,7 @@ import { newTree, type NewTreeArgs } from './commands/newTree';
 import { getOutputChannel, disposeOutputChannel } from './logging/outputChannel';
 import { clearRosCache } from './ros/packageResolver';
 import { BtCodeActionProvider } from './diagnostics/BtCodeActionProvider';
+import { registerLanguageFeatures } from './language/providers';
 
 export function activate(context: vscode.ExtensionContext): void {
   const controller = BtGraphController.getInstance(context.extensionUri);
@@ -18,6 +19,7 @@ export function activate(context: vscode.ExtensionContext): void {
     getOutputChannel(),
     BtCustomEditorProvider.register(context, controller),
     BtCodeActionProvider.register(),
+    registerLanguageFeatures((uri, treeId) => controller.openTreeInGraph(uri, treeId)),
 
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (

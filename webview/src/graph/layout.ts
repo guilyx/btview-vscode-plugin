@@ -17,6 +17,8 @@ export interface FlowNodeData extends Record<string, unknown> {
   hasWarning?: boolean;
   /** Dimmed when search filter active */
   dimmed?: boolean;
+  /** Live simulation status (IDLE/RUNNING/SUCCESS/FAILURE/SKIPPED) for overlays. */
+  status?: string;
 }
 
 const NODE_WIDTH = 180;

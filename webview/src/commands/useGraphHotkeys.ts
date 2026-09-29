@@ -19,6 +19,16 @@ function isTypingTarget(target: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
 }
 
+function isCanvasTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  if (target === document.body) {
+    return true;
+  }
+  return target.closest('.graph-container') !== null && target.closest('button, a') === null;
+}
+
 export function useGraphHotkeys(): void {
   const {
     doc,
@@ -57,6 +67,13 @@ export function useGraphHotkeys(): void {
         if (target) {
           selectPath(target);
         }
+        return;
+      }
+
+      // Enter on the canvas (not on a button) jumps into the inspector to edit the node.
+      if (e.key === 'Enter' && !mod && !e.altKey && selectedNode && isCanvasTarget(e.target)) {
+        e.preventDefault();
+        document.getElementById('btview-node-kind')?.focus();
         return;
       }
 

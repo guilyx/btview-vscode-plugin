@@ -79,11 +79,11 @@ Related: [Roadmap](../ROADMAP.md) · [Command surfaces](COMMAND_SURFACES.md) · 
 | ID   | Feature                                   | Branch                          | Status |
 | ---- | ----------------------------------------- | ------------------------------- | ------ |
 | E-40 | Simple mode (`btview.simpleMode`)         | `feat/simple-mode`              | [x]    |
-| E-41 | Onboarding empty states                   | `feat/onboarding`               | [ ]    |
-| E-42 | Nav2 fixture pack                         | `feat/nav2-fixtures`            | [ ]    |
-| E-43 | Validation quick-fixes                    | `feat/validation-quickfix`      | [ ]    |
-| E-44 | Accessibility pass                        | `feat/a11y-pass`                | [ ]    |
-| E-45 | Editor RC integration tests               | `feat/editor-integration-tests` | [ ]    |
+| E-41 | Onboarding empty states                   | `feat/onboarding`               | [x]    |
+| E-42 | Nav2 fixture pack                         | `feat/nav2-fixtures`            | [x]    |
+| E-43 | Validation quick-fixes                    | `feat/validation-quickfix`      | [x]    |
+| E-44 | Accessibility pass                        | `feat/a11y-pass`                | [x]    |
+| E-45 | Editor RC integration tests               | `feat/editor-integration-tests` | [x]    |
 | E-46 | Shortcut cheat sheet (`?`)                | `feat/shortcut-help`            | [x]    |
 | E-47 | Command Palette `btview.graph.*` commands | `feat/graph-commands`           | [x]    |
 

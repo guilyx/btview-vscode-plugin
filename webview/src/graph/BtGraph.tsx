@@ -16,7 +16,7 @@ import { buildFlowGraph, snapToGrid, type FlowNodeData } from './layout';
 import { BtFlowNode } from '../nodes/BtNode';
 import type { BtNodeData, SerializedDocument } from '../types';
 import { BTVIEW_NODE_DRAG, type PaletteDragPayload } from '../panels/NodePaletteSidebar';
-import { getState, postMessage, setState } from '../vscodeApi';
+import { getState, patchState, postMessage } from '../vscodeApi';
 import {
   STAGED_CHANGED_EVENT,
   createStagedId,
@@ -30,6 +30,8 @@ import { useGraphContext } from '../commands/graphContext';
 import { ContextMenu, type ContextTarget } from '../components/ContextMenu';
 import { enrichNodeData, findInTree } from './enrichNodeData';
 import { kindColor } from '../nodes/kindStyles';
+import { EmptyTreeOverlay } from '../components/EmptyStates';
+import { nodeAriaLabel } from '../utils/a11y';
 
 const nodeTypes = { btNode: BtFlowNode };
 
@@ -51,6 +53,7 @@ function buildEnrichedFlowGraph(
   searchQuery: string,
   portsVisible: boolean,
   layoutPositions?: Record<string, { x: number; y: number }>,
+  statuses?: Record<string, string>,
 ): { nodes: Node<FlowNodeData>[]; edges: ReturnType<typeof buildFlowGraph>['edges'] } {
   const tree = buildFlowGraph(root, layoutPositions);
   return {
@@ -59,7 +62,7 @@ function buildEnrichedFlowGraph(
       return {
         ...n,
         data: source
-          ? enrichNodeData(source, doc, searchQuery, portsVisible)
+          ? enrichNodeData(source, doc, searchQuery, portsVisible, statuses)
           : (n.data as FlowNodeData),
       };
     }),
@@ -91,12 +94,45 @@ function mergeGraphWithStaged(
   searchQuery: string,
   portsVisible: boolean,
   layoutPositions?: Record<string, { x: number; y: number }>,
+  statuses?: Record<string, string>,
 ): { nodes: Node<FlowNodeData>[]; edges: ReturnType<typeof buildFlowGraph>['edges'] } {
-  const tree = buildEnrichedFlowGraph(root, doc, searchQuery, portsVisible, layoutPositions);
+  const tree = buildEnrichedFlowGraph(
+    root,
+    doc,
+    searchQuery,
+    portsVisible,
+    layoutPositions,
+    statuses,
+  );
   return {
     nodes: [...tree.nodes, ...staged.map(stagedToFlowNode)],
     edges: tree.edges,
   };
+}
+
+/** Viewport animation length, or 0 when the user prefers reduced motion. */
+function animationMs(ms: number): number {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : ms;
+}
+
+function nodeElement(path: string): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`.react-flow__node[data-id="${CSS.escape(path)}"]`);
+}
+
+/**
+ * Move keyboard focus to a node card so screen readers follow keyboard navigation —
+ * unless the user is typing (search box Enter cycling must keep its focus).
+ */
+function focusNodeElement(path: string): void {
+  const active = document.activeElement;
+  if (
+    active instanceof HTMLElement &&
+    (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')
+  ) {
+    return;
+  }
+  // Wait a frame so a freshly rendered node exists before focusing it.
+  requestAnimationFrame(() => nodeElement(path)?.focus({ preventScroll: true }));
 }
 
 function FitViewBridge({
@@ -113,7 +149,7 @@ function FitViewBridge({
 
   useEffect(() => {
     fitViewRef.current = () => {
-      void fitView({ padding: 0.2, duration: 200 });
+      void fitView({ padding: 0.2, duration: animationMs(200) });
     };
   }, [fitView, fitViewRef]);
 
@@ -127,8 +163,9 @@ function FitViewBridge({
       const height = node.measured?.height ?? 56;
       void setCenter(node.position.x + width / 2, node.position.y + height / 2, {
         zoom: Math.max(getZoom(), 0.75),
-        duration: 250,
+        duration: animationMs(250),
       });
+      focusNodeElement(path);
     };
     return () => {
       focusPathRef.current = null;
@@ -138,7 +175,7 @@ function FitViewBridge({
   useEffect(() => {
     if (fittedTree.current !== treeId) {
       fittedTree.current = treeId;
-      void fitView({ padding: 0.2, duration: 200 });
+      void fitView({ padding: 0.2, duration: animationMs(200) });
     }
   }, [treeId, fitView]);
 
@@ -147,12 +184,22 @@ function FitViewBridge({
 
 function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
   const { screenToFlowPosition, getNodes } = useReactFlow();
-  const { searchQuery, portsVisible, fitViewRef, focusPathRef } = useGraphContext();
+  const { searchQuery, portsVisible, fitViewRef, focusPathRef, simStatuses, selectedNode } =
+    useGraphContext();
   const [stagedNodes, setStagedNodes] = useState<StagedNode[]>(() => loadStagedNodes(treeId));
   const layoutPositions = doc.layoutPositions;
   const initial = useMemo(
-    () => mergeGraphWithStaged(root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions),
-    [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions],
+    () =>
+      mergeGraphWithStaged(
+        root,
+        stagedNodes,
+        doc,
+        searchQuery,
+        portsVisible,
+        layoutPositions,
+        simStatuses,
+      ),
+    [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions, simStatuses],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
@@ -184,10 +231,21 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
       searchQuery,
       portsVisible,
       layoutPositions,
+      simStatuses,
     );
     setNodes(n);
     setEdges(e);
-  }, [root, stagedNodes, doc, searchQuery, portsVisible, layoutPositions, setNodes, setEdges]);
+  }, [
+    root,
+    stagedNodes,
+    doc,
+    searchQuery,
+    portsVisible,
+    layoutPositions,
+    simStatuses,
+    setNodes,
+    setEdges,
+  ]);
 
   const saveLayout = useCallback(() => {
     const positions: Record<string, { x: number; y: number }> = {};
@@ -428,7 +486,7 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
   );
 
   const onMoveEnd = useCallback((_: unknown, viewport: { x: number; y: number; zoom: number }) => {
-    setState({ viewport });
+    patchState({ viewport });
   }, []);
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -468,9 +526,53 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
             .filter(Boolean)
             .join(' ') || undefined,
         selected: n.selected,
+        ariaLabel: nodeAriaLabel(n.data as FlowNodeData),
       })),
     [nodes, dragTarget, stagedDropTarget],
   );
+
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+  // Focus follows selection: tabbing onto a node card selects it (and announces it).
+  const onGraphFocus = useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      const el = e.target instanceof HTMLElement ? e.target.closest('.react-flow__node') : null;
+      const id = el?.getAttribute('data-id');
+      if (!id || id === selectedNode?.path) {
+        return;
+      }
+      const node = nodes.find((n) => n.id === id);
+      if (node) {
+        onNodeSelect(node.data as FlowNodeData);
+      }
+    },
+    [nodes, selectedNode?.path, onNodeSelect],
+  );
+
+  // Shift+F10 / the Menu key open the context menu for the selection (or the canvas).
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const isMenuKey = e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey);
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      if (!isMenuKey || (target && target.closest('input, textarea, select, .context-menu'))) {
+        return;
+      }
+      e.preventDefault();
+      const anchor = selectedNode ? nodeElement(selectedNode.path) : graphRef.current;
+      const rect = anchor?.getBoundingClientRect();
+      const x = rect ? rect.left + Math.min(rect.width / 2, 40) : 0;
+      const y = rect ? (selectedNode ? rect.bottom : rect.top + rect.height / 2) : 0;
+      setContextMenu({
+        target: selectedNode
+          ? { kind: selectedNode.staged ? 'staged' : 'node', node: selectedNode }
+          : { kind: 'canvas' },
+        x,
+        y,
+      });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedNode]);
 
   const showEmptyHint = !root && stagedNodes.length === 0;
 
@@ -478,20 +580,19 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
     <div
       ref={graphRef}
       className="graph-container"
-      role="application"
+      role="region"
       aria-label="Behavior tree graph"
+      aria-describedby="btview-graph-help"
       onDragOver={onDragOver}
       onDrop={onDrop}
+      onFocus={onGraphFocus}
     >
-      {showEmptyHint && (
-        <div className="empty-canvas-overlay" aria-hidden="true">
-          <p className="empty-canvas-title">Empty tree canvas</p>
-          <p className="empty-canvas-desc">
-            Drag nodes from the palette — they appear unconnected. Connect parent → child with edge
-            handles, or set a control as root from the inspector.
-          </p>
-        </div>
-      )}
+      <p id="btview-graph-help" className="sr-only">
+        Tab or arrow keys move between nodes: up to the parent, down to the first child, left and
+        right to siblings. Enter edits the selected node in the inspector, F2 renames, Delete
+        removes, Shift+F10 opens the context menu, and question mark lists every shortcut.
+      </p>
+      {showEmptyHint && <EmptyTreeOverlay treeId={treeId} />}
       <ReactFlow
         nodes={styledNodes}
         edges={edges}
@@ -509,6 +610,8 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
         nodesDraggable
         nodesConnectable
         connectOnClick={false}
+        // Arrow keys walk the tree (useGraphHotkeys) instead of nudging selected nodes.
+        disableKeyboardA11y
         proOptions={{ hideAttribution: true }}
         defaultViewport={
           getState<{ viewport?: { x: number; y: number; zoom: number } }>()?.viewport
@@ -524,7 +627,7 @@ function BtGraphInner({ root, treeId, doc, onNodeSelect }: BtGraphProps) {
           target={contextMenu.target}
           x={contextMenu.x}
           y={contextMenu.y}
-          onClose={() => setContextMenu(null)}
+          onClose={closeContextMenu}
         />
       )}
     </div>

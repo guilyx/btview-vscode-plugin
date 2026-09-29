@@ -3,6 +3,7 @@ import { useGraphContext } from '../commands/graphContext';
 import { postMessage } from '../vscodeApi';
 import { removeStagedNode } from '../graph/stagedNodes';
 import { btNodeDataToPayload } from '../utils/subtreeClipboard';
+import { nextMenuIndex } from '../utils/a11y';
 
 export type ContextTarget =
   | { kind: 'canvas' }
@@ -43,25 +44,59 @@ export function ContextMenu({ target, x, y, onClose }: ContextMenuProps) {
   } = useGraphContext();
 
   useEffect(() => {
+    // Remember what had focus so closing the menu (Escape / Tab / action) returns there.
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const onPointer = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose();
       }
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
     window.addEventListener('mousedown', onPointer);
-    window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('mousedown', onPointer);
-      window.removeEventListener('keydown', onKey);
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus({ preventScroll: true });
+      }
     };
   }, [onClose]);
 
+  const menuItems = (): HTMLButtonElement[] =>
+    Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') ?? []);
+
+  // Focus the first enabled item when the menu opens (keyboard and mouse alike).
+  useEffect(() => {
+    menuItems()
+      .find((el) => el.getAttribute('aria-disabled') !== 'true')
+      ?.focus();
+  }, []);
+
+  const onMenuKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Keep keys inside the menu away from the global graph hotkeys.
+    e.stopPropagation();
+    if (e.key === 'Escape' || e.key === 'Tab') {
+      e.preventDefault();
+      onClose();
+      return;
+    }
+    const els = menuItems();
+    const current = els.indexOf(document.activeElement as HTMLButtonElement);
+    const next = nextMenuIndex(
+      els.map((el) => el.getAttribute('aria-disabled') === 'true'),
+      current,
+      e.key,
+    );
+    if (next !== null) {
+      e.preventDefault();
+      els[next]?.focus();
+    }
+  };
+
   const items: MenuItem[] = [];
+  const menuLabel =
+    target.kind === 'canvas'
+      ? 'Canvas actions'
+      : `Actions for ${target.node.instanceName ?? target.node.registeredId}`;
 
   if (target.kind === 'canvas') {
     items.push(
@@ -205,6 +240,9 @@ export function ContextMenu({ target, x, y, onClose }: ContextMenuProps) {
       className="context-menu"
       style={{ left: x, top: y }}
       role="menu"
+      aria-label={menuLabel}
+      aria-orientation="vertical"
+      onKeyDown={onMenuKeyDown}
       onContextMenu={(e) => e.preventDefault()}
     >
       {items.map((item) => (
@@ -213,8 +251,13 @@ export function ContextMenu({ target, x, y, onClose }: ContextMenuProps) {
           type="button"
           className="context-menu-item"
           role="menuitem"
-          disabled={item.disabled}
+          tabIndex={-1}
+          // aria-disabled (not `disabled`) keeps items discoverable while arrowing through.
+          aria-disabled={item.disabled || undefined}
           onClick={() => {
+            if (item.disabled) {
+              return;
+            }
             item.action();
             onClose();
           }}

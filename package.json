@@ -145,6 +145,21 @@
         "command": "btview.graph.showShortcutHelp",
         "title": "Show Keyboard Shortcuts",
         "category": "BTView"
+      },
+      {
+        "command": "btview.graph.simStep",
+        "title": "Simulate: Step One Tick",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.graph.simReset",
+        "title": "Simulate: Reset",
+        "category": "BTView"
+      },
+      {
+        "command": "btview.verifyTree",
+        "title": "Verify Tree (Bounded Check)",
+        "category": "BTView"
       }
     ],
     "menus": {
@@ -268,6 +283,11 @@
           "default": ".btview/models.xml",
           "description": "Relative path for exported TreeNodesModel file when using Save custom types to workspace."
         },
+        "btview.languageFeatures.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable BT-aware completion, hover, go to definition, references, rename, outline and CodeLens in the XML text editor for BehaviorTree.CPP files."
+        },
         "btview.simpleMode": {
           "type": "boolean",
           "default": false,
@@ -279,18 +299,27 @@
   "scripts": {
     "compile": "bash scripts/with-node.sh npm run compile:inner",
     "compile:inner": "npm run check-types && node esbuild.js && npm run build:webview",
-    "check-types": "tsc --noEmit && tsc --noEmit -p tsconfig.webview.json",
+    "check-types": "tsc --noEmit && tsc --noEmit -p tsconfig.webview.json && tsc --noEmit -p tsconfig.demo.json",
     "watch": "bash scripts/with-node.sh npm run watch:inner",
     "watch:inner": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch",
     "watch:webview": "npm run build:webview -- --watch",
     "build:webview": "vite build --config webview/vite.config.ts",
+    "demo:dev": "vite --config demo/vite.config.mts",
+    "demo:build": "vite build --config demo/vite.config.mts",
+    "demo:preview": "vite preview --config demo/vite.config.mts",
+    "docs:dev": "node scripts/docs/prepare.mjs --with-demo && vitepress dev docs",
+    "docs:build": "node scripts/docs/prepare.mjs --with-demo && vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "media": "node scripts/media/run.mjs",
+    "media:screenshots": "node scripts/media/run.mjs screenshots",
+    "media:video": "node scripts/media/run.mjs video",
     "vscode:prepublish": "npm run package",
     "package": "bash scripts/with-node.sh npm run package:inner",
     "package:inner": "npm run check-types && node esbuild.js --production && npm run build:webview",
-    "lint": "eslint src webview/src",
-    "lint:fix": "eslint src webview/src --fix",
+    "lint": "eslint src webview/src demo/src",
+    "lint:fix": "eslint src webview/src demo/src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "precommit": "pre-commit run --all-files",
@@ -304,34 +333,36 @@
     "vsix": "vsce package --no-dependencies"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.0",
+    "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.0.2",
     "@eslint/js": "^10.0.1",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.125.0",
     "@vitejs/plugin-react": "^6.0.5",
-    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.10",
     "@vscode/test-cli": "^0.0.15",
-    "@vscode/test-electron": "^3.0.0",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.3.0",
-    "@xyflow/react": "^12.11.1",
+    "@xyflow/react": "^12.11.2",
     "elkjs": "^0.11.1",
     "esbuild": "^0.28.1",
-    "eslint": "^10.5.0",
+    "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.0",
     "fast-xml-parser": "^5.9.3",
     "globals": "^17.7.0",
     "mocha": "^11.1.0",
     "npm-run-all": "^4.1.5",
+    "playwright-core": "^1.63.0",
     "prettier": "^3.9.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.62.1",
-    "vite": "^8.1.3",
-    "vitest": "^4.1.9"
+    "typescript-eslint": "^8.66.0",
+    "vite": "^8.1.4",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.10"
   }
 }

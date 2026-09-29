@@ -1,0 +1,11 @@
+# Generated output (also ignored by version control)
+dist/
+out/
+coverage/
+webview/dist/
+demo/dist/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/public/demo/
+docs/changelog.md
+package-lock.json

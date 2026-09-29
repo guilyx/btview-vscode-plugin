@@ -1,0 +1,15 @@
+[
+  {
+    "name": "primary route works",
+    "expect": [{ "rootStatus": "SUCCESS" }, { "path": "0-0", "status": "SUCCESS" }]
+  },
+  {
+    "name": "falls back to backup route when primary fails",
+    "mocks": { "primary": "FAILURE" },
+    "expect": [
+      { "rootStatus": "SUCCESS" },
+      { "path": "0-0", "status": "FAILURE" },
+      { "path": "0-1", "status": "SUCCESS" }
+    ]
+  }
+]

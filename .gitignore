@@ -9,3 +9,12 @@ webview/dist/
 *.log
 coverage/
 examples/
+
+# Docs site & demo build output (generated)
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/public/demo/
+docs/changelog.md
+demo/dist/
+*.webm
+.claude/worktrees/

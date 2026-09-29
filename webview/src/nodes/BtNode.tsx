@@ -3,6 +3,13 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { FlowNodeData } from '../graph/layout';
 import { kindColor, kindGlyph } from '../nodes/kindStyles';
 
+const STATUS_COLORS: Record<string, string> = {
+  RUNNING: '#f0ad4e',
+  SUCCESS: '#4ade80',
+  FAILURE: '#f87171',
+  SKIPPED: '#9ca3af',
+};
+
 function BtFlowNodeInner({ data, selected }: NodeProps) {
   const d = data as FlowNodeData;
   const color = kindColor(d.kind);
@@ -10,20 +17,34 @@ function BtFlowNodeInner({ data, selected }: NodeProps) {
   const staged = Boolean(d.staged);
   const isSubtree = d.kind === 'subtree';
   const showId = d.instanceName && d.instanceName !== d.registeredId;
+  const status = d.status && d.status !== 'IDLE' ? d.status : undefined;
+  const statusColor = status ? STATUS_COLORS[status] : undefined;
 
   return (
     <div
-      className={`bt-node ${selected ? 'selected' : ''} ${staged ? 'staged' : ''} ${d.dimmed ? 'dimmed' : ''} ${d.hasWarning ? 'has-warning' : ''} ${isSubtree ? 'subtree' : ''}`}
+      className={`bt-node ${selected ? 'selected' : ''} ${staged ? 'staged' : ''} ${d.dimmed ? 'dimmed' : ''} ${d.hasWarning ? 'has-warning' : ''} ${isSubtree ? 'subtree' : ''} ${status ? `status-${status}` : ''}`}
       style={
         {
           '--kind-color': color,
           opacity: d.dimmed ? 0.3 : 1,
+          borderColor: statusColor,
+          boxShadow: statusColor ? `0 0 0 2px ${statusColor}` : undefined,
         } as React.CSSProperties
       }
-      aria-selected={selected}
-      tabIndex={0}
+      // The React Flow wrapper is the focusable element and carries the accessible name
+      // (`nodeAriaLabel`); the card's own text is decorative for assistive technology.
+      aria-hidden="true"
     >
       <Handle type="target" position={Position.Top} />
+      {status && (
+        <div
+          className="bt-node-status"
+          style={{ background: statusColor }}
+          title={`Status: ${status}`}
+        >
+          {status}
+        </div>
+      )}
       {staged && <div className="bt-node-staged-label">staged</div>}
       {d.hasWarning && (
         <div className="bt-node-warning" title="Validation warning">

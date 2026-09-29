@@ -5,6 +5,7 @@ import { Inspector } from './panels/Inspector';
 import { NodePaletteSidebar } from './panels/NodePaletteSidebar';
 import { WarningsPanel } from './panels/WarningsPanel';
 import { ViewSwitcher } from './panels/ViewSwitcher';
+import { SimToolbar } from './panels/SimToolbar';
 import { ModelEditor } from './panels/ModelEditor';
 import type { FlowNodeData } from './graph/layout';
 import { readBootstrapDocument } from './bootstrap';
@@ -17,6 +18,11 @@ import { postMessage } from './vscodeApi';
 import { GraphContextProvider, useGraphContext } from './commands/graphContext';
 import { useGraphHotkeys } from './commands/useGraphHotkeys';
 import { resolveNodePorts } from './utils/portResolution';
+import { issuesForNode } from './utils/issues';
+import { canvasEmptyState } from './utils/onboarding';
+import { LoadErrorState, NoTreesState, type LoadErrorInfo } from './components/EmptyStates';
+import { FirstRunHint } from './components/FirstRunHint';
+import { LiveAnnouncer } from './components/LiveAnnouncer';
 
 function isHostMessage(data: unknown): data is { type: string } & Record<string, unknown> {
   return Boolean(data && typeof data === 'object' && 'type' in data);
@@ -60,7 +66,7 @@ function toFlowNodeData(
         .slice(0, 3)
     : undefined;
 
-  const hasWarning = doc.validationErrors?.some((e) => e.path === node.path);
+  const hasWarning = issuesForNode(doc, doc.activeTreeId, node.path).length > 0;
 
   return {
     label,
@@ -103,10 +109,12 @@ function GraphWorkspaceInner({
     simpleMode,
   } = useGraphContext();
   const simple = doc.simpleMode ?? simpleMode;
+  const emptyState = canvasEmptyState(doc);
 
   return (
     <>
       {shortcutHelpVisible && <ShortcutHelp onClose={() => setShortcutHelpVisible(false)} />}
+      <LiveAnnouncer />
       <header className="header">
         <div className="header-left">
           <span className="format-badge">BTCpp v{doc.formatVersion}</span>
@@ -159,11 +167,13 @@ function GraphWorkspaceInner({
           )}
           <NodeSearch />
         </div>
-        <div className="header-right">
+        <div className="header-right" role="group" aria-label="Graph tools">
           <button
             type="button"
             className="header-btn"
             onClick={() => setLegendVisible(!legendVisible)}
+            aria-pressed={legendVisible}
+            title="Toggle color legend (Ctrl+Shift+G)"
           >
             Legend
           </button>
@@ -172,6 +182,8 @@ function GraphWorkspaceInner({
             className="header-btn"
             onClick={() => setShortcutHelpVisible(true)}
             title="Keyboard shortcuts (?)"
+            aria-label="Keyboard shortcuts"
+            aria-haspopup="dialog"
           >
             ?
           </button>
@@ -180,10 +192,12 @@ function GraphWorkspaceInner({
               type="button"
               className="header-btn"
               onClick={() => postMessage({ type: 'exportWorkspaceConfig' })}
+              title="Export node types to workspace config"
             >
               Save types
             </button>
           )}
+          <SimToolbar />
           <ViewSwitcher />
           {saving && (
             <span className="saving-indicator" aria-live="polite">
@@ -218,16 +232,21 @@ function GraphWorkspaceInner({
 
           <div className="main">
             <div className="graph-pane">
-              <BtGraph
-                root={activeTree?.root ?? null}
-                treeId={doc.activeTreeId}
-                doc={doc}
-                onNodeSelect={setSelectedNode}
-              />
+              {emptyState?.kind === 'noTrees' ? (
+                <NoTreesState createTreeIssue={emptyState.createTreeIssue} />
+              ) : (
+                <BtGraph
+                  root={activeTree?.root ?? null}
+                  treeId={doc.activeTreeId}
+                  doc={doc}
+                  onNodeSelect={setSelectedNode}
+                />
+              )}
               <KindLegend
-                visible={legendVisible}
+                visible={legendVisible && emptyState?.kind !== 'noTrees'}
                 onToggle={() => setLegendVisible(!legendVisible)}
               />
+              <FirstRunHint doc={doc} />
             </div>
             <div className="side-panels">
               <Inspector
@@ -289,6 +308,7 @@ export function App() {
   const [doc, setDoc] = useState<SerializedDocument | null>(() => readBootstrapDocument());
   const [selectedNode, setSelectedNode] = useState<FlowNodeData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<LoadErrorInfo | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [waitingForHost, setWaitingForHost] = useState(() => !readBootstrapDocument());
@@ -306,12 +326,19 @@ export function App() {
         setWaitingForHost(false);
         setDoc(msg.document);
         setError(null);
+        setLoadError(null);
         setValidationError(null);
         setSaving(false);
       } else if (msg.type === 'documentChanged') {
         documentReceived = true;
         setWaitingForHost(false);
         setDoc(msg.document);
+        setLoadError(null);
+        setSaving(false);
+      } else if (msg.type === 'loadError') {
+        setWaitingForHost(false);
+        setLoadError({ message: msg.message, line: msg.line, column: msg.column });
+        setSelectedNode(null);
         setSaving(false);
       } else if (msg.type === 'error') {
         setWaitingForHost(false);
@@ -365,6 +392,14 @@ export function App() {
     return (
       <div className="error-banner" role="alert" aria-live="assertive">
         {error}
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="app">
+        <LoadErrorState error={loadError} />
       </div>
     );
   }

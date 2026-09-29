@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.webview.json",
+  "compilerOptions": {
+    "types": ["vite/client"]
+  },
+  "include": ["demo/src/**/*", "webview/src/**/*", "src/shared/**/*"]
+}

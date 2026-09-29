@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { DocumentSyncService } from '../sync/DocumentSyncService';
+import { DocumentSyncService, parseWithWorkspaceSettings } from '../sync/DocumentSyncService';
+import { validateDocument } from '../btcpp/validation';
+import { XmlSyntaxError } from '../btcpp/xmlSyntax';
 import { parseWebviewMessage, type HostToWebviewMessage } from '../shared/protocol';
 import { logError, logInfo } from '../logging/outputChannel';
 import { DiagnosticsService } from '../diagnostics/DiagnosticsService';
@@ -9,6 +11,16 @@ import { WebviewPanelManager } from './WebviewPanelManager';
 import { DocumentRefreshScheduler } from './DocumentRefreshScheduler';
 import { WebviewOutboundGate } from './WebviewOutboundGate';
 import { exportWorkspaceConfig } from '../config/exportWorkspaceConfig';
+import { Simulator } from '../btcpp/exec/tick';
+import type { OutcomeProvider } from '../btcpp/exec/outcomes';
+import { verifyTree } from '../btcpp/verify/boundedCheck';
+
+/**
+ * Offline "signal firing" model: each leaf reports RUNNING on its first tick and
+ * SUCCESS afterward, so stepping walks visibly through the tree one node at a time.
+ * A richer mock/random provider can replace this later without touching the wiring.
+ */
+const oneTickRunning: OutcomeProvider = (_node, ticks) => (ticks < 2 ? 'RUNNING' : 'SUCCESS');
 
 export const CUSTOM_EDITOR_VIEW_TYPE = 'btview.graph';
 
@@ -35,8 +47,10 @@ export class BtGraphController {
   private readonly scheduler = new DocumentRefreshScheduler();
   private readonly diagnostics = new DiagnosticsService();
   private initialLoadDone = new Map<string, boolean>();
+  private readonly simulators = new Map<string, Simulator>();
   private readonly webviewDocumentLoaded = new WeakMap<vscode.Webview, boolean>();
   private readonly loadRetryTimers = new WeakMap<vscode.Webview, ReturnType<typeof setInterval>>();
+  private readonly textValidationTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   private disposables: vscode.Disposable[] = [];
 
@@ -86,8 +100,13 @@ export class BtGraphController {
   }
 
   registerWorkspaceListeners(): void {
+    for (const document of vscode.workspace.textDocuments) {
+      this.scheduleTextValidation(document);
+    }
     this.disposables.push(
+      vscode.workspace.onDidOpenTextDocument((document) => this.scheduleTextValidation(document)),
       vscode.workspace.onDidChangeTextDocument((e) => {
+        this.scheduleTextValidation(e.document);
         if (this.scheduler.shouldSkipRefresh(e.document.uri)) {
           return;
         }
@@ -98,6 +117,10 @@ export class BtGraphController {
       vscode.workspace.onDidCloseTextDocument((doc) => {
         this.scheduler.unmarkAutoOpened(doc.uri);
         this.scheduler.clearTimer(doc.uri);
+        this.clearTextValidationTimer(doc.uri);
+        if (!this.panels.hasBindings(doc.uri)) {
+          this.diagnostics.clear(doc.uri);
+        }
       }),
       vscode.window.onDidChangeActiveTextEditor((editor) => {
         if (editor) {
@@ -105,6 +128,73 @@ export class BtGraphController {
         }
       }),
     );
+  }
+
+  /**
+   * Keep Problems-panel diagnostics (and therefore XML quick fixes) live for BTCpp files
+   * edited as plain text. Files with an open graph are validated by `refreshUri` instead.
+   */
+  private scheduleTextValidation(document: vscode.TextDocument): void {
+    const scheme = document.uri.scheme;
+    if (document.languageId !== 'xml' || (scheme !== 'file' && scheme !== 'untitled')) {
+      return;
+    }
+    if (this.panels.hasBindings(document.uri)) {
+      return;
+    }
+    const key = document.uri.toString();
+    this.clearTextValidationTimer(document.uri);
+    this.textValidationTimers.set(
+      key,
+      setTimeout(() => {
+        this.textValidationTimers.delete(key);
+        void this.validateTextDocument(document);
+      }, 300),
+    );
+  }
+
+  private clearTextValidationTimer(uri: vscode.Uri): void {
+    const key = uri.toString();
+    const timer = this.textValidationTimers.get(key);
+    if (timer) {
+      clearTimeout(timer);
+      this.textValidationTimers.delete(key);
+    }
+  }
+
+  private async validateTextDocument(document: vscode.TextDocument): Promise<void> {
+    if (document.isClosed || this.panels.hasBindings(document.uri)) {
+      return;
+    }
+    const text = document.getText();
+    if (!looksLikeBtCpp(text)) {
+      this.diagnostics.clear(document.uri);
+      return;
+    }
+    try {
+      const doc = await parseWithWorkspaceSettings(text, document.uri);
+      this.diagnostics.setValidationErrors(document.uri, validateDocument(doc), text);
+    } catch (err) {
+      this.reportLoadError(document.uri, err);
+    }
+  }
+
+  private reportLoadError(uri: vscode.Uri, err: unknown): string {
+    const message = err instanceof Error ? err.message : String(err);
+    this.diagnostics.setLoadError(
+      uri,
+      message,
+      err instanceof XmlSyntaxError ? err.issue : undefined,
+    );
+    return message;
+  }
+
+  /** After the last graph for `uri` closes, fall back to text validation if it is still open. */
+  private revalidateOpenText(uri: vscode.Uri): void {
+    const open = vscode.workspace.textDocuments.find((d) => d.uri.toString() === uri.toString());
+    if (open) {
+      this.scheduleTextValidation(open);
+    }
   }
 
   getSyncService(): DocumentSyncService {
@@ -118,6 +208,10 @@ export class BtGraphController {
   dispose(): void {
     this.disposables.forEach((d) => d.dispose());
     this.disposables = [];
+    for (const timer of this.textValidationTimers.values()) {
+      clearTimeout(timer);
+    }
+    this.textValidationTimers.clear();
     this.scheduler.dispose();
     this.panels.dispose();
     this.diagnostics.dispose();
@@ -131,6 +225,13 @@ export class BtGraphController {
       CUSTOM_EDITOR_VIEW_TYPE,
       column ?? vscode.ViewColumn.Active,
     );
+  }
+
+  /** Opens the BT Graph editor with `treeId` selected (used by the XML CodeLens). */
+  async openTreeInGraph(uri: vscode.Uri, treeId: string): Promise<void> {
+    this.syncService.setActiveTreeId(uri, treeId);
+    await this.refreshUri(uri, false);
+    await this.openGraphEditor(uri);
   }
 
   async openSource(uri: vscode.Uri): Promise<void> {
@@ -151,7 +252,11 @@ export class BtGraphController {
     }
 
     const document = await vscode.workspace.openTextDocument(uri);
-    await this.syncService.loadFromFile(uri);
+    try {
+      await this.syncService.loadFromFile(uri);
+    } catch {
+      // Reported to the webview (and Problems panel) by the refresh below.
+    }
 
     this.panels.createSidePanel(
       uri,
@@ -161,6 +266,7 @@ export class BtGraphController {
           this.syncService.clear(uri);
           this.diagnostics.clear(uri);
           this.initialLoadDone.delete(uri.toString());
+          this.revalidateOpenText(uri);
         }
       },
       (msg, webview) => {
@@ -184,7 +290,11 @@ export class BtGraphController {
     }
     const uri = document.uri;
 
-    await this.syncService.loadFromText(document.getText(), uri);
+    try {
+      await this.syncService.loadFromText(document.getText(), uri);
+    } catch {
+      // Still open the editor: the refresh below shows the load error with a way back to XML.
+    }
 
     this.panels.setupCustomEditorWebview(
       uri,
@@ -194,6 +304,7 @@ export class BtGraphController {
           this.syncService.clear(uri);
           this.diagnostics.clear(uri);
           this.initialLoadDone.delete(uri.toString());
+          this.revalidateOpenText(uri);
         }
       },
       (msg, webview) => {
@@ -231,6 +342,17 @@ export class BtGraphController {
       return;
     }
 
+    // A document change invalidates any in-progress simulation; drop it and clear overlays.
+    if (this.simulators.delete(uri.toString())) {
+      this.postToAllWebviews(uri, {
+        type: 'tickUpdate',
+        tick: 0,
+        rootStatus: 'IDLE',
+        statuses: {},
+        blackboard: {},
+      });
+    }
+
     try {
       await this.syncService.loadFromFile(uri);
       const payload = this.syncService.serializeForWebview(uri);
@@ -244,7 +366,7 @@ export class BtGraphController {
       }
 
       const validationErrors = this.syncService.getValidationErrors(uri);
-      this.diagnostics.setValidationErrors(uri, validationErrors);
+      this.diagnostics.setValidationErrors(uri, validationErrors, this.syncService.getText(uri));
 
       const key = uri.toString();
       const firstLoad = !this.initialLoadDone.has(key);
@@ -263,10 +385,19 @@ export class BtGraphController {
         this.outboundGate.post(webview, message);
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
       logError('Failed to load document', err);
+      const message = this.reportLoadError(uri, err);
+      const syntax = err instanceof XmlSyntaxError ? err.issue : undefined;
+      // Drop the stale model so graph edits cannot overwrite the broken XML.
+      this.syncService.clear(uri);
+      this.initialLoadDone.delete(uri.toString());
       for (const webview of webviews) {
-        this.outboundGate.post(webview, { type: 'error', message });
+        this.outboundGate.post(webview, {
+          type: 'loadError',
+          message: syntax?.message ?? message,
+          line: syntax?.line,
+          column: syntax?.column,
+        });
       }
     }
   }
@@ -314,6 +445,22 @@ export class BtGraphController {
           await this.refreshUri(uri, false);
           break;
         }
+        case 'applyQuickFix': {
+          this.scheduler.markSelfEdit(uri);
+          const result = await this.syncService.applyQuickFix(uri, msg.issue, msg.fix);
+          if (!result.success) {
+            // No edit happened: consume the self-edit marker so the next real change refreshes.
+            this.scheduler.shouldSkipRefresh(uri);
+            const errMsg = result.error?.message ?? 'Quick fix failed';
+            this.postToAllWebviews(uri, { type: 'validationError', message: errMsg });
+            void vscode.window.showWarningMessage(`BTView: ${errMsg}`);
+          }
+          await this.refreshUri(uri, false);
+          break;
+        }
+        case 'dismissOnboarding':
+          await this.syncService.dismissOnboarding();
+          break;
         case 'openInclude': {
           const target = msg.resolvedUri;
           if (target) {
@@ -379,6 +526,13 @@ export class BtGraphController {
         case 'resetLayout':
           this.syncService.resetLayout(uri, msg.treeId);
           await this.refreshUri(uri, false);
+          break;
+        case 'sim':
+          if (msg.action === 'step') {
+            this.doSimStep(uri);
+          } else {
+            this.doSimReset(uri);
+          }
           break;
         case 'ready':
           logInfo(`BTView: webview ready for ${uri.fsPath}`);
@@ -453,6 +607,85 @@ export class BtGraphController {
       return;
     }
     this.postToAllWebviews(uri, { type: 'graphAction', action });
+  }
+
+  /** Advance the offline simulation by one tick and broadcast the node statuses. */
+  private doSimStep(uri: vscode.Uri): void {
+    const doc = this.syncService.getDocument(uri);
+    if (!doc) {
+      return;
+    }
+    const key = uri.toString();
+    let sim = this.simulators.get(key);
+    if (!sim) {
+      try {
+        sim = new Simulator(doc, {
+          treeId: this.syncService.getActiveTreeId(uri),
+          outcome: oneTickRunning,
+        });
+      } catch (err) {
+        this.postToAllWebviews(uri, {
+          type: 'error',
+          message: err instanceof Error ? err.message : String(err),
+        });
+        return;
+      }
+      this.simulators.set(key, sim);
+    }
+    const result = sim.tick();
+    this.postToAllWebviews(uri, {
+      type: 'tickUpdate',
+      tick: result.tick,
+      rootStatus: result.rootStatus,
+      statuses: result.statuses,
+      blackboard: result.blackboard,
+    });
+  }
+
+  /** Stop the simulation and clear all status overlays. */
+  private doSimReset(uri: vscode.Uri): void {
+    this.simulators.delete(uri.toString());
+    this.postToAllWebviews(uri, {
+      type: 'tickUpdate',
+      tick: 0,
+      rootStatus: 'IDLE',
+      statuses: {},
+      blackboard: {},
+    });
+  }
+
+  async simStep(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (uri) {
+      this.doSimStep(uri);
+    }
+  }
+
+  async simReset(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (uri) {
+      this.doSimReset(uri);
+    }
+  }
+
+  /** Run the bounded exhaustive verifier on the active tree and report the results. */
+  async verifyActiveTree(): Promise<void> {
+    const uri = this.getActiveBtUri();
+    if (!uri) {
+      void vscode.window.showWarningMessage('Open a BT Graph editor first.');
+      return;
+    }
+    const doc = this.syncService.getDocument(uri);
+    if (!doc) {
+      return;
+    }
+    const results = verifyTree(doc, { treeId: this.syncService.getActiveTreeId(uri) });
+    const lines = results.map(
+      (r) =>
+        `${r.holds ? '✓' : '✗'} ${r.property}${r.note ? ` — ${r.note}` : ''} (${r.checked} runs)`,
+    );
+    logInfo(`BTView verify:\n${lines.join('\n')}`);
+    void vscode.window.showInformationMessage(`BTView verification — ${lines.join('  |  ')}`);
   }
 
   async graphDeleteNode(): Promise<void> {

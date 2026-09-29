@@ -3,18 +3,23 @@ import { BtGraphController } from './preview/BtGraphController';
 import { BtCustomEditorProvider } from './preview/BtCustomEditorProvider';
 import { resolveTargetUri } from './commands/targetUri';
 import { convertToV4 } from './commands/convertToV4';
-import { newTree } from './commands/newTree';
+import { newTree, type NewTreeArgs } from './commands/newTree';
 import { getOutputChannel, disposeOutputChannel } from './logging/outputChannel';
 import { clearRosCache } from './ros/packageResolver';
+import { BtCodeActionProvider } from './diagnostics/BtCodeActionProvider';
+import { registerLanguageFeatures } from './language/providers';
 
 export function activate(context: vscode.ExtensionContext): void {
   const controller = BtGraphController.getInstance(context.extensionUri);
+  controller.getSyncService().setGlobalState(context.globalState);
   controller.registerWorkspaceListeners();
   context.subscriptions.push({ dispose: () => controller.dispose() });
 
   context.subscriptions.push(
     getOutputChannel(),
     BtCustomEditorProvider.register(context, controller),
+    BtCodeActionProvider.register(),
+    registerLanguageFeatures((uri, treeId) => controller.openTreeInGraph(uri, treeId)),
 
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (
@@ -68,9 +73,9 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
 
-    vscode.commands.registerCommand('btview.newTree', () => {
-      void newTree();
-    }),
+    vscode.commands.registerCommand('btview.newTree', (args?: NewTreeArgs) =>
+      newTree(args && typeof args === 'object' && !(args instanceof vscode.Uri) ? args : {}),
+    ),
 
     vscode.commands.registerCommand('btview.graph.undo', () => {
       void controller.graphUndo();
@@ -106,6 +111,18 @@ export function activate(context: vscode.ExtensionContext): void {
 
     vscode.commands.registerCommand('btview.graph.showShortcutHelp', () => {
       void controller.graphShowShortcutHelp();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.simStep', () => {
+      void controller.simStep();
+    }),
+
+    vscode.commands.registerCommand('btview.graph.simReset', () => {
+      void controller.simReset();
+    }),
+
+    vscode.commands.registerCommand('btview.verifyTree', () => {
+      void controller.verifyActiveTree();
     }),
   );
 

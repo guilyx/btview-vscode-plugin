@@ -324,7 +324,7 @@
     "eslint-config-prettier": "^10.1.0",
     "fast-xml-parser": "^5.9.3",
     "globals": "^17.7.0",
-    "mocha": "^11.1.0",
+    "mocha": "^12.0.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.9.4",
     "react": "^19.2.7",
